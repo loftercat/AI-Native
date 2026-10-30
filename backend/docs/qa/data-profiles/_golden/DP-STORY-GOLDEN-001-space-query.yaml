@@ -1,0 +1,87 @@
+# DP-STORY-GOLDEN-001-space-query — 查询车位（Golden 范本）
+
+| 字段 | 值 |
+|------|-----|
+| Story | STORY-GOLDEN-001-query-allocate-space |
+| 迭代 | GOLDEN（范本） |
+| 来源 | AC-STORY-GOLDEN-001 中 **execution=blackbox** 行（AC-01、AC-03）+ App OpenAPI |
+| 黑盒对照 | `tests/blackbox/test_smoke_golden_space_query.py`（POST `/lots/search` + `/spaces/recommend`） |
+| 业务表 DDL | `docs/schema/booking-inventory/ddl/V1__STORY-2026-S02-004-add-master-data.sql` + V5（project 经纬度） |
+
+> **范本说明**：演示 `test-data-design` 产出结构与粒度。仅对 **blackbox** 行造数；`ci_covered` 行归入 `smoke-empty` 占位。**勿**将 `_golden` 路径当作真实迭代落盘位置。  
+> 主键 id 使用 `8001xxx` 段，与真实试点 S02-007（`9001xxx`）及 `seed_key` 前缀 `g001-` 区分，避免同测试库与 `s02-007-*` 冲突。  
+> C 端黑盒用 `APP_TOKEN`；本 Golden 不涉及 B 端数据权限列对齐（无 `partner_id` scope 验收行）。
+
+story_id: STORY-GOLDEN-001
+slug: space-query
+
+profiles:
+  # 画像 1：车场搜索 + 推荐车位主路径（AC-01 / AC-03，smoke）
+  - profile_id: smoke-main
+    ac_ids: [AC-01, AC-03]
+    description: |
+      AC-01：项目名称/车场名含「万象城」，booking_enabled=1，status=ENABLED，可供 POST /lots/search 返回非空树。
+      AC-03：同车场下 ≥1 AVAILABLE 车位，可供 POST /spaces/recommend 返回车位对象（粗粒度字段存在性）。
+      收费说明字段与 GWT 可见文案一致（含「首小时」「超时」等子串）。
+    entities:
+      - table: project
+        seed_key: g001-smoke-main
+        rows:
+          - id: 8001001
+            project_no: XM-GOLDEN-8001
+            partner_id: 9001000
+            name: Golden万象城项目
+            address: Golden万象城路1号
+            latitude: 22.5333
+            longitude: 113.9466
+            status: ENABLED
+      - table: parking_lot
+        seed_key: g001-smoke-main
+        rows:
+          - id: 8001002
+            name: Golden测试万象城
+            address: Golden万象城车场地址
+            booking_enabled: 1
+            parking_fee_description: 首小时10元，之后5元/小时，24小时最高80元
+            booking_service_fee_description: 首2小时免费，超时5元
+            parking_daily_max_amount_cents: 8000
+            booking_service_fee_amount_cents: 500
+            partner_id: 9001000
+            project_id: 8001001
+            status: ENABLED
+      - table: parking_zone
+        seed_key: g001-smoke-main
+        rows:
+          - id: 8001005
+            lot_id: 8001002
+            partner_id: 9001000
+            project_id: 8001001
+            name: B1层A区
+            status: ENABLED
+      - table: parking_space
+        seed_key: g001-smoke-main
+        rows:
+          - id: 8001101
+            lot_id: 8001002
+            zone_id: 8001005
+            partner_id: 9001000
+            project_id: 8001001
+            space_no: S-G101
+            support_small: 'Y'
+            support_large: 'N'
+            support_charge: 0
+            status: AVAILABLE
+    cleanup_order: [parking_space, parking_zone, parking_lot, project]
+    env_vars:
+      BLACKBOX_SEARCH_KEYWORD: 万象城
+      BLACKBOX_DATA_PROFILE: smoke-main
+
+  # 画像 2：不造数（ci_covered / 无部署态增量）
+  - profile_id: smoke-empty
+    ac_ids: [AC-02, AC-04, AC-05, AC-06, AC-07, AC-08, AC-09]
+    description: |
+      AC-02/04~09 为 ci_covered 或白盒已覆盖，黑盒不依赖环境造数；
+      本画像仅占位，seed 脚本应输出「不造数」注释（与 S02-007 smoke-empty 同模式）。
+    entities: []
+    cleanup_order: []
+    env_vars: {}

@@ -1,0 +1,15 @@
+legacy_tc_id,title,gate,layer,strategy,status,coverage,merged_into,blocker
+TC-0001,查询车位-正常返回,ok,W2,smoke,automated,SpaceQueryController#query,,
+TC-0002,查询车位-无结果,ok,W1,regression,automated,SpaceQueryService#query,,
+TC-0003,查询车位-无结果(按车场ID查询),ok,—,regression,merged,,TC-0002,—
+TC-0004,下单支付回调,ok,W4,regression,automated,BookingScenarioIT#payCallback,,
+TC-0005,Mapper 查询可用车位 SQL,ok,W5,regression,automated,SpaceMapper#selectAvailable,,
+TC-0006,下单后锁车位（跨模块）,ok,W3,regression,automated,LockSpaceIT#lockAfterOrder,,
+TC-0007,我的订单页展示,ok,W6,regression,automated,OrderPage.vue,,
+TC-0008,接口鉴权链+网关 401,ok,B1,smoke,automated,/api/v1/booking/app/spaces,,
+TC-0009,支付渠道沙箱联调,ok,B3,regression,automated,PaymentSandbox#payCallback,,
+TC-0010,探索性-偶发超时,G2,—,—,manual,,,需人工复现
+TC-0011,旧版查询接口,G3,—,—,obsolete,,,待产品确认
+TC-0012,预约成功用例（缺预期）,G1,—,—,needs_revision,,,缺预期结果
+TC-0013,某内部能力验证,G4,—,—,blocked,,,代码不可锚定
+TC-0014,结算批处理任务,ok,B5,regression,automated,SettlementJob#run,,
