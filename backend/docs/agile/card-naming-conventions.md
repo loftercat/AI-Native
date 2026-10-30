@@ -12,6 +12,7 @@
 | Story | `docs/requirements/{迭代}/STORY-{迭代}-{序号}-{slug}.md` |
 | 详设 | `docs/design/{迭代}/DD-STORY-{迭代}-{序号}-{slug}.md` |
 | 测试规格 | `docs/test-spec/{迭代}/TS-STORY-{迭代}-{序号}-{slug}.md` |
+| 审查报告 | `docs/reviews/{迭代}/REVIEW-STORY-{迭代}-{序号}-{slug}.md` |
 
 ## 命名规则
 

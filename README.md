@@ -42,7 +42,8 @@ AI 原生开发工作流模板：**后端线（12 Skill）+ 前端线（3 Skill�
 | `frontend/docs/handoff/` | 前后端契约交接区（openapi 快照 + VERSION pin + stories-index） |
 | `{backend,frontend}/docs/methodology/` | 方法论与 Skill 设计说明（含测试线总设计） |
 | `backend/docs/training/` | 培训课件（黑盒选例、白盒分层、存量迁移） |
-| `backend/docs/{requirements,design,test-spec,qa,api,schema}/` | 后端流程工件落点（`_golden/` 为标准样例）；前端工件落点同理 |
+| `backend/docs/{requirements,design,test-spec,qa,api,schema,reviews}/` | 后端流程工件落点（`reviews/` 为 Story 审查报告；`_golden/` 为标准样例）；前端工件落点同理 |
+| `backend/templates/` | 流程模板（Story 审查报告模板） |
 | `backend/hooks/` | 机制化强制 Hook（公共代码保护 / diff 超限 / 漏测提醒） |
 | `{backend,frontend}/scripts/validate-skills.sh` | 各线资产完整性校验（frontmatter + 引用可达 + 坏链检测） |
 | `{backend,frontend}/config/current-sprint` | 各线当前迭代号（单一事实源） |
@@ -79,6 +80,6 @@ AI 原生开发工作流模板：**后端线（12 Skill）+ 前端线（3 Skill�
 - **单点维护**：项目事实只在各线 `system-landscape.md` 定义，Skill 与 Rule 引用不复制。
 - **缺口三分法**：阻断（问用户）/ 可补充（`[AI推断]` 标注）/ 提醒（记录），AI 不静默猜。
 - **契约单向流**：后端定契约 → handoff → 前端消费；前端永远不直接改 OpenAPI。
-- **机械与语义分工**：确定性检查交给脚本（validate-skills、hooks、构建测试），语义与风险判断交给 Skill 流程与独立审查。
+- **机械与语义分工**：确定性检查交给脚本（validate-skills、hooks、构建测试），语义与风险判断交给 Skill 流程与独立审查（Story 门禁见 [backend/rules/story-review.md](backend/rules/story-review.md)）。
 - **同场景只写一遍**：Java 白盒守代码逻辑（PR 门禁），Python 黑盒守部署环境（发版门禁），见 [backend/docs/methodology/test-line.md](backend/docs/methodology/test-line.md)。
 - **Golden 教学**：每类工件带标准样例（`_golden/`），「写一个 Golden，不是拷一个 Golden」——接入项目时应重写为本项目真实样例。

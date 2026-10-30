@@ -66,6 +66,7 @@ grep -rn "booking\|hema\|2026-S" backend/skills/ backend/rules/
 | 根级 `AI-NATIVE-*.md` 治理文档未随附 | 那是源项目的迁移历史记录；通用思想已并入各线 `docs/methodology/` 与本文件 |
 | `docs/reference/hema-common-api.md` 未随附 | 公司级公共库专属速查；等价物 = `backend/rules/exception-and-result.md` |
 | 前端线无 symlink 镜像、无 hooks | 源项目前端仓未铺 hooks；机制可复用 backend 的（改 PROTECTED 路径为前端公共组件目录） |
+| 新增 Story 审查最小闭环（源项目没有） | 为治理纪律滑坡（源项目 TS 采用率仅约 7% 的教训）：拆卡后独立审查、报告落 `backend/docs/reviews/`、状态「已确认」由校验器强制对应报告。刻意只做单点门禁，未引入四门/轮次上限/成本度量 |
 | 前端线未含 e2e / frontend-test-spec-alignment | 源项目此两项尚在规划测试中（设计师自述未闭环）；定型后可补抽 |
 
 ## 三、前端线接入（frontend/，可选）

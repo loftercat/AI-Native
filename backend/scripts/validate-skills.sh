@@ -97,13 +97,81 @@ for scan_root in SCAN_ROOTS:
         for raw, kind in candidates(text):
             check_path(raw, src, kind)
 
+# ── 3) Story 审查门禁（rules/story-review.md §五）─────────────
+# FAIL：状态=已确认 但无报告 / 报告结论行缺失或不通过 / Blocker≠0 而通过
+# WARN：存在 DD/TS 而 Story 状态≠已确认（流程跳跃提示，按去 slug 前缀匹配）；_golden 豁免
+def story_gate():
+    req_dir = ROOT / "docs" / "requirements"
+    design_dir = ROOT / "docs" / "design"
+    errs, warns = [], []
+    stories = {}  # 卡号基名 -> (path, status)
+    if req_dir.exists():
+        for it in req_dir.rglob("STORY-*.md"):
+            s = str(it)
+            if "_golden" in s:
+                continue
+            m = re.search(r"\|\s*状态\s*\|\s*([^|]+)\|", it.read_text(encoding="utf-8", errors="replace"))
+            status = m.group(1).strip() if m else ""
+            stories[it.stem] = (it, status)
+    reports = {}
+    rev_dir = ROOT / "docs" / "reviews"
+    if rev_dir.exists():
+        for it in rev_dir.rglob("REVIEW-*.md"):
+            s = str(it)
+            if "_golden" in s:
+                continue
+            key = it.stem.replace("REVIEW-", "", 1)
+            reports.setdefault(key, []).append(it)
+    for stem, (path, status) in stories.items():
+        if not status.lstrip().startswith("已确认"):
+            continue
+        rs = reports.get(stem, [])
+        if not rs:
+            errs.append(f"  [FAIL] {path.relative_to(ROOT)} 状态=已确认 但无审查报告（docs/reviews/**/REVIEW-{stem}.md）")
+            continue
+        latest = max(rs, key=lambda x: x.stat().st_mtime)
+        rtext = latest.read_text(encoding="utf-8", errors="replace")
+        m = re.search(r"^-\s*结论[：:]\s*(通过|不通过)\s*$", rtext, re.M)
+        mb = re.search(r"^-\s*Blocker[：:]\s*(\d+)\s*$", rtext, re.M)
+        if not m:
+            errs.append(f"  [FAIL] {latest.relative_to(ROOT)} 缺结论行（应为「- 结论：通过」或「- 结论：不通过」，整词一行）")
+        elif m.group(1) != "通过":
+            errs.append(f"  [FAIL] {path.relative_to(ROOT)} 状态=已确认 但报告结论=不通过")
+        elif mb and int(mb.group(1)) != 0:
+            errs.append(f"  [FAIL] {latest.relative_to(ROOT)} 结论=通过 但 Blocker≠0")
+    # 下游工件（DD/TS）存在而 Story 未过审 → 流程跳跃提示；按去 slug 前缀匹配，容忍 slug 漂移
+    def stem_prefix(stem):
+        parts = stem.split("-")
+        return "-".join(parts[:4]) if len(parts) >= 5 else stem
+    prefix_map = {}
+    for stem, val in stories.items():
+        prefix_map.setdefault(stem_prefix(stem), []).append((stem, val))
+    for sub in (("design", "DD-"), ("test-spec", "TS-")):
+        sub_dir = ROOT / "docs" / sub[0]
+        if not sub_dir.exists():
+            continue
+        for it in sub_dir.rglob(sub[1] + "STORY-*.md"):
+            s = str(it)
+            if "_golden" in s:
+                continue
+            stem = it.stem.replace(sub[1], "", 1)
+            cands = prefix_map.get(stem_prefix(stem), [])
+            if len(cands) == 1 and not cands[0][1][1].lstrip().startswith("已确认"):
+                kind = "详设" if sub[1] == "DD-" else "测试规格"
+                warns.append(f"  [WARN] {it.relative_to(ROOT)} 存在{kind}，但 {cands[0][1][0].name} 状态≠已确认（流程跳跃提示，见 rules/story-review.md）")
+    return errs, warns
+
+g_errs, g_warns = story_gate()
+errors.extend(g_errs)
+warnings.extend(g_warns)
+
 if errors:
     print("\n".join(errors))
     sys.exit(1)
 for w in warnings:
     print(w)
-print("  all hard links resolved"
-      + (f"（{len(warnings)} 个裸文件名提示）" if warnings else ""))
+print("  all hard links resolved + story review gate checked"
+      + (f"（{len(warnings)} 个提示）" if warnings else ""))
 PYEOF
 if [ $? -ne 0 ]; then FAIL=1; fi
 

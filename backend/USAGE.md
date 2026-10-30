@@ -70,6 +70,7 @@ QA 专员另有一条专线（同源 Story，非上下游）：Story + OpenAPI �
 2. 对 Agent 说：*「用 journey-scenario-design 处理 EPIC-xxx，产出 JSD」*（或已有 HLD 则跳到下一步）。
 3. 对 Agent 说：*「用 high-level-design 基于 EPIC-xxx 出 HLD」*。
 4. 对 Agent 说：*「用 story-splitting 按 HLD-EPIC-xxx 拆本迭代卡」* → **人工确认 Story 列表后**落盘，同时产出迭代交付计划（依赖拓扑决定开发顺序，W0 基础卡最先）。
+   - **送审（推荐）**：对另一个独立 Agent 会话说「用 [rules/story-review.md](rules/story-review.md) 的清单审查 STORY-xxx」→ 报告落 `docs/reviews/{迭代}/`，结论通过才把状态改「已确认」。不送审也能跑，但状态填了「已确认」校验器会强制要求报告——跳过必须显式。
 
 **迭代中（每张卡重复）**：
 
