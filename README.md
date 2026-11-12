@@ -30,6 +30,17 @@ AI 原生开发工作流模板：**后端线（12 Skill）+ 前端线（3 Skill�
 
 两线可独立接入（只用前端线时，handoff 包直接向你的后端团队索取）。方法论见 [backend/docs/methodology/](backend/docs/methodology/) 与 [frontend/docs/methodology/](frontend/docs/methodology/)。
 
+### 四类 Skill 与入口
+
+| 类别 | Skill | 什么时候进 |
+|------|-------|-----------|
+| 主线 7 环 | JSD → HLD → Story → DD → TS → 编码 → 集成 | 新需求、改需求 |
+| QA 专线 3 环 | 验收用例 → 黑盒 → 造数 | 提测 / 发版验收 |
+| 旁路 2 环 | bugfix / legacy | 缺陷 / 存量用例 |
+| 前端 3 环 | 拆卡 → 详设 → 编码 | 前端页面 |
+
+合计 15 个 Skill（后端 12 + 前端 3）。主线是菜单不是必经路：入口由手上已有资产决定；逐个 Skill 的触发时机与产出见下文「Skill 一览」。
+
 ## 目录职责
 
 | 目录 | 职责 |
