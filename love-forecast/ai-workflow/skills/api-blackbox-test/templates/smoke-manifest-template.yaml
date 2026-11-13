@@ -1,0 +1,68 @@
+# smoke-manifest.yaml — 部署后黑盒执行选集
+#
+# 字段说明（BR-05/AC-05）：
+#   domain:              业务域（inventory/order/payment/push/adapter/iot/bff-app/bff-admin）
+#   openapi_operation_id: 对应 OpenAPI operationId（如 searchLots、recommendSpaces）
+#   priority:            P0 / P1 / P2
+#   type:                smoke | regression | health | auth_probe
+#   story_id:            STORY-xxx（追溯）
+#   ac_id:               AC-xx（追溯）
+#   test_function:       对应 pytest 函数名（如 test_list_lots_smoke）
+#   rationale:           仅 regression / 例外边缘场景必填；说明为何进黑盒
+#
+# 平台中立：本 manifest 不绑定特定 TMS；追溯靠 story_id + ac_id。
+# 与 090 tc-traceability.csv 分工：CSV 管 AC→用例映射（含 external_tc_link），
+#   YAML 管部署执行选集（含 type/test_function）。
+#
+# Golden 示例（对照 STORY-GOLDEN-001，execution=blackbox 行）：
+
+smoke:
+  - domain: inventory
+    openapi_operation_id: searchLots
+    priority: P0
+    story_id: STORY-GOLDEN-001
+    ac_id: AC-01
+    test_function: test_search_lots_smoke
+    rationale: "真实 App Filter + 鉴权，部署态独有"
+
+  - domain: inventory
+    openapi_operation_id: recommendSpaces
+    priority: P0
+    story_id: STORY-GOLDEN-001
+    ac_id: AC-03
+    test_function: test_recommend_spaces_smoke
+    rationale: "真实鉴权 + LLM 供应商配置，部署态独有"
+
+  - domain: bff-app
+    openapi_operation_id: health
+    priority: P0
+    story_id: N/A
+    ac_id: N/A
+    test_function: test_health
+    rationale: "横切健康检查"
+
+  - domain: bff-app
+    openapi_operation_id: auth_probe
+    priority: P0
+    story_id: N/A
+    ac_id: N/A
+    test_function: test_app_unauthorized_probe
+    rationale: "横切未授权拦截探测"
+
+  - domain: bff-admin
+    openapi_operation_id: auth probe
+    priority: P0
+    story_id: N/A
+    ac_id: N/A
+    test_function: test_admin_unauthorized_probe
+    rationale: "横切未授权拦截探测"
+
+regression: []
+# 例外边缘场景（BR-06）示例：
+#  - domain: payment
+#    openapi_operation_id: createPayment
+#    priority: P1
+#    story_id: STORY-xxx
+#    ac_id: AC-yy
+#    test_function: test_payment_sandbox_regression
+#    rationale: "真实支付沙箱联调，IT 无法覆盖"

@@ -1,0 +1,25 @@
+acceptance_id,story_id,ac_id,priority,execution,suite,status,git_ref,external_tc_link,legacy_tc_id,blackbox_rationale,last_verified
+# 字段说明（BR-13）：
+#   acceptance_id      验收用例 ID，格式 AC-{迭代}-{序号}-{AC序号}，如 AC-GOLDEN-001-05
+#   story_id           Story 编号，如 STORY-GOLDEN-001
+#   ac_id              对应的 AC 编号，如 AC-05；跨卡 BR 用 N/A-跨卡BR
+#   priority           P0 / P1 / P2；默认继承 Story/项目约定，不擅自降级 P0（BR-08）
+#   execution          单条怎么跑：manual / ci_covered / blackbox / frontend_only / obsolete
+#   suite              黑盒跑哪批：smoke / regression / N/A（非 blackbox 时）
+#   status             TC 生命周期：automated / manual / merged / obsolete
+#                      （与 execution 分两维度，不混用，BR-07）
+#   git_ref            TS/IT 方法名或 MR Pipeline 链接；ci_covered 行必填（如 mr!123/pipeline/mvn-test）
+#   external_tc_link   外部用例系统（禅道/Jira/Xray/TestRail/Kiwi 等）的用例链接（链接型用例，BR-04）；
+#                      未导入或无外部系统填 —
+#   legacy_tc_id       无 Story 的遗留外部 TC 关联（任意 TMS 的老用例 ID）；新建填 —；
+#                      下次触达补 Story 或标 obsolete（BR-12）
+#   blackbox_rationale 仅 execution=blackbox 时必填；说明部署态独有验证点（如「真实 iam 鉴权，部署态独有」）
+#   last_verified      最近一次验证日期 YYYY-MM-DD；未验证填 —
+#
+# P0/P1/P2 统计：按 priority 列聚合；与外部用例系统的用例等级对齐（若有）。
+# 空值占位用 —（非空字符串），便于人眼区分「未填」与「不适用」。
+#
+# 平台中立：本表不绑定任何特定测试管理系统；external_tc_link / legacy_tc_id 可填任意 TMS 的 ID 或链接。
+#
+# Golden 样例行（对照 STORY-GOLDEN-001 AC-05，演示 ci_covered 双条件全满足）：
+AC-GOLDEN-001-05,STORY-GOLDEN-001,AC-05,P0,ci_covered,N/A,automated,mr!123/pipeline/mvn-test,—,—,—,2026-10-03
