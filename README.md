@@ -15,6 +15,7 @@ AI 原生开发工作流模板：**后端线（12 Skill）+ 前端线（3 Skill�
   → detail-design             → DD + OpenAPI + schema/DDL + 代码骨架 + 测试策略
   → test-spec-alignment       → TS（用例级测试规格，编码前）
   → feature-coding            → 代码 + 测试（TDD，全绿）
+  → 代码审查（rules/code-review.md）→ REVIEW-CODE-IMPL-*（commit/IT 前）
   → integration-test-design   → *IT / *ScenarioIT（跨模块/外部链路）
   QA 专线：qa-acceptance-case-design → api-blackbox-test → test-data-design
   旁路：bugfix（七步闭环） / legacy-test-migration（存量用例改造）
@@ -26,6 +27,7 @@ AI 原生开发工作流模板：**后端线（12 Skill）+ 前端线（3 Skill�
   → frontend-story-splitting  → STORY-FE-*.md（AC + 本卡 operationId 范围）
   → frontend-detail-design    → DD-FE-*.md（页面状态机、组件树、AC→operationId 映射）
   → frontend-feature-coding   → pages/components/services + 测试（TDD）
+  → 代码审查（rules/code-review.md）→ REVIEW-CODE-FE-*（联调/提测前）
 ```
 
 两线可独立接入（只用前端线时，handoff 包直接向你的后端团队索取）。方法论见 [backend/docs/methodology/](backend/docs/methodology/) 与 [frontend/docs/methodology/](frontend/docs/methodology/)。
@@ -46,15 +48,15 @@ AI 原生开发工作流模板：**后端线（12 Skill）+ 前端线（3 Skill�
 | 目录 | 职责 |
 |------|------|
 | `backend/skills/`（12）+ `frontend/skills/`（3） | Skill（自包含：SKILL.md + templates/ + references/） |
-| `backend/rules/`（11）+ `frontend/rules/`（4） | 编码与文档规范（纯 markdown；「规范听 Rule，流程听 Skill」） |
+| `backend/rules/`（13）+ `frontend/rules/`（5） | 编码与文档规范（纯 markdown；「规范听 Rule，流程听 Skill」） |
 | `{backend,frontend}/architecture/system-landscape.md` | 各线**项目画像（接入必填）**：项目层事实唯一定义处 |
 | `backend/reference/` | 后端通用工程指南（幂等、内存安全 IO、定时任务、统一响应） |
 | `{backend,frontend}/glossary/` | 领域词表（前端与后端对齐的子集） |
 | `frontend/docs/handoff/` | 前后端契约交接区（openapi 快照 + VERSION pin + stories-index） |
 | `{backend,frontend}/docs/methodology/` | 方法论与 Skill 设计说明（含测试线总设计） |
 | `backend/docs/training/` | 培训课件（黑盒选例、白盒分层、存量迁移） |
-| `backend/docs/{requirements,design,test-spec,qa,api,schema,reviews}/` | 后端流程工件落点（`reviews/` 为 Story 审查报告；`_golden/` 为标准样例）；前端工件落点同理 |
-| `backend/templates/` | 流程模板（Story 审查报告模板） |
+| `backend/docs/{requirements,design,test-spec,qa,api,schema,reviews}/` | 后端流程工件落点（`reviews/` 为 Story 审查报告 + 代码审查报告；`_golden/` 为标准样例）；前端工件落点同理 |
+| `{backend,frontend}/templates/` | 流程模板（backend：Story 审查 + 代码审查；frontend：代码审查） |
 | `backend/hooks/` | 机制化强制 Hook（公共代码保护 / diff 超限 / 漏测提醒） |
 | `{backend,frontend}/scripts/validate-skills.sh` | 各线资产完整性校验（frontmatter + 引用可达 + 坏链检测） |
 | `{backend,frontend}/config/current-sprint` | 各线当前迭代号（单一事实源） |
@@ -63,8 +65,8 @@ AI 原生开发工作流模板：**后端线（12 Skill）+ 前端线（3 Skill�
 
 0. **怎么用**：后端线见 [backend/USAGE.md](backend/USAGE.md)；前端线见 [frontend/USAGE.md](frontend/USAGE.md)（含提示词 Demo 与反模式）。
 1. **接入**：按 [MIGRATION.md](MIGRATION.md) 替换项目锚点、填写两线画像（只用一线则只接一线）。
-2. **分发**：把对应线 `skills/` 与 `rules/` 放到目标 Agent 技能目录（Cursor / Claude Code 等）。模板**不做 symlink 镜像**——多 Agent 场景建议 CI 同步拷贝（Windows 无 symlink 特权时镜像会失效，这是源项目的实测教训）。
-3. **校验**：`bash backend/scripts/validate-skills.sh` 与 `bash frontend/scripts/validate-skills.sh`（各自扫本线 skills/rules/reference/architecture/glossary/docs-methodology；链接断 = FAIL，tick 提及 = WARN 人工确认；含未闭合方括号坏链检测）。建议接入 CI。
+2. **分发**：把对应线 `skills/`、`rules/`、`templates/` 放到目标 Agent 技能目录（Cursor / Claude Code 等）。模板**不做 symlink 镜像**——多 Agent 场景建议 CI 同步拷贝（Windows 无 symlink 特权时镜像会失效，这是源项目的实测教训）。
+3. **校验**：`bash backend/scripts/validate-skills.sh` 与 `bash frontend/scripts/validate-skills.sh`（各自扫本线 skills/rules/templates/reference/architecture/glossary/docs-methodology；链接断 = FAIL，tick 提及 = WARN 人工确认；含未闭合方括号坏链检测）。建议接入 CI。
 
 ## Skill 一览
 
@@ -91,6 +93,7 @@ AI 原生开发工作流模板：**后端线（12 Skill）+ 前端线（3 Skill�
 - **单点维护**：项目事实只在各线 `system-landscape.md` 定义，Skill 与 Rule 引用不复制。
 - **缺口三分法**：阻断（问用户）/ 可补充（`[AI推断]` 标注）/ 提醒（记录），AI 不静默猜。
 - **契约单向流**：后端定契约 → handoff → 前端消费；前端永远不直接改 OpenAPI。
-- **机械与语义分工**：确定性检查交给脚本（validate-skills、hooks、构建测试），语义与风险判断交给 Skill 流程与独立审查（Story 门禁见 [backend/rules/story-review.md](backend/rules/story-review.md)）。
+- **机械与语义分工**：确定性检查交给脚本（validate-skills、hooks、构建测试），语义与风险判断交给 Skill 流程与独立审查（Story 门禁见 [backend/rules/story-review.md](backend/rules/story-review.md)；代码审查见 [backend/rules/code-review.md](backend/rules/code-review.md)）。
+- **代码审查**：编码后、合并前由独立上下文审 diff + Story/DD/TS/OpenAPI，P0–P3 按档位闭环；报告落 `docs/reviews/{迭代}/REVIEW-CODE-{阶段}-*`。
 - **同场景只写一遍**：Java 白盒守代码逻辑（PR 门禁），Python 黑盒守部署环境（发版门禁），见 [backend/docs/methodology/test-line.md](backend/docs/methodology/test-line.md)。
 - **Golden 教学**：每类工件带标准样例（`_golden/`），「写一个 Golden，不是拷一个 Golden」——接入项目时应重写为本项目真实样例。

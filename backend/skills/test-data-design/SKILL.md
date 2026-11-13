@@ -49,6 +49,8 @@ description: >-
 | 8 | 业务表 DDL | `docs/schema/{服务}/ddl/*.sql` | 降级（字段名核对） |
 | 9 | 系统画像（含 §4.3.4 测试账号约定） | `architecture/system-landscape.md` | 降级（字段名核对）；**AC 涉及权限时 §4.3.4 阻断** |
 | 10 | 迭代 | `config/current-sprint` | — |
+| 11 | 代码审查规则 | `rules/code-review.md` | **阻断**（步骤 7） |
+| 12 | 代码审查报告模板 | `templates/code-review-report.md` | **阻断**（步骤 7） |
 
 > **缺失阻断提示**：「缺数据画像模板/造数指引，无法确定 DP 字段与 seed 脚本结构」
 
@@ -70,6 +72,7 @@ description: >-
 - `docs/qa/data-profiles/{迭代}/DP-STORY-{迭代}-{序号}-{slug}.yaml`（数据画像）
 - `tests/data/seed_{迭代}_{序号}_{slug}.py`（造数/清理脚本，生成 SQL 文本）
 - `tests/data/README.md`（本地/CI 如何跑；与 blackbox 衔接）
+- 代码审查报告（步骤 7）：`docs/reviews/{迭代}/REVIEW-CODE-SEED-{Story编号}-{slug}.md`
 - **不产生** Java 代码；**不改** Story/TS/OpenAPI/Rule
 
 ## 标准流程
@@ -128,7 +131,14 @@ description: >-
 ### 6. [AI推断] 清单
 ### 7. 阻断问题清单（若有）
 ### 8. 建议后续 → 运维/CI 执行 seed + 准备 Token
+### 9. 代码审查
+- 报告：docs/reviews/{迭代}/REVIEW-CODE-SEED-{Story编号}-{slug}.md
+- 档位/结论：{L1/L2/L3} / {通过/不通过}
 ```
+
+### 步骤 7：独立代码审查（合入前）
+
+按 [code-review.md](../../rules/code-review.md) §二 定档（通常 L1/L2；>8 文件/diff >400 行或含业务代码/跨模块 → L3），按 §三 给全输入（档位、Story/AC、diff + 本次新增脚本、AC-STORY/OpenAPI、DP/seed 结果、关注点）；审查人只读，实现者落盘 `docs/reviews/{迭代}/REVIEW-CODE-SEED-{Story编号}-{slug}.md`；按 §五 档位闭环。重点：`seed_key` 幂等、清理反序、不嵌 DB 驱动、不接生产、身份列按 §4.3.4。L0 例外：纯注释/格式化/重命名/日志文案不送审，回复说明跳过原因；审查完成后回填步骤 6 汇总的「代码审查」节，再输出最终汇总。
 
 ## 降级策略
 
@@ -140,6 +150,7 @@ description: >-
 | Golden DP 范本 | 降级，照模板结构自拟并标 `[AI推断]` | 中 |
 | 业务表 DDL | 降级，字段名按 OpenAPI schema 推断，标 `[AI推断]` | 中 |
 | 系统画像 | 字段名核对降级；**§4.3.4 测试账号约定在 AC 涉及权限时阻断**（身份列 id 无真源） | 中 |
+| 代码审查规则/模板 | **阻断**，输出「缺代码审查规则/模板，无法执行步骤 7」 | 致命 |
 
 ## 边界（再次强调）
 

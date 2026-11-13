@@ -4,7 +4,7 @@
 #   2. 文中引用的相对路径 / 模板根路径均可解析（链接缺失 = FAIL，须在 CI 拦截）
 #   3. 未闭合方括号坏链检测（[text(url) 形态，防批量替换丢 ] 回归）
 # 用法：bash scripts/validate-skills.sh   （退出码非 0 = 存在错误）
-# 扫描范围：skills/ rules/ reference/ architecture/ glossary/ docs/methodology/
+# 扫描范围：skills/ rules/ templates/ reference/ architecture/ glossary/ docs/methodology/
 # （docs/**/_golden 为样例目录、docs/training 为课件，正文链接已按样例约定豁免，不扫）
 # 与源项目的差异：无 symlink 镜像检查、无 docs/skills 历史残留检查（模板无迁移历史）。
 set -uo pipefail
@@ -31,7 +31,7 @@ import pathlib, re, sys
 
 ROOT = pathlib.Path(".").resolve()
 SCAN_ROOTS = [ROOT / d for d in
-              ("skills", "rules", "reference", "architecture", "glossary",
+              ("skills", "rules", "templates", "reference", "architecture", "glossary",
                "docs/methodology")]
 EXT = r"\.(md|mdc|ya?ml|csv|sql|py|java|sh|ts|xml|json|txt)$"
 errors, warnings = [], []

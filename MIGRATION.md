@@ -45,7 +45,11 @@ grep -rn "booking\|hema\|2026-S" backend/skills/ backend/rules/
 
 - Cursor：对应线 `skills/` → `.cursor/skills/`，`rules/*.md` → `.cursor/rules/*.mdc`（加回 frontmatter：description + globs/alwaysApply）
 - Claude Code / 其他 Agent：放到对应技能/规则目录
+- **后端线**：`skills/`、`rules/`、`templates/` 一起分发；`templates/` 至少包含 `code-review-report.md` 与 `stage-review-report.md`，目标布局建议与 `rules/` 同级。
+- **前端线**：`frontend/rules/code-review.md` 与 `frontend/templates/code-review-report.md` 随线分发；前端线不依赖 `backend/` 路径。
+- **代码审查**：规则/模板随线分发即可，不绑定 Agent；审查人可为独立 AI 会话、专用审查 agent、人或 CI 工具，统一使用 `rules/code-review.md` §三 的任务书。
 - **不要用 symlink 做多 Agent 镜像**：Windows 无特权检出时 symlink 物化成路径文本文件，镜像静默失效（源项目实测教训）。多 Agent 用 CI 拷贝同步。
+- 分发后按目标布局调整 `AGENTS.md` 与规则内的相对链接，并跑 `bash <线>/scripts/validate-skills.sh` 验证；模板仓库里的 `backend/...` 链接只是示例布局。
 - hooks 按 [backend/hooks/README.md](backend/hooks/README.md) 注册，先改 `PROTECTED` 保护路径。
 
 ### 5. 裁剪（按需）
@@ -67,6 +71,7 @@ grep -rn "booking\|hema\|2026-S" backend/skills/ backend/rules/
 | `docs/reference/hema-common-api.md` 未随附 | 公司级公共库专属速查；等价物 = `backend/rules/exception-and-result.md` |
 | 前端线无 symlink 镜像、无 hooks | 源项目前端仓未铺 hooks；机制可复用 backend 的（改 PROTECTED 路径为前端公共组件目录） |
 | 新增 Story 审查最小闭环（源项目没有） | 为治理纪律滑坡（源项目 TS 采用率仅约 7% 的教训）：拆卡后独立审查、报告落 `backend/docs/reviews/`、状态「已确认」由校验器强制对应报告。刻意只做单点门禁，未引入四门/轮次上限/成本度量 |
+| 新增代码审查最小闭环（源项目没有） | 编码后/合并前独立审查 diff + Story/DD/TS/OpenAPI；L1/L2/L3 对应 P0–P3 闭环；报告 `REVIEW-CODE-{阶段}-*`（IMPL/IT/FIX/FE/BB/SEED）；连续 >3 轮交还人工。与 Story 审查不同：代码审查有 3 轮上限 |
 | 前端线未含 e2e / frontend-test-spec-alignment | 源项目此两项尚在规划测试中（设计师自述未闭环）；定型后可补抽 |
 
 ## 三、前端线接入（frontend/，可选）
@@ -94,3 +99,4 @@ grep -rn "booking\|hema\|2026-S" backend/skills/ backend/rules/
 2. 后端线挑一个真实小需求走通：journey-scenario-design（或直接 story-splitting）→ detail-design → feature-coding，产出路径与命名符合 `backend/docs/agile/card-naming-conventions.md`。
 3. 前端线拿到一次真实 handoff 包走通：frontend-story-splitting → frontend-detail-design → frontend-feature-coding。
 4. 后端画像 §4.3.4 测试账号表填写后，test-data-design 造一次数验证对齐规则可执行。
+5. 跑一张真实卡，确认代码审查报告落盘且结论通过（至少 `REVIEW-CODE-IMPL-*`；含 IT/前端/黑盒/造数时对应 `IT/FE/BB/SEED` 阶段）。

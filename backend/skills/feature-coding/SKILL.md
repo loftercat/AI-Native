@@ -14,7 +14,7 @@ description: >-
 以 Story + 详设 + OpenAPI 为输入，在 Story 范围内**一体化 TDD**（先写/补测试，再写/修 Java），
 产出分层架构代码与 `*/src/test/java/` 单元/API 测试，Story 范围 `mvn test` 全绿后交付。
 
-本 Skill 继承**公司级通用流程**（八步、缺口三分法、契约偏差），按本仓库 **Java 21 + Spring Boot 3.2 + Maven 多模块** 特化。见 [README.md](../../../README.md)、[java-project.md](../../rules/java-project.md)。
+本 Skill 继承**公司级通用流程**（九步、缺口三分法、契约偏差），按本仓库 **Java 21 + Spring Boot 3.2 + Maven 多模块** 特化。见 [README.md](../../../README.md)、[java-project.md](../../rules/java-project.md)。
 
 ## 定位与边界
 
@@ -251,7 +251,26 @@ mvn test
 | AC 已变、测未更新 | 先改测试 |
 | 环境问题 | 汇总注明 |
 
-### 步骤 8：实现汇总（仅对话输出）
+### 步骤 8：独立代码审查（commit 前）
+
+**触发**：Step 7 `mvn test` 全部通过后、实现汇总/commit 前。规则见 [code-review.md](../../rules/code-review.md)，报告模板见 [code-review-report.md](../../templates/code-review-report.md)。
+
+**动作**：
+
+1. **定档**：按规则 §二定档（默认 L2；核心链路、DDL/批量订正、跨模块、>8 文件或 diff >400 行 = L3；对外协议/契约不得 L1）。
+2. **提交审查**：独立审查人（新开的 AI 会话 / 审查 agent / 人），按规则 §三给全输入——档位、改动背景（Story/AC）、审查范围（`git diff HEAD` + `git status` 本次相关新增文件）、上游工件路径、`mvn test` 结果、关注点。
+3. **落盘**：审查人只读；实现者（主流程）把结论写入 `docs/reviews/{迭代}/REVIEW-CODE-IMPL-{Story编号}-{slug}.md`（模板见上）。
+4. **闭环**：按档位闭环（L1=P0/P1；L2=P0–P2；L3=P0–P3，含复审）；修复后重派；报告同名覆盖、轮次 +1；连续 >3 轮不通过交还人工。
+5. **放行**：结论「通过」且该档位闭环门槛满足，才允许 commit / 进入 `integration-test-design` / 提测。
+
+**约束**：
+
+- 审查通过前禁止 commit/push。
+- L0 改动（纯注释/格式化/重命名/日志文案）不送审，在汇总中注明跳过原因。
+- 不把代码审查塞进 Story 审查；两者对象与时机不同。
+- 审查人只读，不修代码；修复由本 Skill/实现者完成。
+
+### 步骤 9：实现汇总（仅对话输出）
 
 **默认**：在对话末尾输出结构化汇总，**不自动落盘**；用户明确要求时可写入 `docs/design/summaries/`。
 
@@ -276,7 +295,12 @@ mvn test
 - 全库（可选）：...
 
 ### 8. 共享 OpenAPI 遗留项（若有）
-### 9. 建议后续
+### 9. 代码审查
+- 报告：docs/reviews/{迭代}/REVIEW-CODE-IMPL-{Story编号}-{slug}.md
+- 档位/结论：{L1/L2/L3} / {通过/不通过}
+- 未闭环项：{无 / P0-P3 清单 / L0 跳过}
+
+### 10. 建议后续
 - detail-design 补 {缺口}
 ```
 
@@ -371,6 +395,7 @@ Story 未更新但用户要求改实现 → **拒绝**，提示先更新 Story�
 | 步骤 6 大文件 IO | `rules/memory-safe-io.md`、[memory-safe-io-guide.md](../../reference/memory-safe-io-guide.md) |
 | 步骤 6 BFF API | layer-guides §5 / **§5.1**（中文 JavaDoc + `@Tag`/`@Operation`/`@Schema`）、[openapi-conventions.md](../detail-design/references/openapi-conventions.md) §6 |
 | 步骤 6 Client | layer-guides §6、详设时序图 |
+| 步骤 8 代码审查 | [code-review.md](../../rules/code-review.md)、[code-review-report.md](../../templates/code-review-report.md) |
 
 冲突时：**规范听 Rule，流程听 Skill**。
 

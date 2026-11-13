@@ -9,7 +9,7 @@
 
 ---
 
-## 一、总览：三段流水线
+## 一、总览：三段流水线 + 审查门禁
 
 ```text
 Epic/PRD/原型 + 后端 OpenAPI handoff
@@ -19,6 +19,8 @@ frontend-story-splitting   →  STORY-FE-*.md（AC + 本卡 operationId 范围�
 frontend-detail-design      →  DD-FE-*.md（页面状态机、组件树、AC→operationId 映射）
         ↓
 frontend-feature-coding     →  pages/ components/ services/ + 测试
+        ↓
+代码审查（rules/code-review.md）→ REVIEW-CODE-FE-*（联调/提测前）
 ```
 
 | Skill | 做什么 | 产出 | 不做什么 |
@@ -238,6 +240,7 @@ Story：@docs/requirements/2026-S01/STORY-FE-2026-S01-007-payment-countdown.md
 | **契约版本** | ✅ 必须 | `docs/handoff/VERSION` | 与 Story/详设一致 |
 | **系统画像** | ✅ 必读 | `architecture/system-landscape.md` | 分层/集成边界 |
 | **Rule** | ✅ 必读 | `rules/miniprogram-project.md`、`rules/miniprogram-performance.md`、`rules/api-client-conventions.md`、`rules/error-display-conventions.md` | 目录/性能/请求/错误 |
+| **代码审查规则** | ✅ 必读 | `rules/code-review.md` | 步骤 7 的档位/分级/报告 |
 | **实现范围** | ◯ 可选 | 提示词指定 | 全 Story / 指定页 / 指定层 / 指定 AC |
 | **领域词表** | ◯ 降级 | `glossary/domain-glossary.md` | 术语一致 |
 
@@ -256,6 +259,7 @@ Story：@docs/requirements/2026-S01/STORY-FE-2026-S01-007-payment-countdown.md
 4. 实现：pages 调 services，不直接 wx.request
 5. 性能自检：setData 合并、onUnload 清理
 6. 验证：npm test 全绿 + 开发者工具预览 + AC 逐条对照
+7. 代码审查：按 rules/code-review.md 审 diff + STORY-FE/DD-FE/OpenAPI；报告 docs/reviews/{迭代}/REVIEW-CODE-FE-*；L0 跳过并说明
 ```
 
 ### 提示词 Demo
@@ -394,6 +398,7 @@ Story：@docs/requirements/2026-S01/STORY-FE-2026-S01-002-active-booking-home.md
 | 前端详设 | `docs/design/{迭代}/DD-FE-{迭代}-{序号}-{slug}.md` |
 | 后端 OpenAPI 副本 | `docs/handoff/openapi/booking-bff-app.yaml` |
 | 契约版本 | `docs/handoff/VERSION` |
+| 代码审查报告 | `docs/reviews/{迭代}/REVIEW-CODE-FE-STORY-FE-{迭代}-{序号}-{slug}.md` |
 | 页面代码 | `pages/{page}/{page}.{js,wxml,wxss,json}` |
 | 组件代码 | `components/{comp}/{comp}.{js,wxml,wxss,json}` |
 | 业务封装 | `services/{domain}.js` |

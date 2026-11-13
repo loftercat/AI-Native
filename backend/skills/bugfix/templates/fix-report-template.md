@@ -17,6 +17,7 @@
 | 复现测试 | {测试方法名}（RED→GREEN） |
 | 影响范围 | {Step 5"影响范围"摘要} |
 | 验证 | {Step 6 测试命令与结果} |
+| 代码审查 | {报告路径} / {L1/L2/L3} / {通过/不通过} |
 | 未覆盖风险 | {Step 5"未覆盖风险"，无则"无"} |
 | 建议跟进 | {是否需补测试/补 OpenAPI/补文档} |
 | 循环轮次 | {Step 6 实际循环轮次} |
@@ -50,6 +51,7 @@
 | 复现测试 | test_bugfix_bug_2026_001_search_return_empty（RED→GREEN） |
 | 影响范围 | 直接影响：App 车位搜索接口；间接影响：预约流程首步；已有测试覆盖：ParkingLotQueryServiceTest 5 条；未覆盖风险：无 |
 | 验证 | mvn -pl booking-inventory-service/inventory-impl -am test → 通过（12 条） |
+| 代码审查 | docs/reviews/2026-S02/REVIEW-CODE-FIX-BUG-2026-001-search-empty.md / L1 / 通过 |
 | 未覆盖风险 | 无 |
 | 建议跟进 | 无 |
 | 循环轮次 | 1 |

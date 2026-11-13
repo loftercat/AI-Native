@@ -79,6 +79,7 @@ description: >-
    - 禁止只 assert 未抛异常
 6. 命名：{链路}IT / {链路}ScenarioIT；@DisplayName 标 STORY-xxx AC-n
 7. mvn test -pl booking-app -am 跑通；核对单条 < 10s、全量 < 5min（Rule 必守 5）
+8. 代码审查（合入前）：按 [code-review.md](../../rules/code-review.md) §二 定档（通常 L1/L2；>8 文件/diff >400 行或含业务代码/跨模块 → L3）；按 §三 给全输入，审查人只读、实现者落盘；重点：测试真实性、Mock 边界、稳定性/隔离、数据清理；报告落 docs/reviews/{迭代}/REVIEW-CODE-IT-{Story编号}-{slug}.md；按 §五 档位闭环；L0 例外：纯注释/格式化/重命名/日志文案不送审，回复说明跳过原因
 ```
 
 ## 7. 边界

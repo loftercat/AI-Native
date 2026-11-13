@@ -11,6 +11,8 @@
 | [../detail-design/bff-domain-boundary-guide.md](../detail-design/references/bff-domain-boundary-guide.md) | BFF guard vs 域规则 | 含 BFF + 域 **必读** |
 | [layer-guides.md](references/layer-guides.md) | Mapper/Service/BFF/Client 编码指引 | 降级 |
 | [test-quality.md](references/test-quality.md) | 单元测试质量（对应公司级 unit-test-quality） | 降级 |
+| [rules/code-review.md](../../rules/code-review.md) | 代码审查规则（步骤 8） | 步骤 8 前必读 |
+| [code-review-report.md](../../templates/code-review-report.md) | 代码审查报告模板 | 步骤 8 前必读 |
 | [docs/design/summaries/](../../docs/design/summaries/) | 实现汇总可选落盘目录 | — |
 
 ## 本仓库要点
@@ -33,8 +35,9 @@
 | 6 | OpenAPI | `docs/api/{服务标识}/`、`docs/api/booking-bff-admin/` |
 | 7 | schema | `docs/schema/{服务}/schema.md` |
 | 8 | 系统画像 | `architecture/system-landscape.md` |
+| 9 | 代码审查 | [rules/code-review.md](../../rules/code-review.md)、[code-review-report.md](../../templates/code-review-report.md) |
 
-## 八步流程摘要
+## 九步流程摘要
 
 ```text
 1. 加载上下文（清单 + Rule + layer-guides + 画像）
@@ -44,7 +47,8 @@
 5. 增量计划（默认继续执行）
 6. 分层 TDD（Mapper → api → Service → BFF）
 7. mvn test 验收
-8. 对话输出实现汇总（可选落盘 `docs/design/summaries/`）
+8. 独立代码审查（commit / IT 前）
+9. 对话输出实现汇总（可选落盘 `docs/design/summaries/`）
 ```
 
 ## 与公司级 Skill 的映射

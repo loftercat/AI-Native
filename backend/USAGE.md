@@ -11,10 +11,11 @@
 | # | 前置 | 验证方式 |
 |---|------|----------|
 | 1 | 按 [MIGRATION.md](../MIGRATION.md) 完成接入：画像（`architecture/system-landscape.md`）逐节填好、项目锚点替换、Golden 用本项目业务重写 | `bash scripts/validate-skills.sh` PASSED |
-| 2 | skills/ 与 rules/ 已分发到所用 Agent 的技能目录（Cursor / Claude Code 等） | 对 Agent 说「列出你可用的 skill」，能看到 12 个 |
+| 2 | skills/、rules/、templates/ 已分发到所用 Agent 的技能目录（Cursor / Claude Code 等） | 对 Agent 说「列出你可用的 skill」，能看到 12 个；`templates/code-review-report.md` 可达 |
 | 3 | 代码仓库可构建、存量测试全绿（`mvn test` 或等价命令） | 本地跑一遍构建测试 |
 | 4 | （可选，建议）hooks 按 [hooks/README.md](hooks/README.md) 注册，`PROTECTED` 保护路径改成本项目公共代码 | 改 `booking-common` 等价目录时被拦下询问 |
 | 5 | （可选，建议）`scripts/validate-skills.sh` 挂进 CI | 提交断链资产时 CI 红 |
+| 6 | （建议）独立审查人（独立 AI 会话 / 审查 agent / 人）可用 | 发起一次代码审查，能返回 P0–P3 |
 
 ### 2. 迭代级前置（每个迭代开始时，人做一次）
 
@@ -39,6 +40,7 @@
 - **bugfix 循环上限**：修复循环 >3 轮、根因回退 >2 次 → Skill 自动交还人工，不要硬催 AI 继续试。
 - **存量迁移批量确认**：legacy-test-migration 单批 ≤200 条，超限须人工确认分批。
 - **对外契约变更**：编码中发现需要改 OpenAPI/schema 语义时，AI 会暂停回 detail-design——人确认是否真的要动契约。
+- **代码审查放行**：按档位闭环未满足不放行（L1=P0/P1；L2=P0–P2；L3=P0–P3）；外部验证 P2 记录验证方式后可放行；L0 改动跳过审查须在回复说明。
 
 ---
 
@@ -77,8 +79,9 @@ QA 专员另有一条专线（同源 Story，非上下游）：Story + OpenAPI �
 5. 对 Agent 说：*「用 detail-design 做 STORY-2026-S03-001」* → 产出 DD + OpenAPI + schema。
 6. 对 Agent 说：*「用 test-spec-alignment 给 STORY-2026-S03-001 出 TS」*。
 7. 对 Agent 说：*「用 feature-coding 实现 STORY-2026-S03-001，跑全量测试」*。
-8. 跨模块/含外部链路的卡，追加：*「用 integration-test-design 给这张卡补集成测试」*。
-9. 单卡完成后，提测前：QA 走 `qa-acceptance-case-design` → 部署后 `api-blackbox-test`。
+8. **代码审查（commit 前）**：对独立审查人（新会话 / 审查 agent / 人）说 *「按 rules/code-review.md §三 给全输入（档位、Story/AC、diff 范围、DD/TS/OpenAPI、mvn test 结果、关注点）审查 STORY-2026-S03-001，档位 L2」*；报告落 `docs/reviews/{迭代}/REVIEW-CODE-IMPL-*`，按档位闭环（L1=P0/P1；L2=P0–P2；L3=P0–P3）后才允许 commit / 进集成测试。L0（纯注释/格式化/重命名/日志文案）跳过并说明原因。审查人不要求与实现使用同一 Agent。
+9. 跨模块/含外部链路的卡，追加：*「用 integration-test-design 给这张卡补集成测试」*；IT 代码合入前按同一规则审 `REVIEW-CODE-IT-*`。
+10. 单卡完成后，提测前：QA 走 `qa-acceptance-case-design` → 部署后 `api-blackbox-test`。
 
 **随时（旁路）**：出 bug → *「用 bugfix 处理这个缺陷：<现象/复现路径/期望>」*（输入不完整时 Skill 会先做五要素澄清，超 2 轮阻断）。
 
@@ -107,6 +110,7 @@ QA 专员另有一条专线（同源 Story，非上下游）：Story + OpenAPI �
 | OpenAPI / schema | `docs/api/{服务标识}/`、`docs/schema/{服务}/` | 同上 |
 | TS / 集成测试规格 | `docs/test-spec/{迭代}/`；集成测试代码进模块 test 目录 | 同上 |
 | 验收用例 / 数据画像 | `docs/qa/{迭代}/`、`docs/qa/data-profiles/` | 同上 |
+| 代码审查报告 | `docs/reviews/{迭代}/` | `REVIEW-CODE-{阶段}-*`（IMPL/IT/FIX/FE/BB/SEED） |
 | 黑盒脚本 / 造数 | `tests/blackbox/`、`tests/data/` | `test_*.py`、`seed_*.py` |
 | 前端 Story / 详设 | `frontend/docs/{requirements,design}/{迭代}/` | `STORY-FE-*` / `DD-FE-*`（golden 见 `frontend/docs/**/_golden/`） |
 | 每类工件的「标准长什么样」 | `docs/**/_golden/` | GOLDEN-001 族 |

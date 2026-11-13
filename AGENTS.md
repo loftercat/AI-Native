@@ -13,6 +13,15 @@
 
 **规范听 Rule（`rules/`），流程听 Skill（`skills/`）**：Rule 管跨阶段的编码与文档规范（分层、异常、测试约定），Skill 管端到端流程（触发时机、产出物、何时阻断）。冲突时对「怎么写代码」听 Rule，对「先做什么后做什么」听 Skill。
 
+## 代码审查
+
+代码改动（`feature-coding` / `bugfix` / `frontend-feature-coding` 的测试通过后，`integration-test-design` 的 IT 代码合入前，以及 `api-blackbox-test` / `test-data-design` 生成的 pytest/seed 脚本）必须走独立代码审查，规则见 [backend/rules/code-review.md](backend/rules/code-review.md)，报告模板见 [backend/templates/code-review-report.md](backend/templates/code-review-report.md)。以下链接是模板仓库布局；接入项目后按实际分发布局调整。
+
+- 档位 L1/L2/L3；L0（纯注释/格式化/重命名/日志文案）不送审，回复中说明原因。
+- 审查通过前禁止 commit/push；报告落 `docs/reviews/{迭代}/REVIEW-CODE-{阶段}-*`（IMPL/IT/FIX/FE/BB/SEED 分阶段，避免覆盖）。
+- 审查人只读（独立 AI 会话 / 审查 agent / 人）；修复后重新发起审查，报告同名覆盖、轮次 +1。
+- 审查流程不绑定具体 Agent：任意独立审查人读取项目 `AGENTS.md` 与本规则即可执行；接入项目时把本节复制到项目 `AGENTS.md`。
+
 ## 常用命令
 
 ```bash

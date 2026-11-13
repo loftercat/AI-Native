@@ -11,11 +11,11 @@
 
 **把 Story + 详设 + OpenAPI 在 Story 范围内用 TDD 落地为可运行 Java 代码，并以 `mvn test` 验收。**
 
-本 Skill 继承公司级 **八步流程**（加载 → 解析 → 查找契约 → 缺口 → 计划 → 分层实现 → 测试验收 → 汇总），按本仓库 **Java 21 + Spring Boot 3.2 + Maven 多模块 + 双 BFF** 特化。
+本 Skill 继承公司级 **九步流程**（加载 → 解析 → 查找契约 → 缺口 → 计划 → 分层实现 → 测试验收 → 独立代码审查 → 汇总），按本仓库 **Java 21 + Spring Boot 3.2 + Maven 多模块 + 双 BFF** 特化。
 
 ---
 
-## 2. 核心思想（六条）
+## 2. 核心思想（七条）
 
 ### 2.1 详设 §8 是编码权威
 
@@ -64,9 +64,16 @@ Controller 测试在 **BFF**，不在 `*-impl`。
 - 仅 URL/路径 → 本 Skill 可同步整改
 - AC 无法满足 → 列偏差，建议改 Story，不静默改需求
 
+### 2.7 独立代码审查
+
+- **触发**：`mvn test` 全绿后、commit / IT / 提测前；规则见 `rules/code-review.md`
+- **档位**：L1/L2/L3（默认 L2；核心链路、DDL/批量订正、跨模块、超阈值 = L3）
+- **报告**：`docs/reviews/{迭代}/REVIEW-CODE-IMPL-{Story编号}-{slug}.md`；审查人只读，实现者（主流程）落盘
+- **放行**：按档位闭环（L1=P0/P1；L2=P0–P2；L3=P0–P3）后才允许 commit / 进入 IT
+
 ---
 
-## 3. 标准流程（八步摘要）
+## 3. 标准流程（九步摘要）
 
 ```text
  1. 加载清单、Rule、画像、详设 §8/§9
@@ -76,7 +83,8 @@ Controller 测试在 **BFF**，不在 `*-impl`。
  5. 增量计划（默认继续执行）
  6. 分层 TDD 实现
  7. Story 范围 mvn test
- 8. 对话输出实现汇总
+ 8. 独立代码审查
+ 9. 对话输出实现汇总
 ```
 
 ---
@@ -85,7 +93,8 @@ Controller 测试在 **BFF**，不在 `*-impl`。
 
 | 谁 | 管什么 |
 |----|--------|
-| **feature-coding Skill** | 八步流程、缺口、增量 TDD、授权边界 |
+| **feature-coding Skill** | 九步流程、缺口、增量 TDD、授权边界 |
+| **rules/code-review.md** | 代码审查触发、档位、P0–P3、报告与闭环 |
 | **rules/java-project.md** | 双 BFF、api/impl、依赖方向、URL 前缀 |
 | **rules/tdd-project-conventions.md** | JUnit 5、测试分层、断言约定 |
 | **rules/exception-and-result.md** | `Result`、`BizException`、错误码号段 |

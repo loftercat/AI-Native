@@ -47,6 +47,8 @@ description: >-
 | 7 | TS（可选去重参考） | `docs/test-spec/{迭代}/TS-STORY-*.md` | 跳过 |
 | 8 | 系统画像 | `architecture/system-landscape.md` | 降级 |
 | 9 | 迭代 | `config/current-sprint` | — |
+| 10 | 代码审查规则 | `rules/code-review.md` | **阻断**（步骤 7） |
+| 11 | 代码审查报告模板 | `templates/code-review-report.md` | **阻断**（步骤 7） |
 
 > **缺失阻断提示**：「缺黑盒范围指引/manifest 模板，无法确定去重规则与选集结构」
 
@@ -67,6 +69,7 @@ description: >-
 
 - `tests/blackbox/test_*.py`（pytest 脚本，含 `@pytest.mark.story/ac/legacy_tc`）
 - `tests/blackbox/smoke-manifest.yaml`（或独立 manifest，按 Story/迭代组织）
+- 代码审查报告（步骤 7）：`docs/reviews/{迭代}/REVIEW-CODE-BB-{Story编号}-{slug}.md`
 - **不产生** Java 代码；**不改** Story/TS/OpenAPI/Rule
 
 ## 标准流程
@@ -83,7 +86,7 @@ description: >-
 - `AC-STORY-*.md` 无 `execution=blackbox` 行 → 输出「本 Story 无黑盒候选，跳过」
 - `execution=ci_covered` 行 → **跳过 pytest 生成**（090 BR-05 双条件已判定：TS 全覆盖 **且** 无部署态独有验证点）；不复制等价 pytest 步骤
 - `execution=manual` / `frontend_only` / `obsolete` 行 → **跳过**（非黑盒）
-- blackbox 行缺 `blackbox_rationale` → 记录进汇总 §8，不猜
+- blackbox 行缺 `blackbox_rationale` → 记录进汇总 §5 [AI推断] / §7 建议后续，不猜
 
 ### 步骤 3：去重判定（按 guide §去重）
 
@@ -123,7 +126,14 @@ description: >-
 ### 5. [AI推断] 清单
 ### 6. 阻断问题清单（若有）
 ### 7. 建议后续 → 部署后执行 pytest
+### 8. 代码审查
+- 报告：docs/reviews/{迭代}/REVIEW-CODE-BB-{Story编号}-{slug}.md
+- 档位/结论：{L1/L2/L3} / {通过/不通过}
 ```
+
+### 步骤 7：独立代码审查（合入前）
+
+按 [code-review.md](../../rules/code-review.md) §二 定档（通常 L1/L2；>8 文件/diff >400 行或含业务代码/跨模块 → L3），按 §三 给全输入（档位、Story/AC、diff + 本次新增脚本、AC-STORY/OpenAPI、pytest 结果、关注点）；审查人只读，实现者落盘 `docs/reviews/{迭代}/REVIEW-CODE-BB-{Story编号}-{slug}.md`；按 §五 档位闭环。重点：Token/URL 不硬编码、不接生产、断言粗粒度、去重、失败输出可定位。L0 例外：纯注释/格式化/重命名/日志文案不送审，回复说明跳过原因；审查完成后回填步骤 6 汇总的「代码审查」节，再输出最终汇总。
 
 ## 降级策略
 
@@ -133,6 +143,7 @@ description: >-
 | IT Skill（去重参照） | 仅按 TS 去重；无 TS 则不跳过（可能重复，汇总提示） |
 | TS | 跳过去重；仅按 `AC-STORY` blackbox 行生成 |
 | 系统画像 | 按 OpenAPI `servers` 推断 base URL |
+| 代码审查规则/模板 | 步骤 7 **阻断**，不能跳过审查 |
 
 ## 边界
 

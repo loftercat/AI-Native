@@ -165,6 +165,7 @@ Step 6 默认跑 `mvn -pl` 单测；以下情况**必须**额外切 `api-blackbo
 - 修复 diff（最小修改）
 - 自述影响三段（改了什么/为什么/影响范围）
 - 修复报告（对话输出；试点 + 线上 bug 落盘 `docs/qa/{迭代}/FIX-{迭代}-{序号}-{slug}.md`）
+- 代码审查报告（Step 6.5）：`docs/reviews/{迭代}/REVIEW-CODE-FIX-{Bug编号}-{slug}.md`（L0 除外）
 - **不产生**：业务功能新增、Story/OpenAPI 正文改动、非最小修改的重构
 
 ## 标准流程（七步闭环）
@@ -182,6 +183,8 @@ Step 6 默认跑 `mvn -pl` 单测；以下情况**必须**额外切 `api-blackbo
 | 7 | 修复报告 | 上述全部 | 修复报告 | — |
 
 > **循环计数器（关键）**：覆盖所有"修代码→跑测试→失败"循环，不分步骤。Step 4 复现 RED 回 Step 3 算 1 次；Step 6 受影响测试 RED 修代码算 1 次。总计数器 > 3 → 交还人工。跨步骤回退不重置计数器。**Step 1 初次跑复现测试 RED 不计数**（未修代码）；只有修代码后跑测试仍失败才计数。
+>
+> **交付闸门**：Step 6.5「独立代码审查」是七步之外的交付闸门，见下文；不计入循环计数器。
 
 ### Step 1：写复现测试（Red，强制）
 
@@ -306,6 +309,26 @@ Step 6 默认跑 `mvn -pl` 单测；以下情况**必须**额外切 `api-blackbo
 - 禁止改测试断言让测试通过（BR-11）
 - 禁止 `@Disabled` 跳过失败测试（BR-11）
 
+### Step 6.5：独立代码审查（合并前）
+
+> 本步是七步闭环之外的交付闸门，不改变 Step 1–7 的计数与回退规则。
+
+**触发**：Step 6 验证通过后、Step 7 修复报告/合并前。规则见 [code-review.md](../../rules/code-review.md)，报告模板见 [code-review-report.md](../../templates/code-review-report.md)。
+
+**动作**：
+
+1. **定档**：按规则 §二定档（核心链路、DDL/批量订正、跨模块、>8 文件或 diff >400 行 = L3；公共代码/契约变更不得 L1）。
+2. **提交审查**：独立审查人（新开的 AI 会话 / 审查 agent / 人），按规则 §三给全——档位、Bug 五要素、审查范围（`git diff HEAD` + `git status` 本次相关新增文件）、相关 Story/DD/OpenAPI、Step 6 测试结果、关注点（最小 diff、根因、回归、公共代码）。
+3. **落盘**：实现者（主流程）写 `docs/reviews/{迭代}/REVIEW-CODE-FIX-{Bug编号}-{slug}.md`。
+4. **闭环**：按档位闭环（L1=P0/P1；L2=P0–P2；L3=P0–P3，含复审）；报告同名覆盖、轮次 +1；连续 >3 轮不通过交还人工。
+5. **放行**：结论「通过」才允许合并/提交；Step 7 修复报告须记录审查结论。
+
+**约束**：
+
+- 审查通过前禁止 commit/push。
+- 审查人只读，不修代码；不得用审查替代 Step 6 测试。
+- L0 改动（纯注释/格式化/重命名/日志文案）不送审，在修复报告注明跳过原因。
+
 ### Step 7：修复报告
 
 **动作**：输出修复报告
@@ -326,6 +349,7 @@ Step 6 默认跑 `mvn -pl` 单测；以下情况**必须**额外切 `api-blackbo
 - 复现测试：{测试方法名}（RED→GREEN）
 - 影响范围：{Step 5"影响范围"摘要}
 - 验证：{Step 6 测试命令与结果}
+- 代码审查：{报告路径} / {L1/L2/L3} / {通过/不通过}
 - 未覆盖风险：{Step 5"未覆盖风险"，无则"无"}
 - 建议跟进：{是否需补测试/补 OpenAPI/补文档}
 - 循环轮次：{Step 6 实际循环轮次}
@@ -401,12 +425,15 @@ Step 6 默认跑 `mvn -pl` 单测；以下情况**必须**额外切 `api-blackbo
 - [ ] 改 MyBatis XML 已同步检查 Mapper 方法
 - [ ] 改错误码已同步 OpenAPI
 - [ ] 改 DTO 字段已同步序列化测试
+- [ ] 代码审查报告存在且结论通过（`docs/reviews/{迭代}/REVIEW-CODE-FIX-*`；L0 除外，需说明跳过原因）
 - [ ] 已输出修复报告
 
 ## 配套资产
 
 - `references/impact-scope-guide.md` — 受影响测试范围分级规则（本 Story 产出物）
 - `templates/fix-report-template.md` — 修复报告模板（本 Story 产出物）
+- [rules/code-review.md](../../rules/code-review.md) — 代码审查规则（Step 6.5）
+- [code-review-report.md](../../templates/code-review-report.md) — 代码审查报告模板
 - `rules/bugfix-conventions.md` — 配套 Rule（建议，落地另卡）
 - `hooks` on_agent_save 跑测试 + 循环上限 — 配套 Hook（建议，用 `create-hook` Skill 落地另卡）
 
