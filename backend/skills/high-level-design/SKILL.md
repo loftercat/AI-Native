@@ -47,7 +47,7 @@ description: >-
 | 1b | JSD（建议） | `docs/requirements/epics/JSD-EPIC-*.md`（旅程+场景） | 降级；有则 HLD §5 关键流程与 §10 建议 Story **引用其旅程编号 J*／场景编号**，勿重复展开 |
 | 2 | HLD 模板 | `templates/hld-template.md` | **阻断** |
 | 3 | 边界指引 | `references/hld-dd-boundary-guide.md` | **阻断** |
-| 4 | 系统画像 | `architecture/system-landscape.md` | 提问 + `[AI推断]` |
+| 4 | 系统画像 | `architecture/system-landscape.md` | **阻断**（未填 / 仍是模板示例）。模块边界直接读画像 §二，画像未接入时 HLD 会凭空发明模块 |
 | 5 | 领域词表 | `glossary/domain-glossary.md` | 降级 |
 | 6 | Golden HLD | `docs/design/_golden/HLD-EPIC-*.md` | 降级 |
 | 7 | 存量 HLD | `docs/design/epics/` | 增量；同名不覆盖 |

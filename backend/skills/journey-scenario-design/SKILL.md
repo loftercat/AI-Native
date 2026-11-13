@@ -23,7 +23,7 @@ description: >-
 | **一：用户旅程** | **广度**——角色路径上不缺环 | Persona 表 + Journey Map（阶段编号 J*.*） |
 | **二：业务场景** | **深度**——每环节不缺分支 | 场景矩阵（编号 SC-J*-*，类型主/备选/异常） |
 
-**语境对齐**：角色须区分端；「系统响应」列须对齐 [system-landscape.md](../../architecture/system-landscape.md) 的模块与外部系统——**引用画像为权威，不在本 Skill 复述系统清单**（防口径漂移；画像缺失时提问 + `[AI推断]`，见前置加载 #4）。
+**语境对齐**：角色须区分端；「系统响应」列须对齐 [system-landscape.md](../../architecture/system-landscape.md) 的模块与外部系统——**引用画像为权威，不在本 Skill 复述系统清单**（防口径漂移；画像未接入则阻断，见前置加载 #4）。
 
 ---
 
@@ -56,7 +56,7 @@ description: >-
 | 2 | JSD 模板 | `templates/jsd-template.md` | **阻断** |
 | 3 | 分支清单 | `references/scenario-branch-checklist.md` | **阻断** |
 | 3b | 概念与划分标准 | `references/concepts-guide.md` | 降级；旅程/场景**分几条、数量拿不准时先读** |
-| 4 | 系统画像 | `architecture/system-landscape.md` | 提问 + `[AI推断]` |
+| 4 | 系统画像 | `architecture/system-landscape.md` | **阻断**（未填 / 仍是模板示例）。画像未接入就产 JSD，系统响应列会写成产品文案，下游模块归属全部错位 |
 | 5 | 领域词表 | `glossary/domain-glossary.md` | 降级 |
 | 6 | 存量 Epic/JSD | `docs/requirements/epics/` | 增量；同名不覆盖 |
 | 7 | 原型（若有） | Axure 导出 HTML | 降级；有则逐页走旅程 |
@@ -80,7 +80,7 @@ description: >-
 
 | 类型 | 处理 |
 |------|------|
-| **阻断** | 角色不明、业务成败语义不明、与 system-landscape 冲突 |
+| **阻断** | 角色不明、业务成败语义不明、与 system-landscape 冲突、**画像未接入** |
 | **可补充** | `[AI推断]`（次要默认行为，不改变用户可见成败） |
 | **提醒** | 缺原型但涉及表单；并发/外部失败写备注列 |
 

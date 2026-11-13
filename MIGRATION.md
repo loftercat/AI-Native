@@ -12,18 +12,35 @@
 
 ### 2. 全局替换项目锚点
 
-backend 的 skills/ 与 rules/ 中以下示例值需替换（均在画像或真实模块中应有对应物）：
+backend 的 skills/ 与 rules/ 中以下源项目值**全部需要替换**（均在画像或真实模块中应有对应物）。左列是源项目真实值，不是可保留的模板占位符；`booking-{order,payment,...}` 的花括号是简写，实际搜索用 `booking-` 前缀。
 
-| 类别 | 示例值（源项目） | 替换为 |
-|------|------------------|--------|
-| 模块名 | `booking-app`、`booking-bff-app`、`booking-bff-admin`、`booking-{order,payment,inventory,push,iot}`、`booking-common`、`booking-parking-adapter` | 目标项目模块清单（须与画像 §二 一致） |
-| 包名 | `com.hema.booking.*` | 目标项目 groupId 路径 |
-| 公共库 | `hema-common`（`Result`/`BizException`/`ErrorCode`） | 本项目公共库；**若无公司级公共库**，先在 `backend/rules/exception-and-result.md` 定义本项目统一响应与异常 |
-| 错误码号段 | 1500-1549 order / 1550-1599 payment / 1600-1699 inventory / 1700-1799 adapter / 1800-1899 push / 1900-1999 iot | 目标项目分域号段表（画像 §3.7 + bugfix 责任域定位依赖） |
-| URL 前缀 | `/api/v1/booking/app|admin/` | 目标项目前缀 |
-| 迭代号 | `2026-S01`、`2026-S02`（`{年}-S{序号}`） | 目标迭代约定（`backend/config/current-sprint` 同步改） |
-| 技术栈 | Java 21 / Spring Boot 3.2 / Maven / MyBatis / MySQL / Redis | 目标栈；**换栈时** `rules/java-project.md`、`mybatis-conventions.md`、`tdd-project-conventions.md`、`integration-test-conventions.md`（Testcontainers/RANDOM_PORT 决策）须重写 |
-| 测试基建 | `booking-app` 下 `*IT`、Testcontainers MySQL、`mvn -pl <module> test` | 目标项目集成测试落点与命令 |
+| 类别 | 源项目原值（搜索用） | 操作 | 替换为 |
+|------|---------------------|------|--------|
+| 模块名 | `booking-app`、`booking-bff-app`、`booking-bff-admin`、`booking-{order,payment,inventory,push,iot}`、`booking-common`、`booking-parking-adapter` | **语义映射**——域不一定对应，按职责重命名 | 目标模块清单（须与画像 §二 一致） |
+| 包名 | `com.hema.booking.*` | 机械替换 | 目标项目 groupId 路径 |
+| 公共库 | `hema-common`（`Result`/`BizException`/`ErrorCode`） | 机械替换 | 本项目公共库；**若无公司级公共库**，先在 `backend/rules/exception-and-result.md` 定义本项目统一响应与异常 |
+| 错误码号段 | 1500-1549 order / 1550-1599 payment / 1600-1699 inventory / 1700-1799 adapter / 1800-1899 push / 1900-1999 iot | **重新分配**——按目标项目域数重排 | 目标项目分域号段表（画像 §3.7 + bugfix 责任域定位依赖） |
+| URL 前缀 | `/api/v1/booking/app\|admin/` | 机械替换；BFF 数量变化时人工确认 | 目标项目前缀 |
+| 迭代号 | `2026-S01`、`2026-S02`（`{年}-S{序号}`） | 机械替换 | 目标迭代约定（`backend/config/current-sprint` 同步改） |
+| 技术栈 | Java 21 / Spring Boot 3.2 / Maven / MyBatis / MySQL / Redis | **重写规则**——换栈时改 rule，不是替换字符串 | 目标栈；对应 `rules/java-project.md`、`mybatis-conventions.md`、`tdd-project-conventions.md`、`integration-test-conventions.md` 须重写 |
+| 测试基建 | `booking-app` 下 `*IT`、Testcontainers MySQL、`mvn -pl <module> test` | **重写**——落点与命令随模块结构变 | 目标项目集成测试落点与命令 |
+
+**替换边界**：判断标准是「删掉这条锚点，Skill 还能不能执行」。
+
+| 必须替换（删了不能执行） | 保留（删了仍能执行，只是少了例子） |
+|--------------------------|-----------------------------------|
+| 模块清单、包名、公共库、错误码号段、URL 前缀、测试账号、构建命令 | Skill 正文的业务示例（车位、订单、支付）、Golden 样例文件名、「模板版说明」元描述 |
+
+把业务示例一起换掉，会得到「新前缀 + 旧业务路径」的混搭（`/api/v1/love/app/pay/callback`），比不替换更难排查。
+
+**操作顺序**：
+
+1. **长的先替换**：`{项目}-bff-app` 先于 `{项目}-app`，否则得到 `{项目}-bff-<新前缀>-app`。
+2. **模块与子模块成对映射**：`booking-order → love-advice` 时，`order-api` / `order-impl` / `OrderErrorCode` 要同时映射。
+3. **双 BFF 合并手工处理**：「App 端 → X，Admin 端 → Y」这类句子机械替换会变成 `love-app / love-app`。
+4. **Windows Git Bash** 用 `find ... -exec perl -pi -e '...' {} +`；`grep -rl | xargs` 传的是反斜杠路径，perl 打不开。
+
+替换后抽查三类残留：`love-app.*love-app`（重复）、`order-api`（子模块漏映射）、`/api/v1/`（前缀换了路径没换）。
 
 自查命令：
 
