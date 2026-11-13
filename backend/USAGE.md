@@ -40,7 +40,7 @@
 - **bugfix 循环上限**：修复循环 >3 轮、根因回退 >2 次 → Skill 自动交还人工，不要硬催 AI 继续试。
 - **存量迁移批量确认**：legacy-test-migration 单批 ≤200 条，超限须人工确认分批。
 - **对外契约变更**：编码中发现需要改 OpenAPI/schema 语义时，AI 会暂停回 detail-design——人确认是否真的要动契约。
-- **代码审查放行**：按档位闭环未满足不放行（L1=P0/P1；L2=P0–P2；L3=P0–P3）；外部验证 P2 记录验证方式后可放行；L0 改动跳过审查须在回复说明。
+- **代码审查放行**：L1=P0/P1；L2=P0/P1 + 正确性/安全 P2；L3=P0–P2；外部验证 P2 记录验证方式后可放行；L0（文档/路径/机械改动）不派 agent，回复说明自动门禁结果。
 
 ---
 
@@ -79,7 +79,7 @@ QA 专员另有一条专线（同源 Story，非上下游）：Story + OpenAPI �
 5. 对 Agent 说：*「用 detail-design 做 STORY-2026-S03-001」* → 产出 DD + OpenAPI + schema。
 6. 对 Agent 说：*「用 test-spec-alignment 给 STORY-2026-S03-001 出 TS」*。
 7. 对 Agent 说：*「用 feature-coding 实现 STORY-2026-S03-001，跑全量测试」*。
-8. **代码审查（commit 前）**：对独立审查人（新会话 / 审查 agent / 人）说 *「按 rules/code-review.md §三 给全输入（档位、Story/AC、diff 范围、DD/TS/OpenAPI、mvn test 结果、关注点）审查 STORY-2026-S03-001，档位 L2」*；报告落 `docs/reviews/{迭代}/REVIEW-CODE-IMPL-*`，按档位闭环（L1=P0/P1；L2=P0–P2；L3=P0–P3）后才允许 commit / 进集成测试。L0（纯注释/格式化/重命名/日志文案）跳过并说明原因。审查人不要求与实现使用同一 Agent。
+8. **代码审查（commit 前）**：先跑 `mvn test` + 校验器；对独立审查人（新会话 / 审查 agent / 人）说 *「按 rules/code-review.md §三 给最小输入（档位、Story/AC、变更文件清单、自动门禁结果、1–3 个关注点）审查 STORY-2026-S03-001，档位 L2」*；报告落 `docs/reviews/{迭代}/REVIEW-CODE-IMPL-*`，按 §五闭环（L1=P0/P1；L2=P0/P1+正确性 P2；L3=P0–P2）。L0（文档/路径/机械改动）不派 agent，回复说明自动门禁结果。审查人不要求与实现使用同一 Agent。
 9. 跨模块/含外部链路的卡，追加：*「用 integration-test-design 给这张卡补集成测试」*；IT 代码合入前按同一规则审 `REVIEW-CODE-IT-*`。
 10. 单卡完成后，提测前：QA 走 `qa-acceptance-case-design` → 部署后 `api-blackbox-test`。
 

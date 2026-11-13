@@ -86,10 +86,10 @@ api/generated/       OpenAPI client（可选）
 - **触发**：步骤 6 验证通过后、联调/提测前；审查通过前禁止 commit/push。
 - **规则**：[code-review.md](../../rules/code-review.md)（前端线专用）；报告模板 [code-review-report.md](../../templates/code-review-report.md)。
 - **动作**：按规则 §三 给全输入（档位、STORY-FE/AC、diff + 本次相关新增文件、DD-FE/OpenAPI/VERSION、npm test/手测结果、关注点）；独立审查人（新会话 / 审查 agent / 人）只读审查；实现者（主流程）落盘。
-- **闭环**：L1=P0/P1；L2=P0–P2；L3=P0–P3（含复审）；连续 >3 轮交还人工。
+- **闭环**：L1=P0/P1；L2=P0/P1 + 正确性/安全 P2；L3=P0–P2；不默认复审，连续 2 轮交还人工。
 - **审查重点**：operationId 范围、字段只认 OpenAPI、页面不直接发请求、请求层/错误码、页面状态机、错误展示、`setData`/性能、`onUnload` 清理。
 - **报告**：`docs/reviews/{迭代}/REVIEW-CODE-FE-{Story编号}-{slug}.md`；结论「通过」才可联调/提测。
-- **L0 例外**：纯注释/格式化/重命名/日志文案不送审，回复说明跳过原因。
+- **L0 例外**：文档/路径/重命名/机械移动不送审，回复说明自动门禁结果。
 
 ## 4. 验收
 

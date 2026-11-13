@@ -133,7 +133,7 @@ description: >-
 
 ### 步骤 7：独立代码审查（合入前）
 
-按 [code-review.md](../../rules/code-review.md) §二 定档（通常 L1/L2；>8 文件/diff >400 行或含业务代码/跨模块 → L3），按 §三 给全输入（档位、Story/AC、diff + 本次新增脚本、AC-STORY/OpenAPI、pytest 结果、关注点）；审查人只读，实现者落盘 `docs/reviews/{迭代}/REVIEW-CODE-BB-{Story编号}-{slug}.md`；按 §五 档位闭环。重点：Token/URL 不硬编码、不接生产、断言粗粒度、去重、失败输出可定位。L0 例外：纯注释/格式化/重命名/日志文案不送审，回复说明跳过原因；审查完成后回填步骤 6 汇总的「代码审查」节，再输出最终汇总。
+按 [code-review.md](../../rules/code-review.md) §二 定档（脚本改动通常 L1/L2；契约/跨模块 → L3），按 §三 给全输入（档位、Story/AC、diff + 本次新增脚本、AC-STORY/OpenAPI、pytest 结果、关注点）；审查人只读，实现者落盘 `docs/reviews/{迭代}/REVIEW-CODE-BB-{Story编号}-{slug}.md`；按 §五 档位闭环。重点：Token/URL 不硬编码、不接生产、断言粗粒度、去重、失败输出可定位。L0 例外：文档/路径/重命名/机械移动不送审，回复说明跳过原因；审查完成后回填步骤 6 汇总的「代码审查」节，再输出最终汇总。
 
 ## 降级策略
 

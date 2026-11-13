@@ -67,9 +67,9 @@ Controller 测试在 **BFF**，不在 `*-impl`。
 ### 2.7 独立代码审查
 
 - **触发**：`mvn test` 全绿后、commit / IT / 提测前；规则见 `rules/code-review.md`
-- **档位**：L1/L2/L3（默认 L2；核心链路、DDL/批量订正、跨模块、超阈值 = L3）
+- **档位**：L0 机械改动不派；L1 ≤3 文件；L2 一般；L3 核心链路/DDL/跨模块契约
 - **报告**：`docs/reviews/{迭代}/REVIEW-CODE-IMPL-{Story编号}-{slug}.md`；审查人只读，实现者（主流程）落盘
-- **放行**：按档位闭环（L1=P0/P1；L2=P0–P2；L3=P0–P3）后才允许 commit / 进入 IT
+- **放行**：按档位闭环（L1=P0/P1；L2=P0/P1 + 正确性/安全 P2；L3=P0–P2）后才允许 commit / 进入 IT
 
 ---
 

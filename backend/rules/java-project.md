@@ -16,6 +16,8 @@ order-impl / inventory-impl        →  parking-adapter-api、iot-api、hema-com
 
 ## 必守
 
+> 布局与域聚合模块约定见 [project-layout.md](project-layout.md)。
+
 1. **App/Admin BFF 分离**：App HTTP 只在 `booking-bff-app`；Admin HTTP 只在 `booking-bff-admin`
 2. **唯一启动类**：`booking-app`；BFF 模块 **不得**含 `main`
 3. **api/impl 分离**：`*-api` 仅契约 + DTO；业务在 `*-impl`；**`*-impl` 无 Controller**
