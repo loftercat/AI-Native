@@ -216,6 +216,7 @@ Java 类/方法骨架、关键时序图，汇总为 `DD-STORY-*.md`。
 5. **OpenAPI**：diff 摘要 → **用户确认** → 合并到 `docs/api/{服务标识}/openapi.yaml`
 6. **同名 DD**：不静默覆盖，提示覆盖/重命名
 7. **安全边界**：仅写详设、OpenAPI、schema 约定路径
+8. **送审**：按 [rules/artifact-review.md](../../rules/artifact-review.md) §二 的 DD 三项必查派独立审查人，报告落 `docs/reviews/{迭代}/REVIEW-DD-{slug}.md`，通过后状态改「已确认」
 
 ### 步骤 11：产出汇总（对话输出，默认不落盘）
 

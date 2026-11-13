@@ -100,8 +100,9 @@ description: >-
 - 命名见 `rules/card-naming-conventions.md`；**不静默覆盖**已存在文件（有则先读差异再确认）
 - 使用模板结构，删除模板说明块
 
-### 步骤 9：产出汇总
+### 步骤 9：送审与产出汇总
 
+- **送审**：按 [rules/artifact-review.md](../../rules/artifact-review.md) §二 的 TS 三项必查派独立审查人，报告落 `docs/reviews/{迭代}/REVIEW-TS-{slug}.md`；通过后状态改「已确认」
 - TS 落盘路径 + AC 覆盖统计（N 条 AC → N 行映射）
 - 缺口与阻断项清单
 - 下游提示：`feature-coding` 以本 TS 为用例来源；含集成层用例时提示 `integration-test-design`
