@@ -99,7 +99,7 @@ description: >-
 
 ---
 
-## 7. 标准流程（十步）
+## 7. 标准流程（十一步）
 
 1. 加载资产  
 2. 解析 Epic  
@@ -110,7 +110,8 @@ description: >-
 7. 1～3 条主旅程 Mermaid  
 8. 数据主权 + NFR + ADR  
 9. 建议 Story 列表 + 落盘  
-10. 产出汇总 → 提示 `story-splitting`
+10. **送审**：按 [rules/artifact-review.md](../../rules/artifact-review.md) §二 的 HLD 三项必查派独立审查人，报告落 `docs/reviews/{迭代}/REVIEW-HLD-{slug}.md`；通过后状态改「已确认」  
+11. 产出汇总 → 提示 `story-splitting`
 
 ---
 
