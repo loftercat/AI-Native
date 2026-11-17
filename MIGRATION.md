@@ -1,6 +1,6 @@
 # MIGRATION：把本模板接入你的项目
 
-模板自已落地的源项目（Java 21 + Spring Boot 3.2 + Maven 多模块 + 双 BFF）抽取。本文件为**后端线**接入指南；只用前端线直接见 [frontend/README.md](frontend/README.md) 的「接入替换」节。接入 = **替换项目锚点 + 填写画像 + 按需裁剪**。判定不变式（继承自 journey-scenario-design）：**凡「追问怎么问、分几条、何时阻断」是通用层，不用改；凡出现具体文件名、系统名、路径、号段的是项目层，须替换。**
+本文件为后端接入指南；前端请阅读 [frontend/README.md](frontend/README.md)，模板结构抽取自落地项目，落地项目技术和架构：Java 21 + Spring Boot 3.2 + Maven 多模块 + 双 BFF。
 
 ## 一、接入步骤
 
