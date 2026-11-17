@@ -28,7 +28,7 @@ Epic/PRD/原型 + 后端 OpenAPI handoff（docs/handoff/）
 
 ## 使用
 
-见 [USAGE.md](USAGE.md)（含可直接复制的提示词 Demo、端到端示例、反模式清单）。接入替换见根 [MIGRATION.md](../MIGRATION.md) §三。
+见 [USAGE.md](USAGE.md)（含可直接复制的提示词 Demo、端到端示例、反模式清单）。接入替换见根 [MIGRATION.md](../MIGRATION.md) §二。
 
 ## 与 backend 线的关系
 

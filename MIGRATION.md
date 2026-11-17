@@ -68,16 +68,16 @@ grep -rn "booking\|hema\|2026-S" backend/skills/ backend/rules/
 
 本步由 AI 执行：AI 从画像（§二 域清单）与词表选取真实业务域，构造「查询-分配」同族用例（源项目为 query-allocate-space 一族），保持文件名模式与结构，把 `docs/**/_golden/` 下 12 个样例用本项目业务重写一遍，提交人验收——Golden 的价值是「标准长什么样」，不是「别人的业务长什么样」。画像与词表仍为占位、构造不出可信场景时，降级为人工指定场景后再重写。
 
-### 4. 分发到 Agent
+### 4. 分发到 Agent（AI 执行，人告知所用 Agent）
 
-- Cursor：对应线 `skills/` → `.cursor/skills/`，`rules/*.md` → `.cursor/rules/*.mdc`（加回 frontmatter：description + globs/alwaysApply）
-- Claude Code / 其他 Agent：放到对应技能/规则目录
-- **后端线**：`skills/`、`rules/`、`templates/` 一起分发；`templates/` 至少包含 `code-review-report.md` 与 `stage-review-report.md`，目标布局建议与 `rules/` 同级。
-- **前端线**：`frontend/rules/code-review.md` 与 `frontend/templates/code-review-report.md` 随线分发；前端线不依赖 `backend/` 路径。
-- **代码审查**：规则/模板随线分发即可，不绑定 Agent；审查人可为独立 AI 会话、专用审查 agent、人或 CI 工具，统一使用 `rules/code-review.md` §三 的任务书。
-- **不要用 symlink 做多 Agent 镜像**：Windows 无特权检出时 symlink 物化成路径文本文件，镜像静默失效（源项目实测教训）。多 Agent 用 CI 拷贝同步。
-- 分发后按目标布局调整 `AGENTS.md` 与规则内的相对链接，并跑 `bash <线>/scripts/validate-skills.sh` 验证；模板仓库里的 `backend/...` 链接只是示例布局。
-- hooks 按 [backend/hooks/README.md](backend/hooks/README.md) 注册，先改 `PROTECTED` 保护路径。
+本步由 AI 执行：人告知所用 Agent 与目标目录，AI 按该 Agent 的技能/规则目录约定完成分发与格式适配，跑校验器验证。
+
+**AI 任务**：
+
+1. **分发资产（按线）**：后端线 = `skills/` + `rules/` + `templates/`（至少含 `code-review-report.md`、`stage-review-report.md`）+ 可选 `hooks/`；前端线 = `skills/` + `rules/` + `templates/`，不依赖 `backend/` 路径。
+2. **格式适配（按所用 Agent 的约定）**：技能放技能目录、规则放规则目录；Agent 对规则有格式要求时适配——如 Cursor 需转 `.mdc` 并加回 frontmatter（description + globs/alwaysApply），纯 markdown 可直接读的 Agent 原样落位。拿不准该 Agent 的目录约定时问人，不猜。
+3. **不变约束**：① 不用 symlink 做多 Agent 镜像——Windows 无特权检出时 symlink 物化成路径文本文件，镜像静默失效（源项目实测教训），多 Agent 用 CI 拷贝同步；② 代码审查不绑定 Agent——审查人可为独立 AI 会话、专用审查 agent、人或 CI 工具，统一使用 `rules/code-review.md` §三 的任务书；③ hooks 按 [backend/hooks/README.md](backend/hooks/README.md) 注册，`PROTECTED` 先改保护路径，前端线复用同机制、路径改前端公共组件目录。
+4. **验证**：分发后按目标布局调整 `AGENTS.md` 与规则内的相对链接，跑 `bash <线>/scripts/validate-skills.sh`；模板仓库里的 `backend/...` 链接只是示例布局。
 
 ### 5. 裁剪（按需）
 
@@ -86,24 +86,9 @@ grep -rn "booking\|hema\|2026-S" backend/skills/ backend/rules/
 - **存量项目无历史用例**：去掉 legacy-test-migration。
 - 裁剪后跑对应线 `bash scripts/validate-skills.sh`，清掉对被裁 skill 的引用。
 
-## 二、与源项目的差异（刻意为之）
+## 二、前端线接入（frontend/，可选）
 
-| 差异 | 原因 |
-|------|------|
-| 无 `.cursor/.claude` symlink 镜像 | Windows 检出下 symlink 失效（实测），改为 CI 拷贝建议 |
-| `validate-skills.sh` 链接 FAIL / tick WARN 分级 | 源版因字符集 bug 所有带扩展名引用静默跳过；模板版明确化：显式链接缺失才 FAIL，tick 提及降 WARN |
-| rules 从 `.mdc` 改为纯 `.md` | 去除 Cursor frontmatter 依赖，跨 Agent 中立；Cursor 接入时加回 |
-| `.cursor/current-sprint` → `backend/config/current-sprint` | 同上，路径中立 |
-| 根级 `AI-NATIVE-*.md` 治理文档未随附 | 那是源项目的迁移历史记录；通用思想已并入各线 `docs/methodology/` 与本文件 |
-| `docs/reference/hema-common-api.md` 未随附 | 公司级公共库专属速查；等价物 = `backend/rules/exception-and-result.md` |
-| 前端线无 symlink 镜像、无 hooks | 源项目前端仓未铺 hooks；机制可复用 backend 的（改 PROTECTED 路径为前端公共组件目录） |
-| 新增 Story 审查最小闭环（源项目没有） | 为治理纪律滑坡（源项目 TS 采用率仅约 7% 的教训）：拆卡后独立审查、报告落 `backend/docs/reviews/`、状态「已确认」由校验器强制对应报告。刻意只做单点门禁，未引入四门/轮次上限/成本度量 |
-| 新增代码审查最小闭环（源项目没有） | 编码后/合并前独立审查 diff + Story/DD/TS/OpenAPI；L1/L2/L3 对应 P0–P3 闭环；报告 `REVIEW-CODE-{阶段}-*`（IMPL/IT/FIX/FE/BB/SEED）；连续 >3 轮交还人工。与 Story 审查不同：代码审查有 3 轮上限 |
-| 前端线未含 e2e / frontend-test-spec-alignment | 源项目此两项尚在规划测试中（设计师自述未闭环）；定型后可补抽 |
-
-## 三、前端线接入（frontend/，可选）
-
-只用后端线可跳过本节。前端线自源项目 C 端小程序仓抽取，接入步骤：
+只用后端线可跳过本节。前端线自源项目 C 端小程序仓抽取，**未含 e2e 与 frontend-test-spec-alignment**（源项目尚在规划测试中，定型后可补抽），接入步骤：
 
 1. **画像**：填 `frontend/architecture/system-landscape.md`——重点 §四（契约文件/鉴权/错误码对齐）与 §六（与后端流水线的协作机制）；词表 `frontend/glossary/` 与后端仓对齐。
 2. **handoff 包**：从后端团队拿 OpenAPI 快照 + 版本 pin，放入 `frontend/docs/handoff/openapi/{后端服务标识}.yaml` 与 `VERSION`（机制见 `frontend/docs/handoff/README.md`）。**前端永远不直接改契约**。
@@ -120,7 +105,7 @@ grep -rn "booking\|hema\|2026-S" backend/skills/ backend/rules/
 
 4. **Golden 重写**：同 §一.3 模式——AI 从前端画像选真实页面需求重写 `frontend/docs/**/_golden/` 的 STORY-FE / DD-FE 样例（destination-search-allocate 一族），画像不足时人工指定，提交人验收。
 
-## 四、接入后验收
+## 三、接入后验收
 
 1. 两个校验器均 **PASSED**：`bash backend/scripts/validate-skills.sh`、`bash frontend/scripts/validate-skills.sh`（WARN 逐条确认是「提及目标项目文件」而非真断链）。
 2. 后端线挑一个真实小需求走通：journey-scenario-design（或直接 story-splitting）→ detail-design → feature-coding，产出路径与命名符合 `backend/docs/agile/card-naming-conventions.md`。
