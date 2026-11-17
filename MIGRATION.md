@@ -1,12 +1,17 @@
 # MIGRATION：把本模板接入你的项目
 
-模板自已落地的源项目（Java 21 + Spring Boot 3.2 + Maven 多模块 + 双 BFF）抽取。接入 = **替换项目锚点 + 填写画像 + 按需裁剪**。判定不变式（继承自 journey-scenario-design）：**凡「追问怎么问、分几条、何时阻断」是通用层，不用改；凡出现具体文件名、系统名、路径、号段的是项目层，须替换。**
+模板自已落地的源项目（Java 21 + Spring Boot 3.2 + Maven 多模块 + 双 BFF）抽取。本文件为**后端线**接入指南；只用前端线直接见 [frontend/README.md](frontend/README.md) 的「接入替换」节。接入 = **替换项目锚点 + 填写画像 + 按需裁剪**。判定不变式（继承自 journey-scenario-design）：**凡「追问怎么问、分几条、何时阻断」是通用层，不用改；凡出现具体文件名、系统名、路径、号段的是项目层，须替换。**
 
 ## 一、接入步骤
 
-### 1. 填写项目画像（必做，最重要）
+### 1. 填写项目画像（必做，AI 起草，人审定稿）
 
-`backend/architecture/system-landscape.md` 是模板中唯一必须逐节填写的文件——12 个 Skill 的项目层判断（模块归属、号段路由、测试账号、外部系统 Mock 边界）全部读它。逐节按注释替换示例值，**保留被 Skill 引用的小节编号**（§3.7 错误码号段、§4.3.4 测试账号约定、§4.7 责任域定位——锚点断了 Skill 引用就漂了）。
+`backend/architecture/system-landscape.md` 是模板中唯一必须逐节填写的文件——12 个 Skill 的项目层判断（模块归属、号段路由、测试账号、外部系统 Mock 边界）全部读它。两条路径均以人审定稿收口——画像是项目层事实唯一定义处，错了全链路漂。
+
+| 项目形态 | 填法 |
+|----------|------|
+| 现有项目接入（已有代码） | AI 扫代码仓起草：构建文件→模块与技术栈、Controller→URL 前缀、错误码枚举→号段表、client/config→外部集成；人审补漏后定稿 |
+| 从 0 开始的新项目 | 无代码可扫，模块切分/技术栈/部署形态是**架构决策**：AI 按画像模板逐节提问访谈（模板注释即提纲）或基于 PRD 出提案，每节人拍板。**不必一次填满**——先填最小可用（产品定位、技术栈、部署形态、初始模块），跑完 high-level-design 后把定稿的模块边界与集成矩阵回写画像 §二/§四 |
 
 `backend/glossary/domain-glossary.md` 按业务域重建词表（缺失时 Skill 降级运行，不阻断）。
 
@@ -79,33 +84,14 @@ grep -rn "booking\|hema\|2026-S" backend/skills/ backend/rules/
 3. **不变约束**：① 不用 symlink 做多 Agent 镜像——Windows 无特权检出时 symlink 物化成路径文本文件，镜像静默失效（源项目实测教训），多 Agent 用 CI 拷贝同步；② 代码审查不绑定 Agent——审查人可为独立 AI 会话、专用审查 agent、人或 CI 工具，统一使用 `rules/code-review.md` §三 的任务书；③ hooks 按 [backend/hooks/README.md](backend/hooks/README.md) 注册，`PROTECTED` 先改保护路径，前端线复用同机制、路径改前端公共组件目录。
 4. **验证**：分发后按目标布局调整 `AGENTS.md` 与规则内的相对链接，跑 `bash <线>/scripts/validate-skills.sh`；模板仓库里的 `backend/...` 链接只是示例布局。
 
-### 5. 裁剪（按需）
+### 5. 工作流裁剪（按需）
 
 - **无 QA 团队**：可去掉 QA 专线 4 个 skill（qa-acceptance-case-design / api-blackbox-test / test-data-design / legacy-test-migration 的黑盒部分）——黑盒冒烟由集成测试取代（见 [backend/docs/methodology/test-line.md](backend/docs/methodology/test-line.md) §4.2）。
 - **无独立前端仓**：忽略前端协作章节。
 - **存量项目无历史用例**：去掉 legacy-test-migration。
 - 裁剪后跑对应线 `bash scripts/validate-skills.sh`，清掉对被裁 skill 的引用。
 
-## 二、前端线接入（frontend/，可选）
-
-只用后端线可跳过本节。前端线自源项目 C 端小程序仓抽取，**未含 e2e 与 frontend-test-spec-alignment**（源项目尚在规划测试中，定型后可补抽），接入步骤：
-
-1. **画像**：填 `frontend/architecture/system-landscape.md`——重点 §四（契约文件/鉴权/错误码对齐）与 §六（与后端流水线的协作机制）；词表 `frontend/glossary/` 与后端仓对齐。
-2. **handoff 包**：从后端团队拿 OpenAPI 快照 + 版本 pin，放入 `frontend/docs/handoff/openapi/{后端服务标识}.yaml` 与 `VERSION`（机制见 `frontend/docs/handoff/README.md`）。**前端永远不直接改契约**。
-3. **替换前端锚点**（示例值 → 本项目）：
-
-| 类别 | 示例值 | 替换为 |
-|------|--------|--------|
-| 契约文件 | `docs/handoff/openapi/booking-bff-app.yaml` | 你的后端服务契约快照 |
-| 技术栈 | 微信小程序原生（`wx.*`、`pages/`、分包） | 你的前端框架（Vue/React/uni-app 等；`rules/miniprogram-*` 两条按栈重写或裁剪） |
-| 页面/组件名 | `pages/destination-search/` 等 | 本项目页面结构（画像 §3.2） |
-| 迭代号 | `2026-S01/S02` | 与后端线一致的迭代约定（`frontend/config/current-sprint`） |
-
-自查：`grep -rn "booking\|hema\|2026-S" frontend/skills/ frontend/rules/`，预期全部为上表已声明示例。
-
-4. **Golden 重写**：同 §一.3 模式——AI 从前端画像选真实页面需求重写 `frontend/docs/**/_golden/` 的 STORY-FE / DD-FE 样例（destination-search-allocate 一族），画像不足时人工指定，提交人验收。
-
-## 三、接入后验收
+## 二、接入后验收
 
 1. 两个校验器均 **PASSED**：`bash backend/scripts/validate-skills.sh`、`bash frontend/scripts/validate-skills.sh`（WARN 逐条确认是「提及目标项目文件」而非真断链）。
 2. 后端线挑一个真实小需求走通：journey-scenario-design（或直接 story-splitting）→ detail-design → feature-coding，产出路径与命名符合 `backend/docs/agile/card-naming-conventions.md`。

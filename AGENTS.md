@@ -7,7 +7,7 @@
 - **修改 Skill / Rule**：遵循单点维护——项目事实只写各线 `architecture/system-landscape.md`，Skill 与 Rule 引用不复制；改完跑对应线校验器，新增文件必须 UTF-8。
 - **不要在本仓库造业务工件**：`{backend,frontend}/docs/*` 只放 `_golden/` 样例；接入项目后才会在迭代目录下产真实工件。
 - **保持 Skill 自包含**：templates/ 与 references/ 随 SKILL.md 同目录；引用外部文档用相对路径且须可达（校验器管链接，tick 提及仅 WARN）。
-- **项目示例值是有意的**：`booking-*` 模块名、`com.hema` 包名、错误码号段、`booking-bff-app.yaml` 等保留作示例（每个 SKILL.md 顶部有「模板版说明」）；不要在模板里"替换掉它们"，替换发生在接入项目时（清单见 MIGRATION.md §一.2 与 §三）。
+- **项目示例值是有意的**：`booking-*` 模块名、`com.hema` 包名、错误码号段、`booking-bff-app.yaml` 等保留作示例（每个 SKILL.md 顶部有「模板版说明」）；不要在模板里"替换掉它们"，替换发生在接入项目时（清单见 MIGRATION.md §一.2 与 §二）。
 
 ## Skill 与 Rule 的分工
 
