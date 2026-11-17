@@ -10,7 +10,7 @@
 
 | # | 前置 | 验证方式 |
 |---|------|----------|
-| 1 | 按 [MIGRATION.md](../MIGRATION.md) 完成接入：画像（`architecture/system-landscape.md`）逐节填好、项目锚点替换、Golden 用本项目业务重写 | `bash scripts/validate-skills.sh` PASSED |
+| 1 | 按 [MIGRATION.md](../MIGRATION.md) 完成接入：画像（`architecture/system-landscape.md`）逐节填好；锚点替换与 Golden 重写由 AI 执行，人确认映射提案并终审（MIGRATION §一.2 / §一.3） | `bash scripts/validate-skills.sh` PASSED |
 | 2 | skills/、rules/、templates/ 已分发到所用 Agent 的技能目录（Cursor / Claude Code 等） | 对 Agent 说「列出你可用的 skill」，能看到 12 个；`templates/code-review-report.md` 可达 |
 | 3 | 代码仓库可构建、存量测试全绿（`mvn test` 或等价命令） | 本地跑一遍构建测试 |
 | 4 | （可选，建议）hooks 按 [hooks/README.md](hooks/README.md) 注册，`PROTECTED` 保护路径改成本项目公共代码 | 改 `booking-common` 等价目录时被拦下询问 |
@@ -33,7 +33,7 @@
 | 环境造数（test-data-design） | 数据库连接串环境变量 `SEED_DB_URL`（由运维/CI 注入） | seed 脚本 `sys.exit(0)` skip |
 | 验收用例（qa-acceptance-case-design） | Story 卡 + OpenAPI 契约齐备（**硬依赖**） | Skill 阻断，不产出伪造 URL 的用例 |
 
-### 4. 人工必须保留的决策点（流程设计上就不放权给 AI）
+### 4. 人工介入点（流程设计上就不放权给 AI）
 
 - **Epic 级拆卡确认**：story-splitting 产出 Story 列表后**须人确认才落盘**——卡的边界与优先级是人的决策。
 - **阻断类缺口裁决**：Skill 遇到「信息不足且不可推断」时停下提问（缺口三分法），人回答后继续；AI 会用 `[AI推断]` 标注它补的内容，人工审查时优先看这些标注。
@@ -41,6 +41,8 @@
 - **存量迁移批量确认**：legacy-test-migration 单批 ≤200 条，超限须人工确认分批。
 - **对外契约变更**：编码中发现需要改 OpenAPI/schema 语义时，AI 会暂停回 detail-design——人确认是否真的要动契约。
 - **代码审查放行**：L1=P0/P1；L2=P0/P1 + 正确性/安全 P2；L3=P0–P2；外部验证 P2 记录验证方式后可放行；L0（文档/路径/机械改动）不派 agent，回复说明自动门禁结果。
+
+> AI 各类停下行为（阻断提问 / `[AI推断]` / 提醒 / 降级 / 覆盖确认）的应对速查见 §四。
 
 ---
 
