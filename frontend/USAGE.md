@@ -35,13 +35,14 @@ frontend-feature-coding     →  pages/ components/ services/ + 测试
 2. **每张前端 Story 必须点名本卡 `operationId`**，不能只丢整份 YAML
 3. **只调 BFF**（`/api/v1/booking/app/`）；业务成败看 `body.code === 200`
 4. **性能**：setData 合并低频、`onUnload` 解绑监听/清定时器（见 `rules/miniprogram-performance.md`）
+5. **设计稿登记**：视觉项在 STORY-FE「设计稿」节登记稿件位置与状态；无稿才标 `UI: TBD`，不允许整卡视觉项全留空
 
 ### 三段输入一览
 
 | Skill | 关键输入 | 产出 |
 |-------|----------|------|
-| story-splitting | 后端 OpenAPI + 契约版本 + Epic/PRD/原型 + **后端 Story 摘要** | STORY-FE-*.md |
-| detail-design | 前端 Story + 后端 OpenAPI + 原型 + Rule | DD-FE-*.md |
+| story-splitting | 后端 OpenAPI + 契约版本 + Epic/PRD/原型 + **后端 Story 摘要** | STORY-FE-*.md（含「设计稿」节） |
+| detail-design | 前端 Story + 后端 OpenAPI + 设计稿（按卡登记） + Rule | DD-FE-*.md |
 | feature-coding | 前端 Story + 前端详设 + 后端 OpenAPI + Rule | pages/components/services + 测试 |
 
 > 详设输入 = 上一段产出 + OpenAPI；编码输入 = 上两段产出 + OpenAPI。OpenAPI 贯穿三段。
@@ -54,10 +55,10 @@ frontend-feature-coding     →  pages/ components/ services/ + 测试
 1. 当前迭代：config/current-sprint（如 2026-S01）
 2. 后端契约：docs/handoff/openapi/booking-bff-app.yaml
 3. 契约版本：docs/handoff/VERSION（tag 或 commit SHA）
-4. 原型：后端仓 docs/prototype/（或 handoff）
+4. 原型（交互稿，拆卡输入）：后端仓 docs/prototype/（或 handoff）
 ```
 
-若 `docs/handoff/VERSION` 为 `TBD`，先从后端仓同步 OpenAPI 再开工。
+若 `docs/handoff/VERSION` 为 `TBD`，先从后端仓同步 OpenAPI 再开工（纯 UI 卡除外——无集成层时无需等待 OpenAPI 与契约版本）。
 
 ---
 
@@ -84,11 +85,11 @@ frontend-feature-coding     →  pages/ components/ services/ + 测试
 
 - 后端 Story 摘要：打开后端 `STORY-*`，复制 §1 + §2.3 + 相关 AC/BR 到提示词；或 `@` 后端 Story 路径让 AI 自取摘要
 - OpenAPI：本仓 `docs/handoff/openapi/` 已同步副本；提示词里 `@` 该文件
-- 原型：后端仓 `docs/prototype/源项目原型 demo/*.html`；可 `@` 或描述文件名
+- 原型（交互稿，拆卡输入）：后端仓 `docs/prototype/源项目原型 demo/*.html`；可 `@` 或描述文件名；拆卡时登记进 STORY-FE「设计稿」节，之后按设计稿管理
 
 ### 产出格式
 
-每张 `STORY-FE-*` 必含三节：
+每张 `STORY-FE-*` 必含四节：
 
 ```markdown
 ## 契约
@@ -101,6 +102,13 @@ frontend-feature-coding     →  pages/ components/ services/ + 测试
 ## 本卡 API 范围
 | AC | operationId | Method | Path | 说明 |
 |----|-------------|--------|------|------|
+
+## 设计稿
+| 页面/组件 | 稿件位置 | 状态 |
+|-----------|---------|------|
+| 首页-框架 | docs/prototype/home-frame.png | 已定稿 |
+
+- 有稿登记位置与状态；无稿写 `无 → UI: TBD`；纯 UI 卡本节是主要验收依据
 
 ## 不在本卡范围
 - 列出其它 operationId，防止编码越界
@@ -123,7 +131,7 @@ frontend-feature-coding     →  pages/ components/ services/ + 测试
 本卡涉及的 operationId：getActiveReservation（GET /reservations/active）
 
 请拆出前端 Story STORY-FE-2026-S01-002，AC 用 Given/When/Then，字段认 OpenAPI examples。
-纯 UI（底 Tab、地图背景）标 UI: TBD。
+视觉项（底 Tab、地图背景）在「设计稿」节登记稿件位置；无稿才标 UI: TBD。
 ```
 
 #### Demo 2：从 PRD + 原型拆卡（产品驱动）
@@ -133,11 +141,12 @@ frontend-feature-coding     →  pages/ components/ services/ + 测试
 
 输入：
 - Epic：EPIC-{项目} §4.1
-- 原型：docs/prototype/源项目原型 demo/目的地.html
+- 原型（交互稿）：docs/prototype/源项目原型 demo/目的地.html
 - 契约：docs/handoff/openapi/booking-bff-app.yaml @ 9f3673b
 
 请拆「目的地搜索 + 车场列表」前端 Story。
 在 openapi.yaml 中检索 /lots 相关 operation，列出本卡 operationId 范围。
+设计稿（目的地.html）已定稿，登记到「设计稿」节。
 后端 Story 尚未拆，标注「后端Story: TBD」。
 ```
 
@@ -167,7 +176,7 @@ frontend-feature-coding     →  pages/ components/ services/ + 测试
 | **前端 Story** | ✅ 必须 | `docs/requirements/{迭代}/STORY-FE-*.md` | 上一段 story-splitting 产出；含本卡 operationId 范围 |
 | **后端 OpenAPI** | ✅ 必须 | `docs/handoff/openapi/booking-bff-app.yaml` | 读 schema/examples 设计状态机与字段展示 |
 | **契约版本** | ✅ 必须 | `docs/handoff/VERSION` | 与 Story 一致 |
-| **原型** | ◯ 可选 | 后端仓 `docs/prototype/*.html` | 视觉参考；无则标 `TBD` |
+| **设计稿** | ◯ 按 Story 卡登记 | `docs/prototype/*.html`（位置见 STORY-FE「设计稿」节） | 视觉参考；卡上 `UI: TBD` 项不可猜样式 |
 | **系统画像** | ✅ 必读 | `architecture/system-landscape.md` | 路由/分包/集成边界 |
 | **领域词表** | ◯ 降级 | `glossary/domain-glossary.md` | 术语一致 |
 | **Rule** | ✅ 必读 | `rules/miniprogram-project.md`、`rules/api-client-conventions.md`、`rules/error-display-conventions.md`、`rules/miniprogram-performance.md` | 分层/请求/错误/性能约束 |
@@ -176,7 +185,7 @@ frontend-feature-coding     →  pages/ components/ services/ + 测试
 
 - Story：`@docs/requirements/{迭代}/STORY-FE-*.md`
 - OpenAPI：`@docs/handoff/openapi/booking-bff-app.yaml`
-- 原型：`@docs/prototype/.../*.html`（后端仓）或描述文件名
+- 设计稿：按 STORY-FE「设计稿」节登记的位置 `@` 对应稿件；卡未登记的有稿补登
 
 ### 产出必含
 
@@ -186,7 +195,7 @@ frontend-feature-coding     →  pages/ components/ services/ + 测试
 4. **AC → operationId 映射表**（核心）
 5. 错误展示（`code !== 200` 的 Toast/Modal）
 6. 性能关注（倒计时/长列表/分包）
-7. 原型追溯
+7. 设计稿追溯（沿用 Story 卡「设计稿」节登记并逐条核对）
 
 ### 提示词 Demo
 
@@ -197,7 +206,7 @@ frontend-feature-coding     →  pages/ components/ services/ + 测试
 
 Story：@docs/requirements/2026-S01/STORY-FE-2026-S01-002-active-booking-home.md
 契约：docs/handoff/openapi/booking-bff-app.yaml @ 9f3673b
-原型：docs/prototype/源项目原型 demo/存在进行中的预约单.html
+设计稿：@docs/prototype/源项目原型 demo/存在进行中的预约单.html（按 STORY-FE「设计稿」节登记）
 
 请出 DD-FE-2026-S01-002，含：
 - 页面状态机（loading / empty / error / hasActive / noActive）
@@ -253,13 +262,13 @@ Story：@docs/requirements/2026-S01/STORY-FE-2026-S01-007-payment-countdown.md
 ### 流程
 
 ```text
-1. 加载 STORY-FE + DD-FE + OpenAPI + Rule
+1. 加载 STORY-FE + DD-FE + OpenAPI + Rule；按 Story「设计稿」节对照稿件（`UI: TBD` 项向用户要稿，不猜样式）
 2. 契约对齐：确认本卡 operationId，读 schema/examples
 3. TDD：先写 services/utils 单测，再写页面/组件
 4. 实现：pages 调 services，不直接 wx.request
 5. 性能自检：setData 合并、onUnload 清理
 6. 验证：npm test 全绿 + 开发者工具预览 + AC 逐条对照
-7. 代码审查：按 rules/code-review.md 审 diff + STORY-FE/DD-FE/OpenAPI；报告 docs/reviews/{迭代}/REVIEW-CODE-FE-*；L0 跳过并说明
+7. 代码审查：按 rules/code-review.md 审 diff + STORY-FE/DD-FE/OpenAPI（含设计稿还原）；报告 docs/reviews/{迭代}/REVIEW-CODE-FE-*；L0 跳过并说明
 ```
 
 ### 提示词 Demo
@@ -338,7 +347,7 @@ operationId：getActiveReservation（GET /reservations/active）
 
 Story：@docs/requirements/2026-S01/STORY-FE-2026-S01-002-active-booking-home.md
 契约：docs/handoff/openapi/booking-bff-app.yaml @ 9f3673b
-原型：docs/prototype/源项目原型 demo/存在进行中的预约单.html
+设计稿：@docs/prototype/源项目原型 demo/存在进行中的预约单.html（按 STORY-FE「设计稿」节登记）
 
 出 DD-FE-2026-S01-002，含页面状态机 + AC→operationId 映射表 + 错误展示 + 性能关注。
 ```
@@ -369,8 +378,9 @@ Story：@docs/requirements/2026-S01/STORY-FE-2026-S01-002-active-booking-home.md
 契约：docs/handoff/openapi/booking-bff-app.yaml @ {版本}
 
 本卡 operationId：{列出}
+设计稿：@{稿件路径}（无稿写 `无 → UI: TBD`）
 成功判据：response.code === 200
-{特殊约束：性能/UI TBD/范围限制}
+{特殊约束：性能/范围限制}
 不要实现：{排除的 operationId}
 ```
 
@@ -387,6 +397,7 @@ Story：@docs/requirements/2026-S01/STORY-FE-2026-S01-002-active-booking-home.md
 | `onUnload` 不解绑 `wx.on*`/不清定时器 | onUnload 清理清单 |
 | 跨段越界（编码时改 Story/OpenAPI） | 先回 story-splitting/detail-design |
 | 401 在页面处理 | 401 统一在 `http.js` |
+| 视觉 AC 一律标 `UI: TBD`、不登记设计稿 | 有稿登记 STORY-FE「设计稿」节；无稿才标 TBD |
 
 ---
 
@@ -398,6 +409,7 @@ Story：@docs/requirements/2026-S01/STORY-FE-2026-S01-002-active-booking-home.md
 | 前端详设 | `docs/design/{迭代}/DD-FE-{迭代}-{序号}-{slug}.md` |
 | 后端 OpenAPI 副本 | `docs/handoff/openapi/booking-bff-app.yaml` |
 | 契约版本 | `docs/handoff/VERSION` |
+| 设计稿 | `docs/prototype/…`（位置登记在 STORY-FE「设计稿」节） |
 | 代码审查报告 | `docs/reviews/{迭代}/REVIEW-CODE-FE-STORY-FE-{迭代}-{序号}-{slug}.md` |
 | 页面代码 | `pages/{page}/{page}.{js,wxml,wxss,json}` |
 | 组件代码 | `components/{comp}/{comp}.{js,wxml,wxss,json}` |
@@ -430,3 +442,4 @@ Story：@docs/requirements/2026-S01/STORY-FE-2026-S01-002-active-booking-home.md
 |------|------|
 | 2026-08-01 | 初版：三段 Skill 使用手册 + 提示词 Demo |
 | 2026-08-01 | 补充：各 Skill 明确「输入」表（来源/必须性/获取方式）+ 三段输入一览 |
+| 2026-11-17 | 增补：设计稿贯穿三段（Story 卡「设计稿」节登记 → 详设沿用核对 → 编码对照还原；审查含设计稿还原） |

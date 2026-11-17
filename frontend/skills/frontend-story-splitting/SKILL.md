@@ -28,8 +28,8 @@ description: >-
 | 1 | 迭代 | `config/current-sprint` | 询问用户 |
 | 2 | 系统画像 | `architecture/system-landscape.md` | **阻断** |
 | 3 | AGENTS.md | 做什么 / 不做什么 | 必须读 |
-| 4 | 后端 OpenAPI | `docs/handoff/openapi/{后端服务标识}.yaml` | **阻断**（集成层必须） |
-| 5 | 契约版本 | `docs/handoff/VERSION` | **阻断** |
+| 4 | 后端 OpenAPI | `docs/handoff/openapi/{后端服务标识}.yaml` | **阻断**（仅含集成层的 Story；纯 UI 卡豁免） |
+| 5 | 契约版本 | `docs/handoff/VERSION` | **阻断**（随第 4 项豁免；纯 UI 卡不适用） |
 | 6 | Epic/PRD/原型 | Epic 来源路径 | 必须有（至少其一） |
 | 7 | 后端 Story 摘要 | §1 用户故事 + §2.3 前端职责 + 相关 AC/BR | 强烈推荐 |
 | 8 | 词表 | `glossary/domain-glossary.md` | 降级 |
@@ -41,7 +41,7 @@ description: >-
 1. 读 Epic/PRD/原型 → 划定页面/用户价值 → 候选 STORY-FE
 2. 在 openapi.yaml 检索本页 paths → 列出 operationId 清单
 3. 读每个 operation 的 examples → 把分支写成可验收 AC（Given/When/Then）
-4. 纯 UI（Tab、像素）标 UI: TBD；不调 API 的 Story 可不绑 operationId
+4. 视觉项在「设计稿」节登记稿件位置与状态（§6）；无稿的项标 `UI: TBD`；不调 API 的 Story 可不绑 operationId
 5. 产出 STORY-FE-*.md，每条 API 相关 AC 附追溯（§4.1 格式）
 6. 更新 docs/handoff/stories-index.md（Story ↔ operationId，可选）
 ```
@@ -66,6 +66,14 @@ description: >-
 | AC | operationId | Method | Path | 说明 |
 |----|-------------|--------|------|------|
 
+## 设计稿
+| 页面/组件 | 稿件位置 | 状态 |
+|-----------|---------|------|
+| 首页-框架 | docs/prototype/home-frame.png | 已定稿 |
+| 首页-弹窗 | docs/prototype/home-dialog.png | 草稿，像素待定 |
+
+- 有稿登记位置与状态；无稿写 `无 → UI: TBD`；纯 UI 卡本节是主要验收依据
+
 ## 不在本卡范围
 - 列出其它 operationId，防止编码越界
 ```
@@ -76,7 +84,7 @@ description: >-
 - **后端 Story**：STORY-2026-S01-002（摘要：§1 + §2.3 + 相关 AC/BR；完整文件见后端仓）
 - **OpenAPI**：operationId `getActiveReservation`（GET `/api/v1/booking/app/reservations/active`）
 - **契约版本**：booking-bff-app @ tag `2026-S01-rc1`
-- **Given/When/Then**：…（UI 样式可 TBD）
+- **Given/When/Then**：…（视觉项引用 §设计稿 锚点；无稿才标 `UI: TBD`）
 ```
 
 ## 8. 不做
@@ -91,3 +99,4 @@ description: >-
 - 只丢整份 openapi.yaml、不在 Story 点名本卡 operationId
 - 只写接口 path、不提供 OpenAPI 文件或版本
 - 前端 AC 重新定义后端字段名
+- 视觉 AC 一律标 `UI: TBD`、不登记设计稿位置（验收标准实际为空）

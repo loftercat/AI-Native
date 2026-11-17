@@ -63,7 +63,7 @@
 | Skill | 输入 | 产出 | 不做 |
 |-------|------|------|------|
 | **frontend-story-splitting** | Epic/PRD/原型 + 后端 OpenAPI + 后端 Story 摘要 | `STORY-FE-*.md`（AC/BR + 本卡 operationId 范围） | 改 OpenAPI、写后端代码 |
-| **frontend-detail-design** | STORY-FE + OpenAPI + 原型 | `DD-FE-*.md`（页面状态机、组件树、AC→operationId 映射） | 重新定义 API 契约 |
+| **frontend-detail-design** | STORY-FE + OpenAPI + 设计稿 | `DD-FE-*.md`（页面状态机、组件树、AC→operationId 映射） | 重新定义 API 契约 |
 | **frontend-feature-coding** | STORY-FE + 详设 | 页面/组件 + 测试 | 直连 order/inventory 域、改 OpenAPI |
 
 ### 3.1 需求变更
