@@ -1,7 +1,7 @@
 ---
 name: api-blackbox-test
 description: >-
-  从 090 产出的 execution=blackbox 行 + OpenAPI 生成部署后 API 黑盒 pytest 脚本，
+  从 qa-acceptance-case-design 产出的 execution=blackbox 行 + OpenAPI 生成部署后 API 黑盒 pytest 脚本，
   在已部署测试环境执行冒烟/回归，验证部署态可用性。用于黑盒自动化、发版冒烟、
   提测回归等场景。
 ---
@@ -11,7 +11,7 @@ description: >-
 
 # API 黑盒自动化（execution=blackbox → pytest 部署后脚本）
 
-以 090 产出 `AC-STORY-*.md` 中 `execution=blackbox` 行 + OpenAPI 为输入，
+以 qa-acceptance-case-design 产出 `AC-STORY-*.md` 中 `execution=blackbox` 行 + OpenAPI 为输入，
 生成 pytest 脚本 + 冒烟 manifest，在已部署测试环境执行。
 
 本 Skill 对齐 [test-line.md](../../docs/methodology/test-line.md) §4.2~§4.3，是 QA 专线部署后执行层。
@@ -31,7 +31,7 @@ description: >-
 ## 何时触发
 
 - 部署到测试环境后（提测/发版流水线）；**不在** MR 默认 `mvn test`
-- 090 产出 `AC-STORY-*.md` 含 `execution=blackbox` 行时
+- qa-acceptance-case-design 产出 `AC-STORY-*.md` 含 `execution=blackbox` 行时
 - 需求变更时：先增量更新 pytest + manifest，废弃 AC 标 `obsolete`
 
 ## 前置加载（按序点名）
@@ -41,7 +41,7 @@ description: >-
 | 1 | 黑盒范围指引 | `references/blackbox-scope-guide.md` | **阻断** |
 | 2 | 冒烟 manifest 模板 | `templates/smoke-manifest-template.yaml` | **阻断** |
 | 3 | Golden pytest 范本 | `tests/blackbox/test_smoke_golden_*.py` | 降级 |
-| 4 | 验收清单（090 产出） | `docs/qa/{迭代}/AC-STORY-{迭代}-{序号}-*.md`（按 Story 号自动查找） | 阻断见步骤 2 |
+| 4 | 验收清单（qa-acceptance-case-design 产出） | `docs/qa/{迭代}/AC-STORY-{迭代}-{序号}-*.md`（按 Story 号自动查找） | 阻断见步骤 2 |
 | 5 | OpenAPI | 从 AC-STORY「来源」字段解析（可多个 `docs/api/{服务标识}/openapi.yaml`） | 阻断见步骤 2 |
 | 6 | IT Skill（去重参照） | `../integration-test-design/SKILL.md` | 降级 |
 | 7 | TS（可选去重参考） | `docs/test-spec/{迭代}/TS-STORY-*.md` | 跳过 |
@@ -81,10 +81,10 @@ description: >-
 ### 步骤 2：核对输入
 
 - 按 Story 编号 `STORY-{迭代}-{序号}` 在 `docs/qa/{迭代}/` 下 glob `AC-STORY-{迭代}-{序号}-*.md` 自动加载
-- 无 `AC-STORY-*.md` → **阻断**，提示提供 090 产出
-- 解析 AC-STORY「来源」字段取 OpenAPI 路径并加载；「来源」缺 OpenAPI 路径 → **阻断**（BR-01），message 含「AC-STORY 来源字段缺 OpenAPI 路径，请回 090 补全」
+- 无 `AC-STORY-*.md` → **阻断**，提示提供 qa-acceptance-case-design 产出
+- 解析 AC-STORY「来源」字段取 OpenAPI 路径并加载；「来源」缺 OpenAPI 路径 → **阻断**（BR-01），message 含「AC-STORY 来源字段缺 OpenAPI 路径，请回 qa-acceptance-case-design 补全」
 - `AC-STORY-*.md` 无 `execution=blackbox` 行 → 输出「本 Story 无黑盒候选，跳过」
-- `execution=ci_covered` 行 → **跳过 pytest 生成**（090 BR-05 双条件已判定：TS 全覆盖 **且** 无部署态独有验证点）；不复制等价 pytest 步骤
+- `execution=ci_covered` 行 → **跳过 pytest 生成**（qa-acceptance-case-design BR-05 双条件已判定：TS 全覆盖 **且** 无部署态独有验证点）；不复制等价 pytest 步骤
 - `execution=manual` / `frontend_only` / `obsolete` 行 → **跳过**（非黑盒）
 - blackbox 行缺 `blackbox_rationale` → 记录进汇总 §5 [AI推断] / §7 建议后续，不猜
 
@@ -149,7 +149,7 @@ description: >-
 
 - **不改**：Story/详设/OpenAPI/TS/Rule/Java 业务代码
 - **不写**：Java 测试（`*Test`/`*IT`）
-- **不生成**：验收 GWT（归 090）
+- **不生成**：验收 GWT（归 qa-acceptance-case-design）
 - **不定义**：GitLab CI job（仅 README 描述）
 - **不接**：生产环境
 - **不造数**：造数属 `test-data-design`

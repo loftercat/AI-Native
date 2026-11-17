@@ -16,8 +16,8 @@
 | 断言粒度 | DB + 错误码 + 状态机细断言 | HTTP 200 + `result.code==200` + 关键字段 |
 | 覆盖目标 | PR 逻辑正确性 | 部署态可用性（网关/Filter/iam/配置） |
 | 同场景 | **优先 IT**；IT 已覆盖 → pytest 不复制 | 仅域级 1 条主路径冒烟 |
-| `ci_covered` 行 | 090 已判定 TS 全覆盖 **且** 无部署态独有（BR-05 双条件） | **不生成 pytest**；Then 以 MR `mvn test` 通过为准 |
-| `manual`/`frontend_only`/`obsolete` 行 | 非黑盒 | **不生成 pytest**（归 090 GWT / 前端仓） |
+| `ci_covered` 行 | qa-acceptance-case-design 已判定 TS 全覆盖 **且** 无部署态独有（BR-05 双条件） | **不生成 pytest**；Then 以 MR `mvn test` 通过为准 |
+| `manual`/`frontend_only`/`obsolete` 行 | 非黑盒 | **不生成 pytest**（归 qa-acceptance-case-design GWT / 前端仓） |
 
 ## 2. 冒烟 vs 回归
 
