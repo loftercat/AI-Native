@@ -75,7 +75,8 @@ description: >-
 
 ### 4.7 原型追溯
 
-- `docs/prototype/` 文件名（有则写，无则 `TBD`）
+- 沿用 STORY-FE「设计稿」节的登记（稿件位置 + 状态），逐条核对一致；不一致时停下问用户，不自行改卡
+- 条目为 `无 → UI: TBD` 的按无稿处理；STORY-FE 未登记的：有稿列 `docs/prototype/` 文件名并注明「详设补登」；无稿标 `UI: TBD`
 
 ## 5. 不做
 
