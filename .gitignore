@@ -1,1 +1,4 @@
 .idea/
+
+# 本地测试项目，不入库
+love-forecast/
