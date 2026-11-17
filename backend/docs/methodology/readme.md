@@ -183,7 +183,7 @@ Golden（方法论范本）：
 | 测试规格 | [skills/test-spec-alignment/](../../skills/test-spec-alignment/)（SKILL、模板、ac-to-case-guide） |
 | 集成测试 | [skills/integration-test-design/](../../skills/integration-test-design/)（SKILL、指南、Mock/种子策略） |
 | TDD | `rules/tdd-project-conventions.md` |
-| 迁移说明 | 迁移指引（见模板根 MIGRATION.md） |
+| 迁移说明 | 迁移指引（见 [MIGRATION.md](../../MIGRATION.md)） |
 
 ---
 

@@ -1,6 +1,6 @@
 # USAGE：如何使用这套工作流
 
-本手册面向**后端线**的接入后使用者（研发 / QA / 流程管理员），回答三个问题：动手前人要准备好什么、从哪里开始、每一步人工介入点在哪。**前端线**（消费后端 handoff 契约的三段流水线）见 [frontend/USAGE.md](../frontend/USAGE.md)。模板是什么、目录结构见 [README.md](../README.md)；接入替换见 [MIGRATION.md](../MIGRATION.md)。
+本手册面向**后端线**的接入后使用者（研发 / QA / 流程管理员），回答三个问题：动手前人要准备好什么、从哪里开始、每一步人工介入点在哪。**前端线**（消费后端 handoff 契约的三段流水线）见 [frontend/USAGE.md](../frontend/USAGE.md)。模板是什么、目录结构见 [README.md](../README.md)；接入替换见 [MIGRATION.md](MIGRATION.md)。
 
 ---
 
@@ -10,7 +10,7 @@
 
 | # | 前置 | 验证方式 |
 |---|------|----------|
-| 1 | 按 [MIGRATION.md](../MIGRATION.md) 完成接入：画像（`architecture/system-landscape.md`）逐节填好；锚点替换与 Golden 重写由 AI 执行，人确认映射提案并终审（MIGRATION §一.2 / §一.3） | `bash scripts/validate-skills.sh` PASSED |
+| 1 | 按 [MIGRATION.md](MIGRATION.md) 完成接入：画像（`architecture/system-landscape.md`）逐节填好；锚点替换与 Golden 重写由 AI 执行，人确认映射提案并终审（MIGRATION §一.2 / §一.3） | `bash scripts/validate-skills.sh` PASSED |
 | 2 | skills/、rules/、templates/ 已分发到所用 Agent 的技能目录（Cursor / Claude Code 等） | 对 Agent 说「列出你可用的 skill」，能看到 12 个；`templates/code-review-report.md` 可达 |
 | 3 | 代码仓库可构建、存量测试全绿（`mvn test` 或等价命令） | 本地跑一遍构建测试 |
 | 4 | （可选，建议）hooks 按 [hooks/README.md](hooks/README.md) 注册，`PROTECTED` 保护路径改成本项目公共代码 | 改 `booking-common` 等价目录时被拦下询问 |
