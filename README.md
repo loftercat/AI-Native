@@ -65,7 +65,7 @@ AI 原生开发工作流模板：**后端线（12 Skill）+ 前端线（3 Skill�
 
 **接入新项目（从 0 开始）**：
 
-1. **放入项目**：`git init` 你的项目，把本模板内容复制到项目根（**不带 `.git`**）：`backend/` 整线（前端要用再加 `frontend/`）；`AGENTS.md` 复制后按项目改写；本 `README.md` 与 `MIGRATION.md` 接入完成后替换 / 删除。
+1. **放入项目**：`git init` 你的项目，把本模板内容复制到项目根（**不带 `.git`**）：`backend/` 整线（前端要用再加 `frontend/`）；`AGENTS.md` 复制后按项目改写；本 `README.md` 与 `backend/MIGRATION.md` 接入完成后替换 / 删除。
 2. **走接入五步**：后端按 [backend/MIGRATION.md](backend/MIGRATION.md) §一（填画像 → 替换锚点 → 重写 Golden → 分发到 Agent → 工作流裁剪，每步 AI 执行、人审定稿）；前端按 [frontend/README.md](frontend/README.md) 的「接入替换」节。**建议先接工作流、再写第一行业务代码**——画像与号段定在前面，详设才有锚可依。
 3. **接入后验收**：[backend/MIGRATION.md](backend/MIGRATION.md) §二。
 
