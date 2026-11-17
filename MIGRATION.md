@@ -10,22 +10,41 @@
 
 `backend/glossary/domain-glossary.md` 按业务域重建词表（缺失时 Skill 降级运行，不阻断）。
 
-### 2. 全局替换项目锚点
+### 2. 全局替换项目锚点（AI 执行，人只确认映射）
 
-backend 的 skills/ 与 rules/ 中以下源项目值**全部需要替换**（均在画像或真实模块中应有对应物）。左列是源项目真实值，不是可保留的模板占位符；`booking-{order,payment,...}` 的花括号是简写，实际搜索用 `booking-` 前缀。
+本步由 AI 执行，人工辅助验收。全流程：**AI 映射提案 → 人确认 → AI 批量替换 + 规则重写 → 人审重写 → AI 验收 → 人收报告**。
 
-| 类别 | 源项目原值（搜索用） | 操作 | 替换为 |
-|------|---------------------|------|--------|
-| 模块名 | `booking-app`、`booking-bff-app`、`booking-bff-admin`、`booking-{order,payment,inventory,push,iot}`、`booking-common`、`booking-parking-adapter` | **语义映射**——域不一定对应，按职责重命名 | 目标模块清单（须与画像 §二 一致） |
-| 包名 | `com.hema.booking.*` | 机械替换 | 目标项目 groupId 路径 |
-| 公共库 | `hema-common`（`Result`/`BizException`/`ErrorCode`） | 机械替换 | 本项目公共库；**若无公司级公共库**，先在 `backend/rules/exception-and-result.md` 定义本项目统一响应与异常 |
-| 错误码号段 | 1500-1549 order / 1550-1599 payment / 1600-1699 inventory / 1700-1799 adapter / 1800-1899 push / 1900-1999 iot | **重新分配**——按目标项目域数重排 | 目标项目分域号段表（画像 §3.7 + bugfix 责任域定位依赖） |
-| URL 前缀 | `/api/v1/booking/app\|admin/` | 机械替换；BFF 数量变化时人工确认 | 目标项目前缀 |
-| 迭代号 | `2026-S01`、`2026-S02`（`{年}-S{序号}`） | 机械替换 | 目标迭代约定（`backend/config/current-sprint` 同步改） |
-| 技术栈 | Java 21 / Spring Boot 3.2 / Maven / MyBatis / MySQL / Redis | **重写规则**——换栈时改 rule，不是替换字符串 | 目标栈；对应 `rules/java-project.md`、`mybatis-conventions.md`、`tdd-project-conventions.md`、`integration-test-conventions.md` 须重写 |
-| 测试基建 | `booking-app` 下 `*IT`、Testcontainers MySQL、`mvn -pl <module> test` | **重写**——落点与命令随模块结构变 | 目标项目集成测试落点与命令 |
+**人工介入点**
 
-**替换边界**：判断标准是「删掉这条锚点，Skill 还能不能执行」。
+AI 在每个介入点停下时，随附该步的简要修改结果供人审查。
+
+| # | 介入时机 | AI 随附的简要结果 | 人做什么 |
+|---|----------|------------------|----------|
+| 1 | AI 提交映射提案后 | 映射提案表：源值→目标值、理由、裁剪与合并建议 | 裁定语义映射与结构变化：模块对应关系（域不一定对应，无对应域的裁掉，不硬凑）、BFF 合并/拆分方向 |
+| 2 | AI 完成规则重写后 | 规则改动摘要：改了哪些 rule、关键差异 | 审按目标栈重写的规则文件（技术栈、测试基建两行） |
+| 3 | AI 提交验收报告后 | 验收报告：命令输出、残留清单、表外形态处理记录 | 确认残留清零、表外形态已逐条处理 |
+
+**AI 任务书**
+（按序执行；标注「→ 介入点 N」处停下，随附该介入点的简要修改结果待人审查。替换范围：backend 的 `skills/` 与 `rules/`）：
+1. **映射提案**：读 `backend/architecture/system-landscape.md`（§二 模块清单、§3.7 号段表），对源值清单逐项产出「源值 → 目标值」提案。语义映射按职责推测并成对映射（`booking-order → love-advice` 时，`order-api` / `order-impl` / `OrderErrorCode` 同时映射），无对应域的列裁剪建议；BFF 合并/拆分给出方向建议（机械替换会把「App 端 → X，Admin 端 → Y」变成 `love-app / love-app`）。**→ 介入点 1**
+2. **批量替换**（提案确认后）：长前缀先替换（`booking-bff-app` 先于 `booking-app`，否则得到 `{项目}-bff-<新前缀>-app`）；源值清单中 `booking-{order,payment,...}` 的花括号是简写，实际搜索用 `booking-` 前缀；`backend/config/current-sprint` 同步改。Windows Git Bash 批替换用 `find ... -exec perl -pi -e '...' {} +`（`grep -rl | xargs` 传反斜杠路径，perl 打不开）。
+3. **规则重写**：技术栈、测试基建两行不是字符串替换——按目标栈重写源值清单「替换为」列点名的规则文件。**→ 介入点 2**
+4. **验收**：跑下方验收命令与 `bash backend/scripts/validate-skills.sh`；按判定不变式做**语义扫描**（凡具体文件名、系统名、路径、号段即项目层），表外形态单独报告并逐条处理，不静默放过；重点抽查 `love-app.*love-app`（重复）、`order-api`（子模块漏映射）、`/api/v1/`（前缀换了路径没换）。**→ 介入点 3**
+
+**源值清单**（左列是源项目真实值，不是可保留的占位符——AI 按此表替换，验收也按此表查残留）：
+
+| 类别 | 源项目原值（搜索用） | 操作（AI 步骤） | 替换为 |
+|------|---------------------|------------------|--------|
+| 模块名 | `booking-app`、`booking-bff-app`、`booking-bff-admin`、`booking-{order,payment,inventory,push,iot}`、`booking-common`、`booking-parking-adapter` | 语义映射（步骤 1）——域不一定对应，按职责重命名 | 目标模块清单（须与画像 §二 一致） |
+| 包名 | `com.hema.booking.*` | 机械替换（步骤 2） | 目标项目 groupId 路径 |
+| 公共库 | `hema-common`（`Result`/`BizException`/`ErrorCode`） | 机械替换（步骤 2）；**若无公司级公共库**，先在 `backend/rules/exception-and-result.md` 定义本项目统一响应与异常 | 本项目公共库 |
+| 错误码号段 | 1500-1549 order / 1550-1599 payment / 1600-1699 inventory / 1700-1799 adapter / 1800-1899 push / 1900-1999 iot | 重新分配（步骤 1 人确认）——按目标项目域数重排 | 目标项目分域号段表（画像 §3.7 + bugfix 责任域定位依赖） |
+| URL 前缀 | `/api/v1/booking/app\|admin/` | 机械替换（步骤 2）；BFF 数量变化走步骤 1 | 目标项目前缀 |
+| 迭代号 | `2026-S01`、`2026-S02`（`{年}-S{序号}`） | 机械替换（步骤 2） | 目标迭代约定（`backend/config/current-sprint` 同步改） |
+| 技术栈 | Java 21 / Spring Boot 3.2 / Maven / MyBatis / MySQL / Redis | 重写（步骤 3）——换栈时改 rule，不是替换字符串 | 目标栈；对应 `rules/java-project.md`、`mybatis-conventions.md`、`tdd-project-conventions.md`、`integration-test-conventions.md` 须重写 |
+| 测试基建 | `booking-app` 下 `*IT`、Testcontainers MySQL、`mvn -pl <module> test` | 重写（步骤 3）——落点与命令随模块结构变 | 目标项目集成测试落点与命令 |
+
+**替换边界**（防过度替换，对 AI 同样生效）：判断标准是「删掉这条锚点，Skill 还能不能执行」。
 
 | 必须替换（删了不能执行） | 保留（删了仍能执行，只是少了例子） |
 |--------------------------|-----------------------------------|
@@ -33,16 +52,7 @@ backend 的 skills/ 与 rules/ 中以下源项目值**全部需要替换**（均
 
 把业务示例一起换掉，会得到「新前缀 + 旧业务路径」的混搭（`/api/v1/love/app/pay/callback`），比不替换更难排查。
 
-**操作顺序**：
-
-1. **长的先替换**：`{项目}-bff-app` 先于 `{项目}-app`，否则得到 `{项目}-bff-<新前缀>-app`。
-2. **模块与子模块成对映射**：`booking-order → love-advice` 时，`order-api` / `order-impl` / `OrderErrorCode` 要同时映射。
-3. **双 BFF 合并手工处理**：「App 端 → X，Admin 端 → Y」这类句子机械替换会变成 `love-app / love-app`。
-4. **Windows Git Bash** 用 `find ... -exec perl -pi -e '...' {} +`；`grep -rl | xargs` 传的是反斜杠路径，perl 打不开。
-
-替换后抽查三类残留：`love-app.*love-app`（重复）、`order-api`（子模块漏映射）、`/api/v1/`（前缀换了路径没换）。
-
-自查命令：
+**验收命令**（流程 4）：
 
 ```bash
 # 在模板根目录执行（范围含 .sh/.py，排除 _golden 样例目录）
@@ -54,9 +64,9 @@ grep -rn "booking\|hema\|2026-S" backend/skills/ backend/rules/
 # 注意 "schema" 含 "hema" 子串属误报，可加 grep -v schema 排除。
 ```
 
-### 3. 重写 Golden（不是拷贝 Golden）
+### 3. 重写 Golden
 
-`docs/**/_golden/` 下 12 个样例全部是源项目业务（query-allocate-space 一族）。**接入后按源项目同族场景（查询-分配类用例）用本项目真实业务重写一遍**——Golden 的价值是「标准长什么样」，不是「别人的业务长什么样」。重写时保持文件名模式与结构。
+本步由 AI 执行：AI 从画像（§二 域清单）与词表选取真实业务域，构造「查询-分配」同族用例（源项目为 query-allocate-space 一族），保持文件名模式与结构，把 `docs/**/_golden/` 下 12 个样例用本项目业务重写一遍，提交人验收——Golden 的价值是「标准长什么样」，不是「别人的业务长什么样」。画像与词表仍为占位、构造不出可信场景时，降级为人工指定场景后再重写。
 
 ### 4. 分发到 Agent
 
@@ -108,7 +118,7 @@ grep -rn "booking\|hema\|2026-S" backend/skills/ backend/rules/
 
 自查：`grep -rn "booking\|hema\|2026-S" frontend/skills/ frontend/rules/`，预期全部为上表已声明示例。
 
-4. **Golden 重写**：`frontend/docs/**/_golden/` 的 STORY-FE / DD-FE 样例（destination-search-allocate 一族）用本项目真实页面需求重写。
+4. **Golden 重写**：同 §一.3 模式——AI 从前端画像选真实页面需求重写 `frontend/docs/**/_golden/` 的 STORY-FE / DD-FE 样例（destination-search-allocate 一族），画像不足时人工指定，提交人验收。
 
 ## 四、接入后验收
 
