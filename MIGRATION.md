@@ -95,6 +95,5 @@ grep -rn "booking\|hema\|2026-S" backend/skills/ backend/rules/
 
 1. 两个校验器均 **PASSED**：`bash backend/scripts/validate-skills.sh`、`bash frontend/scripts/validate-skills.sh`（WARN 逐条确认是「提及目标项目文件」而非真断链）。
 2. 后端线挑一个真实小需求走通：journey-scenario-design（或直接 story-splitting）→ detail-design → feature-coding，产出路径与命名符合 `backend/docs/agile/card-naming-conventions.md`。
-3. 前端线拿到一次真实 handoff 包走通：frontend-story-splitting → frontend-detail-design → frontend-feature-coding。
-4. 后端画像 §4.3.4 测试账号表填写后，test-data-design 造一次数验证对齐规则可执行。
-5. 跑一张真实卡，确认代码审查报告落盘且结论通过（至少 `REVIEW-CODE-IMPL-*`；含 IT/前端/黑盒/造数时对应 `IT/FE/BB/SEED` 阶段）。
+3. 后端画像 §4.3.4 测试账号表填写后，test-data-design 造一次数验证对齐规则可执行。
+4. 跑一张真实卡，确认代码审查报告落盘且结论通过（至少 `REVIEW-CODE-IMPL-*`；含 IT/前端/黑盒/造数时对应 `IT/FE/BB/SEED` 阶段）。

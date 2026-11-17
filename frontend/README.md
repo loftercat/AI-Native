@@ -45,6 +45,8 @@ Epic/PRD/原型 + 后端 OpenAPI handoff（docs/handoff/）
 
 4. **Golden 重写**：AI 从前端画像选真实页面需求重写 `docs/**/_golden/` 的 STORY-FE / DD-FE 样例（destination-search-allocate 一族），画像不足时人工指定，提交人验收。
 
+**接入后验收**：`bash scripts/validate-skills.sh` PASSED；拿到一次真实 handoff 包走通三段——frontend-story-splitting → frontend-detail-design → frontend-feature-coding。
+
 ## 使用
 
 见 [USAGE.md](USAGE.md)（含可直接复制的提示词 Demo、端到端示例、反模式清单）。
