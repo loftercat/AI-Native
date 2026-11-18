@@ -1,6 +1,6 @@
 # MIGRATION：后端线接入指南
 
-本文件为后端接入指南；前端请阅读 [frontend/README.md](../frontend/README.md)，模板结构抽取自落地项目，落地项目技术和架构：Java 21 + Spring Boot 3.2 + Maven 多模块 + 双 BFF。
+本文件为后端接入指南；前端请阅读 [frontend/README.md](../frontend/README.md)，模板结构抽取自落地项目，落地项目技术和架构：Java 21 + Spring Boot 3.2 + Maven 多模块 + 双 BFF。模板放入项目的方式见仓库根 [README.md](../README.md)「快速开始」。
 
 ## 一、接入步骤
 
@@ -60,11 +60,11 @@ AI 在每个介入点停下时，随附该步的简要修改结果供人审查�
 **验收命令**（流程 4）：
 
 ```bash
-# 在模板根目录执行（范围含 .sh/.py，排除 _golden 样例目录）
-grep -rn --include="*.md" --include="*.sh" --include="*.py" "停车预订\|parking-booking\|华智\|河玛" backend/ frontend/ | grep -v "_golden"
+# 在项目根执行（范围含 .sh/.py，排除 _golden 样例目录）
+grep -rn --include="*.md" --include="*.sh" --include="*.py" "停车预订\|parking-booking\|华智\|河玛" AI-Native/backend/ AI-Native/frontend/ | grep -v "_golden"
 # 预期：无输出（golden 样例保留源项目业务名，属豁免）
 
-grep -rn "booking\|hema\|2026-S" backend/skills/ backend/rules/
+grep -rn "booking\|hema\|2026-S" AI-Native/backend/skills/ AI-Native/backend/rules/
 # 预期：输出应全部是上表已声明的示例值；出现表外形态才需处理。
 # 注意 "schema" 含 "hema" 子串属误报，可加 grep -v schema 排除。
 ```

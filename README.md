@@ -1,8 +1,20 @@
-# new-ai-workflow-template
+# AI-Native-template
 
 AI 原生开发工作流模板：**后端线（12 Skill）+ 前端线（3 Skill）+ Rule + 项目画像 + Golden 样例 + 校验脚本**，把「需求 → 设计 → 代码 → 测试 → QA 验收」做成可重复、可审计的流程。
 
-自已落地的源项目（后端仓 + C 端小程序仓）抽取通用化而来。项目专属值（模块名、号段、路径）保留为示例，接入时后端按 [backend/MIGRATION.md](backend/MIGRATION.md)、前端按 [frontend/README.md](frontend/README.md) 的「接入替换」节处理。
+## 快速开始
+
+**接入（新项目与存量项目同法）**：
+
+1. **引入**：把AI-Native工程放到项目的根目录下、**不带 `.git`**，放入后目录名保持为 `AI-Native/`。存量项目原有代码与目录不动，复制 [AGENTS.md](AGENTS.md) 文档到项目根路径下，假如存量项目已有AGENTS.md，则进行整合；复制/整合后把文中 `backend/`、`frontend/` 开头的相对链接统一加 `AI-Native/` 前缀。
+2. **接入**：后端按 [backend/MIGRATION.md](backend/MIGRATION.md) §一（填画像 → 替换锚点 → 重写 Golden → 分发到 Agent → 工作流裁剪，每步 AI 执行、人审定稿）；前端按 [frontend/README.md](frontend/README.md) 的「接入替换」。 
+
+## 详细使用说明
+后端线见 [backend/USAGE.md](backend/USAGE.md)；前端线见 [frontend/USAGE.md](frontend/USAGE.md)。   
+
+## 工作流全景介绍
+
+把「需求 → 设计 → 代码 → 测试 → 验收」拆成一组按序衔接的 Skill 流水线：每个环节的产出落盘为文档契约（Story / DD / TS / OpenAPI），作为下一环节的输入；流程由 AI 执行，人在固定介入点把关（映射确认、审查放行），Story / 文档工件 / 代码三道独立审查守住质量。后端线与前端线各一套完整流水线，经 handoff 契约衔接。
 
 ## 双线全景
 
@@ -32,46 +44,16 @@ AI 原生开发工作流模板：**后端线（12 Skill）+ 前端线（3 Skill�
 
 两线可独立接入（只用前端线时，handoff 包直接向你的后端团队索取）。方法论见 [backend/docs/methodology/](backend/docs/methodology/) 与 [frontend/docs/methodology/](frontend/docs/methodology/)。
 
-### 四类 Skill 与入口
+## 四类 Skill 与入口
 
 | 类别 | Skill | 什么时候进 |
 |------|-------|-----------|
-| 主线 7 环 | JSD → HLD → Story → DD → TS → 编码 → 集成 | 新需求、改需求 |
-| QA 专线 3 环 | 验收用例 → 黑盒 → 造数 | 提测 / 发版验收 |
-| 旁路 2 环 | bugfix / legacy | 缺陷 / 存量用例 |
-| 前端 3 环 | 拆卡 → 详设 → 编码 | 前端页面 |
+| 主线 7 环 | JSD → HLD → Story → DD → TS → feature-coding → IT | 新需求、改需求 |
+| QA 专线 3 环 | qa-acceptance-case-design → api-blackbox-test → test-data-design | 提测 / 发版验收 |
+| 旁路 2 环 | bugfix / legacy-test-migration | 缺陷 / 存量用例 |
+| 前端 3 环 | frontend-story-splitting → frontend-detail-design → frontend-feature-coding | 前端页面 |
 
-合计 15 个 Skill（后端 12 + 前端 3）。主线是菜单不是必经路：入口由手上已有资产决定；逐个 Skill 的触发时机与产出见下文「Skill 一览」。
-
-## 目录职责
-
-| 目录 | 职责 |
-|------|------|
-| `backend/skills/`（12）+ `frontend/skills/`（3） | Skill（自包含：SKILL.md + templates/ + references/） |
-| `backend/rules/`（15）+ `frontend/rules/`（5） | 编码与文档规范（纯 markdown；「规范听 Rule，流程听 Skill」） |
-| `{backend,frontend}/architecture/system-landscape.md` | 各线**项目画像（接入必填）**：项目层事实唯一定义处 |
-| `backend/reference/` | 后端通用工程指南（幂等、内存安全 IO、定时任务、统一响应） |
-| `{backend,frontend}/glossary/` | 领域词表（前端与后端对齐的子集） |
-| `frontend/docs/handoff/` | 前后端契约交接区（openapi 快照 + VERSION pin + stories-index） |
-| `{backend,frontend}/docs/methodology/` | 方法论与 Skill 设计说明（含测试线总设计） |
-| `backend/docs/training/` | 培训课件（黑盒选例、白盒分层、存量迁移） |
-| `backend/docs/{requirements,design,test-spec,qa,api,schema,reviews}/` | 后端流程工件落点（`reviews/` 为 Story 审查报告 + 代码审查报告；`_golden/` 为标准样例）；前端工件落点同理 |
-| `{backend,frontend}/templates/` | 流程模板（backend：Story 审查 + 代码审查；frontend：代码审查） |
-| `backend/hooks/` | 机制化强制 Hook（公共代码保护 / diff 超限 / 漏测提醒） |
-| `{backend,frontend}/scripts/validate-skills.sh` | 各线资产完整性校验（frontmatter + 引用可达 + 坏链检测） |
-| `{backend,frontend}/config/current-sprint` | 各线当前迭代号（单一事实源） |
-
-## 快速开始
-
-**接入新项目（从 0 开始）**：
-
-1. **放入项目**：`git init` 你的项目，把本模板内容复制到项目根（**不带 `.git`**）：`backend/` 整线（前端要用再加 `frontend/`）；`AGENTS.md` 复制后按项目改写；本 `README.md` 与 `backend/MIGRATION.md` 接入完成后替换 / 删除。
-2. **走接入五步**：后端按 [backend/MIGRATION.md](backend/MIGRATION.md) §一（填画像 → 替换锚点 → 重写 Golden → 分发到 Agent → 工作流裁剪，每步 AI 执行、人审定稿）；前端按 [frontend/README.md](frontend/README.md) 的「接入替换」节。**建议先接工作流、再写第一行业务代码**——画像与号段定在前面，详设才有锚可依。
-3. **接入后验收**：[backend/MIGRATION.md](backend/MIGRATION.md) §二。
-
-**已有项目接入**同样走 backend/MIGRATION.md，画像由 AI 扫描代码起草、人审定稿。
-
-**日常使用**：后端线见 [backend/USAGE.md](backend/USAGE.md)；前端线见 [frontend/USAGE.md](frontend/USAGE.md)（含提示词 Demo 与反模式）。校验：`bash backend/scripts/validate-skills.sh` 与 `bash frontend/scripts/validate-skills.sh`（链接断 = FAIL；建议接入 CI）。
+主线是菜单不是必经路：入口由手上已有资产决定；逐个 Skill 的触发时机与产出见下文「Skill 一览」。
 
 ## Skill 一览
 
@@ -92,6 +74,24 @@ AI 原生开发工作流模板：**后端线（12 Skill）+ 前端线（3 Skill�
 | frontend | frontend-story-splitting | 拿到 handoff 包要拆前端卡 | `STORY-FE-*.md` |
 | frontend | frontend-detail-design | 前端 Story 定稿 | `DD-FE-*.md` |
 | frontend | frontend-feature-coding | 详设完成要写页面 | 页面/组件/服务 + 测试 |
+
+## 目录职责
+
+| 目录 | 职责 |
+|------|------|
+| `backend/skills/`（12）+ `frontend/skills/`（3） | Skill（自包含：SKILL.md + templates/ + references/） |
+| `backend/rules/`（15）+ `frontend/rules/`（5） | 编码与文档规范（纯 markdown；「规范听 Rule，流程听 Skill」） |
+| `{backend,frontend}/architecture/system-landscape.md` | 各线**项目画像（接入必填）**：项目层事实唯一定义处 |
+| `backend/reference/` | 后端通用工程指南（幂等、内存安全 IO、定时任务、统一响应） |
+| `{backend,frontend}/glossary/` | 领域词表（前端与后端对齐的子集） |
+| `frontend/docs/handoff/` | 前后端契约交接区（openapi 快照 + VERSION pin + stories-index） |
+| `{backend,frontend}/docs/methodology/` | 方法论与 Skill 设计说明（含测试线总设计） |
+| `backend/docs/training/` | 培训课件（黑盒选例、白盒分层、存量迁移） |
+| `backend/docs/{requirements,design,test-spec,qa,api,schema,reviews}/` | 后端流程工件落点（`reviews/` 为 Story 审查报告 + 代码审查报告；`_golden/` 为标准样例）；前端工件落点同理 |
+| `{backend,frontend}/templates/` | 流程模板（backend：Story 审查 + 代码审查；frontend：代码审查） |
+| `backend/hooks/` | 机制化强制 Hook（公共代码保护 / diff 超限 / 漏测提醒） |
+| `{backend,frontend}/scripts/validate-skills.sh` | 各线资产完整性校验（frontmatter + 引用可达 + 坏链检测） |
+| `{backend,frontend}/config/current-sprint` | 各线当前迭代号（单一事实源） |
 
 ## 设计原则（继承自源项目）
 
