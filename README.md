@@ -17,6 +17,7 @@ AI 原生开发工作流模板：**后端线（12 Skill）+ 前端线（3 Skill�
 
 ## 详细使用说明
 后端线见 [backend/USAGE.md](backend/USAGE.md)；前端线见 [frontend/USAGE.md](frontend/USAGE.md)。   
+详细说明包含：各阶段skill提示词示例，使用skill时机，产物落地说明等内容，建议在接入AI-Native后阅读此文档来协助完成开发
 
 ## 工作流全景介绍
 
@@ -26,8 +27,9 @@ AI 原生开发工作流模板：**后端线（12 Skill）+ 前端线（3 Skill�
 
 ```
 ── backend/（后端线，消费业务需求）──────────────────────────
-业务原始需求
+业务原始需求 / PRD
   → journey-scenario-design   → JSD（用户旅程 + 场景矩阵，AC 完备性源头）
+  → EPIC 卡                   → Epic 先行则跳过上一环；缺失时由上一环起草，人确认范围与优先级
   → high-level-design         → HLD（模块边界/集成矩阵/建议 Story）
   → story-splitting           → STORY 卡（AC/BR + 依赖拓扑 + 迭代计划）
   → detail-design             → DD + OpenAPI + schema/DDL + 代码骨架 + 测试策略
@@ -80,6 +82,26 @@ AI 原生开发工作流模板：**后端线（12 Skill）+ 前端线（3 Skill�
 | frontend | frontend-story-splitting | 拿到 handoff 包要拆前端卡 | `STORY-FE-*.md` |
 | frontend | frontend-detail-design | 前端 Story 定稿 | `DD-FE-*.md` |
 | frontend | frontend-feature-coding | 详设完成要写页面 | 页面/组件/服务 + 测试 |
+
+## 工件速查
+
+读到不懂的缩写查这张表：
+
+| 缩写 | 全称 | 干什么用的 | 存在哪 | 谁产出 |
+|------|------|-----------|--------|--------|
+| EPIC | Epic 卡 | 这次要做的业务能力：为什么做、包含哪些功能、涉及哪些概念、用户怎么走一遍、不做什么 | `docs/requirements/epics/` | 人从 PRD 提炼，或 JSD 完成后由 AI 补齐 |
+| JSD | 旅程与场景设计 | 用户从进入到完成的每一步，以及每步顺利 / 出错时分别怎样 | `docs/requirements/epics/` | journey-scenario-design |
+| HLD | 概要设计 | 这件事拆进哪些模块、模块之间怎么配合、对外大体有哪些接口 | `docs/design/epics/` | high-level-design |
+| STORY | 需求卡 | 一张卡要交付什么、怎样算做完、卡与卡之间谁先谁后 | `docs/requirements/{迭代}/` | story-splitting |
+| DD | 详细设计 | 接口字段级定义、表结构和建表语句、类方法骨架、调用顺序 | `docs/design/{迭代}/` | detail-design |
+| TS | 测试规格 | 每条验收条件由哪个测试覆盖、在哪一层测、哪些外部依赖要模拟 | `docs/test-spec/{迭代}/` | test-spec-alignment |
+| AC-STORY | 验收用例 | 给人照着操作的清单：点哪里、应该看到什么 | `docs/qa/{迭代}/` | qa-acceptance-case-design |
+| DP | 数据画像 | 测试前环境里要准备哪些数据，附造数和清理脚本 | `docs/qa/data-profiles/` | test-data-design |
+| FIX | 修复报告 | 这个 bug 为什么出现、改了什么、影响哪些地方 | `docs/qa/{迭代}/` | bugfix |
+| REVIEW-* | 审查报告 | 独立审查人对需求卡、设计文档或代码的检查结论 | `docs/reviews/{迭代}/` | 独立审查人 |
+| STORY-FE / DD-FE | 前端需求卡 / 前端详设 | 页面要做什么、调用哪些后端接口；页面有哪些状态、组件怎么拆 | `frontend/docs/{requirements,design}/` | frontend-story-splitting / frontend-detail-design |
+
+每类工件的「标准长什么样」见各 `_golden/` 目录中的样例。
 
 ## 目录职责
 
