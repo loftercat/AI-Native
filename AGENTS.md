@@ -10,6 +10,15 @@
 - **修改画像模板**：`architecture/system-landscape.md` 是模板时，保留被 Skill 引用的小节编号（§3.7 错误码号段、§4.3.4 测试账号约定、§4.7 责任域定位）——Skill 按编号读画像，编号漂移锚点就断。
 - **项目示例值是有意的**：`booking-*` 模块名、`com.hema` 包名、错误码号段、`booking-bff-app.yaml` 等保留作示例（每个 SKILL.md 顶部有「模板版说明」）；不要在模板里"替换掉它们"，替换发生在接入项目时（清单见 backend/MIGRATION.md §一.2）。
 
+## 接入引导（AI 主导）
+
+用户表达接入意图（如「帮我接入这套工作流」）时，AI 按以下序列引导，人只在各介入点决策：
+
+1. **问项目形态**（新项目 / 已有代码）与**项目根路径**。检查目标根：已有 `AI-Native/` → 阻断确认是否重复接入；已有 `AGENTS.md` → 后续走整合而非覆盖。
+2. **引入**：按根 [README.md](README.md)「快速开始」步骤 1 执行（复制模板、命名 `AI-Native/`、建/整合项目根 AGENTS.md、链接加前缀）。
+3. **接入**：问接哪条线（后端 / 前端 / 都接，都接时先后端、再前端——契约单向流）。后端读 [backend/MIGRATION.md](backend/MIGRATION.md) 按任务书执行——画像步骤新项目走访谈、存量走扫码起草（§一.1 表）；介入点停下等人；前端指 [frontend/README.md](frontend/README.md) 的「接入替换」。分支细节住在各指南，本节只做路由，不复制。
+4. **验收**：跑对应线校验器与指南内验收命令，交报告给人确认。
+
 ## Skill 与 Rule 的分工
 
 **规范听 Rule（`rules/`），流程听 Skill（`skills/`）**：Rule 管跨阶段的编码与文档规范（分层、异常、测试、布局、审查），Skill 管端到端流程（触发时机、产出物、何时阻断）。冲突时对「怎么写代码」听 Rule，对「先做什么后做什么」听 Skill。项目布局见 [backend/rules/project-layout.md](backend/rules/project-layout.md)。

@@ -1,6 +1,6 @@
 # MIGRATION：后端线接入指南
 
-本文件为后端接入指南；前端请阅读 [frontend/README.md](../frontend/README.md)，模板结构抽取自落地项目，落地项目技术和架构：Java 21 + Spring Boot 3.2 + Maven 多模块 + 双 BFF。模板放入项目的方式见仓库根 [README.md](../README.md)「快速开始」。
+本文件为后端接入指南；前端请阅读 [frontend/README.md](../frontend/README.md)，模板结构抽取自落地项目，落地项目技术和架构：Java 21 + Spring Boot 3.2 + Maven 多模块 + 双 BFF。模板放入项目的方式见仓库根 [README.md](../README.md)「快速开始」。本指南由 AI 引导执行（见 AGENTS.md「接入引导」）：AI 按步骤推进、在介入点停下问人；用户可直接对 AI 说「帮我接入这套工作流」进入引导。
 
 ## 一、接入步骤
 
