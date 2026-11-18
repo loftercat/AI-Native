@@ -28,7 +28,7 @@ Epic/PRD/原型 + 后端 OpenAPI handoff（docs/handoff/）
 
 ## 接入替换（接入时做一次）
 
-接入 = 填前端画像 + 从后端拿 handoff 包 + 替换前端锚点 + Golden 重写（执行模式同 [backend/MIGRATION.md](../backend/MIGRATION.md) §一：AI 执行，人审定稿）：
+前置：模板放入项目的方式见仓库根 [README.md](../README.md)「快速开始」。接入 = 填前端画像 + 从后端拿 handoff 包 + 替换前端锚点 + Golden 重写（执行模式同 [backend/MIGRATION.md](../backend/MIGRATION.md) §一：AI 执行，人审定稿）：
 
 1. **前端画像**：填 `architecture/system-landscape.md`——重点 §四（契约文件/鉴权/错误码对齐）与 §六（与后端流水线的协作机制）；词表 `glossary/` 与后端仓对齐。
 2. **handoff 包**：从后端团队拿 OpenAPI 快照 + 版本 pin，放入 `docs/handoff/openapi/{后端服务标识}.yaml` 与 `VERSION`（机制见 [docs/handoff/README.md](docs/handoff/README.md)）。**前端永远不直接改契约**。

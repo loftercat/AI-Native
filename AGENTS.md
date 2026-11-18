@@ -1,6 +1,6 @@
-# AGENTS.md：new-ai-workflow-template 仓库入口
+# AGENTS.md：AI-Native-template 仓库入口
 
-本仓库是 **AI 原生开发工作流模板**（自已落地的源项目（后端仓 + C 端小程序仓）抽取通用化），不是一个可运行的业务项目。双线结构：`backend/` 后端线、`frontend/` 前端线（消费后端 handoff 契约）。流水线见 [README.md](README.md)；接入方法后端见 [backend/MIGRATION.md](backend/MIGRATION.md)、前端见 [frontend/README.md](frontend/README.md)。
+本仓库是 **AI 原生开发工作流模板**，不是一个可运行的业务项目。双线结构：`backend/` 后端线、`frontend/` 前端线（消费后端 handoff 契约）。流水线见 [README.md](README.md)；接入方法后端见 [backend/MIGRATION.md](backend/MIGRATION.md)、前端见 [frontend/README.md](frontend/README.md)。
 
 ## 在本仓库内工作时
 
