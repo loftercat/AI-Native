@@ -155,7 +155,7 @@ INVEST 的 **Small**：一个迭代内可**独立验收**的业务切片，不�
 ## 7. 边界：本 Skill 不做
 
 - 架构设计、接口/OpenAPI、数据库设计  
-- 测试用例编写（本仓库由 **feature-coding** + TDD Rule 承担，无独立 test-spec Skill）  
+- 测试用例编写（测试规格由 `test-spec-alignment` 承担，编码与测试实现由 **feature-coding** + TDD Rule 承担）  
 - Story → 开发 Task 拆解（详设后实现层）  
 - 修改已上线逻辑的实现代码  
 

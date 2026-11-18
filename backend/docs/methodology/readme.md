@@ -27,7 +27,10 @@
     业务原始需求 ──► journey-scenario-design ──► JSD（用户旅程 + 业务场景）
                                     │
                                     ▼
-    Epic/PRD ──► high-level-design ──► HLD（边界/集成/建议 Story）
+        EPIC 卡（Epic/PRD 先行则直接建；JSD 先行则缺失时由 JSD 起草，人确认）
+                                    │
+                                    ▼
+                       high-level-design ──► HLD（边界/集成/建议 Story）
                          │
                          ▼
               story-splitting ──► Story（AC/BR）

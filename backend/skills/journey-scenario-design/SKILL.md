@@ -12,7 +12,7 @@ description: >-
 
 ## 1. 定位
 
-**把业务原始需求转成结构化的「用户旅程 + 业务场景清单」（JSD）**，落盘为 `docs/requirements/epics/JSD-EPIC-{slug}.md`。
+**把业务原始需求转成结构化的「用户旅程 + 业务场景清单」（JSD）**，落盘为 `docs/requirements/epics/JSD-EPIC-{slug}.md`；Epic 卡缺失时一并起草 Epic 卡草案（提交人确认）。
 
 本 Skill 是流水线**最上游**；下游 `high-level-design`（HLD 引用 JSD 旅程）、`story-splitting`（AC 源于 JSD 场景）。
 
@@ -99,7 +99,7 @@ description: >-
 
 ---
 
-## 6. 标准流程（八步）
+## 6. 标准流程（九步）
 
 1. 加载资产（模板、分支清单、画像、词表、原型）
 2. **解析原始需求**：识别角色/端、业务意图、显式与隐含的成败语义；slug 命名 → `JSD-EPIC-{slug}.md`；**缺口三分法**在此生效（阻断项问用户，产出前不得继续）
@@ -108,8 +108,8 @@ description: >-
 5. **场景覆盖度自检**（模板 §3.2）：每个对外能力 ≥1 异常场景；清单逐维度过一遍；因子表非空时核对取值覆盖；**缺口未补齐 → 汇总列出，不静默落盘**
 6. 非目标 + 开放问题 + `[AI推断]` 汇总
 7. 落盘 `docs/requirements/epics/JSD-EPIC-{slug}.md`（**同名不覆盖**；更新走 §7 变更记录并列明受影响场景编号）
-8. 产出汇总（角色数、旅程数、场景数及分型、覆盖度缺口、开放问题）→ **送审**：按 [rules/artifact-review.md](../../rules/artifact-review.md) §二 的 JSD 三项必查派独立审查人，报告落 `docs/reviews/{迭代}/REVIEW-JSD-{slug}.md`，通过后状态改「已确认」→ **提示下游**：
-   - 若 Epic 卡未建：建议以 JSD 为输入建卡（Epic 卡 §4 旅程引用 JSD，勿重复）
+8. **Epic 卡补齐（条件步骤）**：检查 `docs/requirements/epics/EPIC-{slug}.md`——已存在（Epic 先行路径）则跳过；不存在时用 [epic-input-template.md](../high-level-design/templates/epic-input-template.md) 以 JSD 为输入起草 Epic 卡草案（§2 核心能力、§3 核心实体从场景矩阵提炼；§4 旅程直接引用 JSD 旅程编号 `J*.*`，勿重复展开），**提交人确认后再落盘**——Epic 的范围与优先级是人的决策
+9. 产出汇总（角色数、旅程数、场景数及分型、覆盖度缺口、开放问题、Epic 卡补齐情况）→ **送审**：按 [rules/artifact-review.md](../../rules/artifact-review.md) §二 的 JSD 三项必查派独立审查人，报告落 `docs/reviews/{迭代}/REVIEW-JSD-{slug}.md`，通过后状态改「已确认」→ **提示下游**：
    - 下一步运行 `high-level-design`（HLD §5 关键流程引用 JSD 旅程编号）
 
 ---
@@ -119,15 +119,16 @@ description: >-
 - 模块/服务边界、集成矩阵、粗 API（`high-level-design`）
 - Story 拆分与 AC/BR 正文（`story-splitting`；场景≠AC，格式转换归下游）
 - 全字段 OpenAPI / Java 代码（`detail-design` / `feature-coding`）
-- 修改 system-landscape、Epic 正文、Rule
+- 修改已存在的 Epic 正文（仅在 Epic 卡缺失时起草草案、提交人确认；已有则跳过）
+- 修改 system-landscape、Rule
 
 ---
 
 ## 8. 上下游
 
 ```text
-原始需求 ──► journey-scenario-design ──► high-level-design ──► story-splitting ──► detail-design ──► feature-coding
-              JSD：旅程+场景            HLD（§5 引用旅程）      Story（AC 源于场景）
+原始需求 ──► journey-scenario-design ──► EPIC 卡 ──► high-level-design ──► story-splitting ──► detail-design ──► feature-coding
+              JSD：旅程+场景          （缺失时本 Skill 起草，已有则跳过）  HLD（§5 引用旅程）  Story（AC 源于场景）
 ```
 
 JSD 更新（需求变更）：改 JSD + §7 变更记录 → 提示 `high-level-design` / `story-splitting` 消费方同步。
@@ -145,7 +146,7 @@ JSD 更新（需求变更）：改 JSD + §7 变更记录 → 提示 `high-level
 
 ## 10. 迁移指引（跨项目复用）
 
-本 Skill 分两层：**通用层**（八步流程、§5 判定标准、`J*.*`/`SC-J*-*` 编号规则、模板结构）跨项目不变；**项目层**为下表锚点，迁移时逐项替换——未替换而直接运行，产出仍成立但语境会错位。
+本 Skill 分两层：**通用层**（九步流程、§5 判定标准、`J*.*`/`SC-J*-*` 编号规则、模板结构）跨项目不变；**项目层**为下表锚点，迁移时逐项替换——未替换而直接运行，产出仍成立但语境会错位。
 
 | # | 锚点 | 本仓库取值 | 迁移动作 |
 |---|------|-----------|----------|

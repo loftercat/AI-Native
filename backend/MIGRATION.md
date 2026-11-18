@@ -100,6 +100,6 @@ grep -rn "com\.hema\|booking-bff\|order-api\|order-impl\|inventory-\|booking-inv
 ## 二、接入后验收
 
 1. 本线校验器 **PASSED**：`bash scripts/validate-skills.sh`（WARN 新项目首跑常有 200+ 条，用 `--quiet-tick` 只看计数；需甄别新增形态时去掉参数逐条查看；前端线校验见 frontend/README）。
-2. 后端线挑一个真实小需求走通：journey-scenario-design（或直接 story-splitting）→ detail-design → feature-coding，产出路径与命名符合 `docs/agile/card-naming-conventions.md`。
+2. 后端线挑一个真实小需求走通：journey-scenario-design（或直接 story-splitting）→ detail-design → test-spec-alignment → feature-coding，产出路径与命名符合 `docs/agile/card-naming-conventions.md`。
 3. 后端画像 §4.3.4 测试账号表填写后，test-data-design 造一次数验证对齐规则可执行。
 4. 跑一张真实卡，确认代码审查报告落盘且结论通过（至少 `REVIEW-CODE-IMPL-*`；含 IT/前端/黑盒/造数时对应 `IT/FE/BB/SEED` 阶段）。

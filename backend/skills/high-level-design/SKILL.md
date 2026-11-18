@@ -43,7 +43,7 @@ description: >-
 
 | # | 资产 | 路径 | 缺失时 |
 |---|------|------|--------|
-| 1 | Epic/PRD | `docs/requirements/epics/EPIC-*.md` | **阻断** |
+| 1 | Epic/PRD | `docs/requirements/epics/EPIC-*.md` | **阻断**。Epic 来源：PRD 提炼，或 JSD 先行时由 journey-scenario-design 起草；旅程仅轻量文字时建议先跑 JSD 展开 |
 | 1b | JSD（建议） | `docs/requirements/epics/JSD-EPIC-*.md`（旅程+场景） | 降级；有则 HLD §5 关键流程与 §10 建议 Story **引用其旅程编号 J*／场景编号**，勿重复展开 |
 | 2 | HLD 模板 | `templates/hld-template.md` | **阻断** |
 | 3 | 边界指引 | `references/hld-dd-boundary-guide.md` | **阻断** |
