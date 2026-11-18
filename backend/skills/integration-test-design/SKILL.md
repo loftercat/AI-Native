@@ -5,7 +5,7 @@ description: >-
   只 Mock 外部系统。用于集成测试设计、跨域链路验证、接入真实支付/车场前的链路语义守护等场景。
 ---
 
-> **模板版说明**：本 Skill 自已落地的源项目抽取为通用模板。文中项目专属值（模块名 `booking-*`、包名 `com.hema`、错误码号段、具体路径与 Story 号）均为**示例**，接入项目时按 [MIGRATION.md](../../../MIGRATION.md) 清单替换；「本仓库」指接入后的目标项目。
+> **模板版说明**：本 Skill 自已落地的源项目抽取为通用模板。文中项目专属值（模块名 `booking-*`、包名 `com.hema`、错误码号段、具体路径与 Story 号）均为**示例**，接入项目时按 [MIGRATION.md](../../MIGRATION.md) 清单替换；「本仓库」指接入后的目标项目。
 
 
 # integration-test-design

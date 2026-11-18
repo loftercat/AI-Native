@@ -6,7 +6,7 @@ description: >-
   用于测试规格设计、TS 编写、AC 对齐、测试用例拆分、Mock 边界梳理、feature-coding 前置等场景。
 ---
 
-> **模板版说明**：本 Skill 自已落地的源项目抽取为通用模板。文中项目专属值（模块名 `booking-*`、包名 `com.hema`、错误码号段、具体路径与 Story 号）均为**示例**，接入项目时按 [MIGRATION.md](../../../MIGRATION.md) 清单替换；「本仓库」指接入后的目标项目。
+> **模板版说明**：本 Skill 自已落地的源项目抽取为通用模板。文中项目专属值（模块名 `booking-*`、包名 `com.hema`、错误码号段、具体路径与 Story 号）均为**示例**，接入项目时按 [MIGRATION.md](../../MIGRATION.md) 清单替换；「本仓库」指接入后的目标项目。
 
 
 # 测试规格对齐（Story + 详设 → TS）

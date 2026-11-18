@@ -1,19 +1,19 @@
 ---
 name: test-data-design
 description: >-
-  从 090 产出的 AC-STORY-*.md 中 Given + OpenAPI 生成数据画像（DP）+ 造数/清理脚本，
+  从 qa-acceptance-case-design 产出的 AC-STORY-*.md 中 Given + OpenAPI 生成数据画像（DP）+ 造数/清理脚本，
   为 api-blackbox-test 的 execution=blackbox 行提供环境级前置数据。
   用于部署环境造数、提测前置数据准备、黑盒 pytest 数据依赖等场景。
 ---
 
-> **模板版说明**：本 Skill 自已落地的源项目抽取为通用模板。文中项目专属值（模块名 `booking-*`、包名 `com.hema`、错误码号段、具体路径与 Story 号）均为**示例**，接入项目时按 [MIGRATION.md](../../../MIGRATION.md) 清单替换；「本仓库」指接入后的目标项目。
+> **模板版说明**：本 Skill 自已落地的源项目抽取为通用模板。文中项目专属值（模块名 `booking-*`、包名 `com.hema`、错误码号段、具体路径与 Story 号）均为**示例**，接入项目时按 [MIGRATION.md](../../MIGRATION.md) 清单替换；「本仓库」指接入后的目标项目。
 
 
 # 测试数据设计（AC Given → 数据画像 + 造数/清理脚本）
 
-以 090 产出 `AC-STORY-*.md` 中 **Given** + OpenAPI 为输入，生成 **数据画像（DP）+ 造数/清理脚本**，为 `api-blackbox-test` 的 `execution=blackbox` 行提供**环境级前置数据**。
+以 qa-acceptance-case-design 产出 `AC-STORY-*.md` 中 **Given** + OpenAPI 为输入，生成 **数据画像（DP）+ 造数/清理脚本**，为 `api-blackbox-test` 的 `execution=blackbox` 行提供**环境级前置数据**。
 
-本 Skill 对齐 [test-line.md](../../docs/methodology/test-line.md) §4.2、§150，是 QA 专线部署环境造数层。
+本 Skill 对齐 [test-line.md](../../docs/methodology/test-line.md) §4.2，是 QA 专线部署环境造数层。
 **产出为 DP + seed 脚本**，**不写** Java 测试、**不改** Story/TS/OpenAPI、**不直连** DB 执行（首版 SQL/文档）。
 
 ## 定位与边界
@@ -44,7 +44,7 @@ description: >-
 | 4 | blackbox 衔接指引 | `references/blackbox-integration-guide.md` | **阻断** |
 | 4.5 | 身份与权限对齐指引 | `references/identity-and-permission-guide.md` | 降级（AC 涉及权限时建议读） |
 | 5 | Golden DP 范本 | `docs/qa/data-profiles/_golden/DP-STORY-GOLDEN-*.yaml` | 降级 |
-| 6 | 验收清单（090 产出） | `docs/qa/{迭代}/AC-STORY-{迭代}-{序号}-*.md` | 阻断见步骤 2 |
+| 6 | 验收清单（qa-acceptance-case-design 产出） | `docs/qa/{迭代}/AC-STORY-{迭代}-{序号}-*.md` | 阻断见步骤 2 |
 | 7 | OpenAPI | 从 AC-STORY「来源」字段解析 | 阻断见步骤 2 |
 | 8 | 业务表 DDL | `docs/schema/{服务}/ddl/*.sql` | 降级（字段名核对） |
 | 9 | 系统画像（含 §4.3.4 测试账号约定） | `architecture/system-landscape.md` | 降级（字段名核对）；**AC 涉及权限时 §4.3.4 阻断** |
@@ -84,7 +84,7 @@ description: >-
 ### 步骤 2：核对输入
 
 - 按 Story 编号在 `docs/qa/{迭代}/` 下 glob `AC-STORY-{迭代}-{序号}-*.md` 自动加载
-- 无 `AC-STORY-*.md` → **阻断**，提示提供 090 产出
+- 无 `AC-STORY-*.md` → **阻断**，提示提供 qa-acceptance-case-design 产出
 - 解析 AC-STORY「来源」字段取 OpenAPI 路径并加载
 - **只处理 `execution=blackbox` 行**的 Given；`ci_covered`/`manual`/`frontend_only`/`obsolete` 行 **跳过**（不造数）
 - 读业务表 DDL 核对字段名（如 `support_charge` 非 `has_charger`；`project.latitude/longitude` 非 `parking_lot`）
@@ -145,7 +145,7 @@ description: >-
 | 缺失资产 | 处理 | 严重度 |
 |----------|------|--------|
 | 模板/指引 | **阻断**，输出「缺数据画像模板/造数指引…」 | 致命 |
-| AC-STORY（090 产出） | **阻断**，提示提供 090 产出 | 致命 |
+| AC-STORY（qa-acceptance-case-design 产出） | **阻断**，提示提供 qa-acceptance-case-design 产出 | 致命 |
 | OpenAPI | **阻断**，输出「缺 OpenAPI，无法确定实体字段」 | 致命 |
 | Golden DP 范本 | 降级，照模板结构自拟并标 `[AI推断]` | 中 |
 | 业务表 DDL | 降级，字段名按 OpenAPI schema 推断，标 `[AI推断]` | 中 |
@@ -164,7 +164,7 @@ description: >-
 
 ## 延伸阅读
 
-- [test-line.md](../../docs/methodology/test-line.md) §4.2、§150（设计源头）
+- [test-line.md](../../docs/methodology/test-line.md) §4.2（设计源头）
 - [qa-acceptance-case-design SKILL](../qa-acceptance-case-design/SKILL.md)（上游 Given 来源）
 - [api-blackbox-test SKILL](../api-blackbox-test/SKILL.md)（下游消费）
 - [data-profile-template.md](templates/data-profile-template.md)

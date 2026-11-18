@@ -5,7 +5,7 @@ description: >-
   流水线最上游，high-level-design 与 story-splitting 之前使用。不做模块边界设计、不拆 Story、不写 AC 正文、不写代码。
 ---
 
-> **模板版说明**：本 Skill 自已落地的源项目抽取为通用模板。文中项目专属值（模块名 `booking-*`、包名 `com.hema`、错误码号段、具体路径与 Story 号）均为**示例**，接入项目时按 [MIGRATION.md](../../../MIGRATION.md) 清单替换；「本仓库」指接入后的目标项目。
+> **模板版说明**：本 Skill 自已落地的源项目抽取为通用模板。文中项目专属值（模块名 `booking-*`、包名 `com.hema`、错误码号段、具体路径与 Story 号）均为**示例**，接入项目时按 [MIGRATION.md](../../MIGRATION.md) 清单替换；「本仓库」指接入后的目标项目。
 
 
 # 旅程与场景设计（journey-scenario-design）
