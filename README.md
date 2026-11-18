@@ -2,7 +2,7 @@
 
 AI 原生开发工作流模板：**后端线（12 Skill）+ 前端线（3 Skill）+ Rule + 项目画像 + Golden 样例 + 校验脚本**，把「需求 → 设计 → 代码 → 测试 → QA 验收」做成可重复、可审计的流程。
 
-自已落地的源项目（后端仓 + C 端小程序仓）抽取通用化而来。项目专属值（模块名、号段、路径）保留为示例，接入时按 [MIGRATION.md](MIGRATION.md) 清单替换。
+自已落地的源项目（后端仓 + C 端小程序仓）抽取通用化而来。项目专属值（模块名、号段、路径）保留为示例，接入时后端按 [backend/MIGRATION.md](backend/MIGRATION.md)、前端按 [frontend/README.md](frontend/README.md) 的「接入替换」节处理。
 
 ## 双线全景
 
@@ -48,7 +48,7 @@ AI 原生开发工作流模板：**后端线（12 Skill）+ 前端线（3 Skill�
 | 目录 | 职责 |
 |------|------|
 | `backend/skills/`（12）+ `frontend/skills/`（3） | Skill（自包含：SKILL.md + templates/ + references/） |
-| `backend/rules/`（13）+ `frontend/rules/`（5） | 编码与文档规范（纯 markdown；「规范听 Rule，流程听 Skill」） |
+| `backend/rules/`（15）+ `frontend/rules/`（5） | 编码与文档规范（纯 markdown；「规范听 Rule，流程听 Skill」） |
 | `{backend,frontend}/architecture/system-landscape.md` | 各线**项目画像（接入必填）**：项目层事实唯一定义处 |
 | `backend/reference/` | 后端通用工程指南（幂等、内存安全 IO、定时任务、统一响应） |
 | `{backend,frontend}/glossary/` | 领域词表（前端与后端对齐的子集） |
@@ -63,10 +63,15 @@ AI 原生开发工作流模板：**后端线（12 Skill）+ 前端线（3 Skill�
 
 ## 快速开始
 
-0. **怎么用**：后端线见 [backend/USAGE.md](backend/USAGE.md)；前端线见 [frontend/USAGE.md](frontend/USAGE.md)（含提示词 Demo 与反模式）。
-1. **接入**：按 [MIGRATION.md](MIGRATION.md) 替换项目锚点、填写两线画像（只用一线则只接一线）。
-2. **分发**：把对应线 `skills/`、`rules/`、`templates/` 放到目标 Agent 技能目录（Cursor / Claude Code 等）。模板**不做 symlink 镜像**——多 Agent 场景建议 CI 同步拷贝（Windows 无 symlink 特权时镜像会失效，这是源项目的实测教训）。
-3. **校验**：`bash backend/scripts/validate-skills.sh` 与 `bash frontend/scripts/validate-skills.sh`（各自扫本线 skills/rules/templates/reference/architecture/glossary/docs-methodology；链接断 = FAIL，tick 提及 = WARN 人工确认；含未闭合方括号坏链检测）。建议接入 CI。
+**接入新项目（从 0 开始）**：
+
+1. **放入项目**：`git init` 你的项目，把本模板内容复制到项目根（**不带 `.git`**）：`backend/` 整线（前端要用再加 `frontend/`）；`AGENTS.md` 复制后按项目改写；本 `README.md` 与 `backend/MIGRATION.md` 接入完成后替换 / 删除。
+2. **走接入五步**：后端按 [backend/MIGRATION.md](backend/MIGRATION.md) §一（填画像 → 替换锚点 → 重写 Golden → 分发到 Agent → 工作流裁剪，每步 AI 执行、人审定稿）；前端按 [frontend/README.md](frontend/README.md) 的「接入替换」节。**建议先接工作流、再写第一行业务代码**——画像与号段定在前面，详设才有锚可依。
+3. **接入后验收**：[backend/MIGRATION.md](backend/MIGRATION.md) §二。
+
+**已有项目接入**同样走 backend/MIGRATION.md，画像由 AI 扫描代码起草、人审定稿。
+
+**日常使用**：后端线见 [backend/USAGE.md](backend/USAGE.md)；前端线见 [frontend/USAGE.md](frontend/USAGE.md)（含提示词 Demo 与反模式）。校验：`bash backend/scripts/validate-skills.sh` 与 `bash frontend/scripts/validate-skills.sh`（链接断 = FAIL；建议接入 CI）。
 
 ## Skill 一览
 

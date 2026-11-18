@@ -1,13 +1,14 @@
 # AGENTS.md：new-ai-workflow-template 仓库入口
 
-本仓库是 **AI 原生开发工作流模板**（自已落地的源项目（后端仓 + C 端小程序仓）抽取通用化），不是一个可运行的业务项目。双线结构：`backend/` 后端线（12 Skill）、`frontend/` 前端线（3 Skill，消费后端 handoff 契约）。流水线见 [README.md](README.md)；接入方法见 [MIGRATION.md](MIGRATION.md)。
+本仓库是 **AI 原生开发工作流模板**（自已落地的源项目（后端仓 + C 端小程序仓）抽取通用化），不是一个可运行的业务项目。双线结构：`backend/` 后端线、`frontend/` 前端线（消费后端 handoff 契约）。流水线见 [README.md](README.md)；接入方法后端见 [backend/MIGRATION.md](backend/MIGRATION.md)、前端见 [frontend/README.md](frontend/README.md)。
 
 ## 在本仓库内工作时
 
 - **修改 Skill / Rule**：遵循单点维护——项目事实只写各线 `architecture/system-landscape.md`，Skill 与 Rule 引用不复制；改完跑对应线校验器，新增文件必须 UTF-8。
 - **不要在本仓库造业务工件**：`{backend,frontend}/docs/*` 只放 `_golden/` 样例；接入项目后才会在迭代目录下产真实工件。
 - **保持 Skill 自包含**：templates/ 与 references/ 随 SKILL.md 同目录；引用外部文档用相对路径且须可达（校验器管链接，tick 提及仅 WARN）。
-- **项目示例值是有意的**：`booking-*` 模块名、`com.hema` 包名、错误码号段、`booking-bff-app.yaml` 等保留作示例（每个 SKILL.md 顶部有「模板版说明」）；不要在模板里"替换掉它们"，替换发生在接入项目时（清单见 MIGRATION.md §一.2 与 §四）。
+- **修改画像模板**：`architecture/system-landscape.md` 是模板时，保留被 Skill 引用的小节编号（§3.7 错误码号段、§4.3.4 测试账号约定、§4.7 责任域定位）——Skill 按编号读画像，编号漂移锚点就断。
+- **项目示例值是有意的**：`booking-*` 模块名、`com.hema` 包名、错误码号段、`booking-bff-app.yaml` 等保留作示例（每个 SKILL.md 顶部有「模板版说明」）；不要在模板里"替换掉它们"，替换发生在接入项目时（清单见 backend/MIGRATION.md §一.2）。
 
 ## Skill 与 Rule 的分工
 
@@ -17,7 +18,7 @@
 
 代码改动（`feature-coding` / `bugfix` / `frontend-feature-coding` 的测试通过后，`integration-test-design` 的 IT 代码合入前，以及 `api-blackbox-test` / `test-data-design` 生成的 pytest/seed 脚本）必须走独立代码审查，规则见 [backend/rules/code-review.md](backend/rules/code-review.md)，报告模板见 [backend/templates/code-review-report.md](backend/templates/code-review-report.md)。以下链接是模板仓库布局；接入项目后按实际分发布局调整。
 
-**文档工件同样送审**：JSD / HLD / DD / TS 在进入下一环之前，由独立上下文审一次，规则见 [backend/rules/artifact-review.md](backend/rules/artifact-review.md)（每阶段三项必查、最多 5 条 findings、P0/P1 必修、限时 15–20 分钟）。
+**文档工件同样送审**：Story（拆卡后、进详设前）见 [backend/rules/story-review.md](backend/rules/story-review.md)（十条清单，「已确认」状态由校验器强制对应报告）；JSD / HLD / DD / TS 在进入下一环之前，由独立上下文审一次，规则见 [backend/rules/artifact-review.md](backend/rules/artifact-review.md)（每阶段三项必查、最多 5 条 findings、P0/P1 必修、限时 15–20 分钟）。
 
 - 先跑自动门禁（`mvn test` / 前端测试 / 校验器 / 链接检查），不过不送审。
 - 档位：L0 文档/路径/重命名/目录移动/构建描述符（无运行时逻辑）不派 agent；L1 ≤3 文件；L2 一般功能；L3 核心链路/DDL/跨模块契约。机械改动不因文件数升档。
