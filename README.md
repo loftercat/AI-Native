@@ -29,7 +29,7 @@ AI 原生开发工作流模板：**后端线（12 Skill）+ 前端线（3 Skill�
 ── backend/（后端线，消费业务需求）──────────────────────────
 业务原始需求 / PRD
   → journey-scenario-design   → JSD（用户旅程 + 场景矩阵，AC 完备性源头）
-  → EPIC 卡                   → Epic 先行则跳过上一环；缺失时由上一环起草，人确认范围与优先级
+  → EPIC 卡                   → 来源：PRD 提炼，或由 JSD 起草（人确认）；两条入口见下
   → high-level-design         → HLD（模块边界/集成矩阵/建议 Story）
   → story-splitting           → STORY 卡（AC/BR + 依赖拓扑 + 迭代计划）
   → detail-design             → DD + OpenAPI + schema/DDL + 代码骨架 + 测试策略
@@ -49,6 +49,11 @@ AI 原生开发工作流模板：**后端线（12 Skill）+ 前端线（3 Skill�
   → frontend-feature-coding   → pages/components/services + 测试（TDD）
   → 代码审查（rules/code-review.md）→ REVIEW-CODE-FE-*（联调/提测前）
 ```
+
+后端线开始时有两个场景入口：
+
+- **JSD 先行**：手上只有想法（口头需求 / PRD 草稿 / 原型链接），还没整理成 Epic 卡 → 先用 `journey-scenario-design` 把「用户会怎么用、每一步正常和出错时分别怎样」写清楚（这就是 JSD），缺的 Epic 卡也由它一并补出（范围由你确认）。
+- **EPIC 先行**：手上已有 PRD 定稿或 Epic 卡，需求已经比较清楚 → 直接用 `high-level-design` 出概要设计；如果 Epic 卡里用户怎么用的描述只有一两句话，先让 `journey-scenario-design` 补全，再出概要设计。
 
 两线可独立接入（只用前端线时，handoff 包直接向你的后端团队索取）。方法论见 [backend/docs/methodology/](backend/docs/methodology/) 与 [frontend/docs/methodology/](frontend/docs/methodology/)。
 
