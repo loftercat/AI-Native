@@ -7,7 +7,7 @@
 - **修改 Skill / Rule**：遵循单点维护——项目事实只写各线 `architecture/system-landscape.md`，Skill 与 Rule 引用不复制；改完跑对应线校验器，新增文件必须 UTF-8。
 - **不要在本仓库造业务工件**：`{backend,frontend}/docs/*` 只放 `_golden/` 样例；接入项目后才会在迭代目录下产真实工件。
 - **保持 Skill 自包含**：templates/ 与 references/ 随 SKILL.md 同目录；引用外部文档用相对路径且须可达（校验器管链接，tick 提及仅 WARN）。
-- **修改画像模板**：`architecture/system-landscape.md` 是模板时，保留被 Skill 引用的小节编号（§3.7 错误码号段、§4.3.4 测试账号约定、§4.7 责任域定位）——Skill 按编号读画像，编号漂移锚点就断。
+- **修改画像模板**：`architecture/system-landscape.md` 是模板时，保留被 Skill 引用的小节编号（§3.7 错误码号段、§4.3.4 测试账号约定、§4.7 责任域定位）——Skill 按编号读画像，编号漂移锚点就断。接入后的画像变更须按 [backend/rules/system-landscape-change.md](backend/rules/system-landscape-change.md) 回刷派生项。
 - **项目示例值是有意的**：`booking-*` 模块名、`com.hema` 包名、错误码号段、`booking-bff-app.yaml` 等保留作示例（每个 SKILL.md 顶部有「模板版说明」）；不要在模板里"替换掉它们"，替换发生在接入项目时（清单见 backend/MIGRATION.md §一.2）。
 
 ## 接入引导（AI 主导）

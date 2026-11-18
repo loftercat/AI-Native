@@ -15,6 +15,8 @@
 
 `glossary/domain-glossary.md` 按业务域重建词表（缺失时 Skill 降级运行，不阻断）。
 
+**画像变更后的回刷**：画像会在项目推进中完善（HLD 定稿回写、推断项确认、模块调整）。变更后须按回刷约束处理派生项，否则 `skills/`、`rules/` 与画像不一致且无任何报错——对照表与验证方式见 [rules/system-landscape-change.md](rules/system-landscape-change.md)。
+
 ### 2. 全局替换项目锚点（AI 执行，人只确认映射）
 
 本步由 AI 执行，人工辅助验收。全流程：**AI 映射提案 → 人确认 → AI 批量替换 + 规则重写（换栈时人审）→ AI 验收 → 人收报告**。

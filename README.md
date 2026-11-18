@@ -113,7 +113,7 @@ AI 原生开发工作流模板：**后端线（12 Skill）+ 前端线（3 Skill�
 | 目录 | 职责 |
 |------|------|
 | `backend/skills/`（12）+ `frontend/skills/`（3） | Skill（自包含：SKILL.md + templates/ + references/） |
-| `backend/rules/`（15）+ `frontend/rules/`（5） | 编码与文档规范（纯 markdown；「规范听 Rule，流程听 Skill」） |
+| `backend/rules/`（16）+ `frontend/rules/`（5） | 编码与文档规范（纯 markdown；「规范听 Rule，流程听 Skill」） |
 | `{backend,frontend}/architecture/system-landscape.md` | 各线**项目画像（接入必填）**：项目层事实唯一定义处 |
 | `backend/reference/` | 后端通用工程指南（幂等、内存安全 IO、定时任务、统一响应） |
 | `{backend,frontend}/glossary/` | 领域词表（前端与后端对齐的子集） |
