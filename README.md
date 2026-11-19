@@ -1,22 +1,22 @@
 # AI-Native-template
 
-AI 原生开发工作流模板：**后端线（12 Skill）+ 前端线（3 Skill）+ Rule + 项目画像 + Golden 样例 + 校验脚本**，把「需求 → 设计 → 代码 → 测试 → QA 验收」做成可重复、可审计的流程。
+AI 原生开发工作流模板：**后端、小程序前端、Flutter 移动端工作流 + Rule + 项目画像 + Golden 样例 + 校验脚本**，把「需求 → 设计 → 代码 → 测试 → QA 验收」做成可重复、可审计的流程。
 
 ## 快速开始
 
 **接入（新项目与存量项目同法）**：
 
-1. **引入**：把AI-Native工程放到项目的根目录下、**不带 `.git`**，放入后目录名保持为 `AI-Native/`。存量项目原有代码与目录不动，复制 [AGENTS.md](AGENTS.md) 文档到项目根路径下，假如存量项目已有AGENTS.md，则进行整合；复制/整合后把文中 `backend/`、`frontend/` 开头的相对链接统一加 `AI-Native/` 前缀。
-2. **接入**：后端按 [backend/MIGRATION.md](backend/MIGRATION.md) §一（填画像 → 替换锚点 → 重写 Golden → 分发到 Agent → 工作流裁剪，每步 AI 执行、人审定稿）；前端按 [frontend/README.md](frontend/README.md) 的「接入替换」。 
+1. **引入**：把AI-Native工程放到项目的根目录下、**不带 `.git`**，放入后目录名保持为 `AI-Native/`。存量项目原有代码与目录不动，复制 [AGENTS.md](AGENTS.md) 文档到项目根路径下，假如存量项目已有AGENTS.md，则进行整合；复制/整合后为文中指向模板的相对链接和命令补上 `AI-Native/` 前缀（包括指向模板 README 的链接）。
+2. **接入**：后端按 [backend/MIGRATION.md](backend/MIGRATION.md) §一（填画像 → 替换锚点 → 重写 Golden → 分发到 Agent → 工作流裁剪，每步 AI 执行、人审定稿）；前端按 [frontend/README.md](frontend/README.md) 的「接入替换」。Flutter 项目按 [Flutter 接入与升级](flutter/USAGE.md#接入与升级) 填画像并验收。
 
 ## 详细使用说明
-后端线见 [backend/USAGE.md](backend/USAGE.md)；前端线见 [frontend/USAGE.md](frontend/USAGE.md)。   
+后端线见 [backend/USAGE.md](backend/USAGE.md)；前端线见 [frontend/USAGE.md](frontend/USAGE.md)，移动端见 [Flutter 使用手册](flutter/USAGE.md)。
 
 ## 工作流全景介绍
 
-把「需求 → 设计 → 代码 → 测试 → 验收」拆成一组按序衔接的 Skill 流水线：每个环节的产出落盘为文档契约（Story / DD / TS / OpenAPI），作为下一环节的输入；流程由 AI 执行，人在固定介入点把关（映射确认、审查放行），Story / 文档工件 / 代码三道独立审查守住质量。后端线与前端线各一套完整流水线，经 handoff 契约衔接。
+把「需求 → 设计 → 代码 → 测试 → 验收」拆成一组按序衔接的 Skill 流水线：每个环节的产出落盘为文档契约（Story / DD / TS / OpenAPI），作为下一环节的输入；流程由 AI 执行，人在固定介入点把关（映射确认、审查放行），Story / 文档工件 / 代码三道独立审查守住质量。后端发布契约，小程序与 Flutter 按各自 Story 消费 handoff。
 
-## 双线全景
+## 工作流全景
 
 ```
 ── backend/（后端线，消费业务需求）──────────────────────────
@@ -42,15 +42,18 @@ AI 原生开发工作流模板：**后端线（12 Skill）+ 前端线（3 Skill�
   → 代码审查（rules/code-review.md）→ REVIEW-CODE-FE-*（联调/提测前）
 ```
 
-两线可独立接入（只用前端线时，handoff 包直接向你的后端团队索取）。方法论见 [backend/docs/methodology/](backend/docs/methodology/) 与 [frontend/docs/methodology/](frontend/docs/methodology/)。
+Flutter 移动端同样消费后端 handoff，纯本地卡直接从需求拆分开始。拆卡、详设、编码和审查的入口见 [Flutter 工作流](flutter/README.md)。
 
-## 四类 Skill 与入口
+后端与客户端可独立接入（只用前端线时，handoff 包直接向你的后端团队索取）。方法论见 [backend/docs/methodology/](backend/docs/methodology/) 与 [frontend/docs/methodology/](frontend/docs/methodology/)。
+
+## Skill 入口
 
 | 类别 | Skill | 什么时候进 |
 |------|-------|-----------|
 | 主线 7 环 | JSD → HLD → Story → DD → TS → feature-coding → IT | 新需求、改需求 |
 | QA 专线 3 环 | qa-acceptance-case-design → api-blackbox-test → test-data-design | 提测 / 发版验收 |
 | 旁路 2 环 | bugfix / legacy-test-migration | 缺陷 / 存量用例 |
+| Flutter 移动端 | flutter-story-splitting → flutter-detail-design → flutter-feature-coding | Android / iOS 页面、本地数据或原生能力 |
 | 前端 3 环 | frontend-story-splitting → frontend-detail-design → frontend-feature-coding | 前端页面 |
 
 主线是菜单不是必经路：入口由手上已有资产决定；逐个 Skill 的触发时机与产出见下文「Skill 一览」。
@@ -74,6 +77,9 @@ AI 原生开发工作流模板：**后端线（12 Skill）+ 前端线（3 Skill�
 | frontend | frontend-story-splitting | 拿到 handoff 包要拆前端卡 | `STORY-FE-*.md` |
 | frontend | frontend-detail-design | 前端 Story 定稿 | `DD-FE-*.md` |
 | frontend | frontend-feature-coding | 详设完成要写页面 | 页面/组件/服务 + 测试 |
+| flutter | flutter-story-splitting | 需求或契约已就绪 | STORY-FL 卡 |
+| flutter | flutter-detail-design | Story 范围和验收依据明确 | DD-FL 详设 |
+| flutter | flutter-feature-coding | 详设可实现 | 应用代码、测试及适用的审查报告 |
 
 ## 目录职责
 
@@ -82,6 +88,7 @@ AI 原生开发工作流模板：**后端线（12 Skill）+ 前端线（3 Skill�
 | `backend/skills/`（12）+ `frontend/skills/`（3） | Skill（自包含：SKILL.md + templates/ + references/） |
 | `backend/rules/`（15）+ `frontend/rules/`（5） | 编码与文档规范（纯 markdown；「规范听 Rule，流程听 Skill」） |
 | `{backend,frontend}/architecture/system-landscape.md` | 各线**项目画像（接入必填）**：项目层事实唯一定义处 |
+| `flutter/` | [移动端资产目录](flutter/README.md)，含画像、契约交接、阶段工件和校验器 |
 | `backend/reference/` | 后端通用工程指南（幂等、内存安全 IO、定时任务、统一响应） |
 | `{backend,frontend}/glossary/` | 领域词表（前端与后端对齐的子集） |
 | `frontend/docs/handoff/` | 前后端契约交接区（openapi 快照 + VERSION pin + stories-index） |

@@ -39,14 +39,14 @@
 
 ```text
 审查档位：L2
-规则：先读 rules/code-review.md（§二 档位 / §四 审查清单 / §五 P0–P3 与闭环）
+规则：从项目根读 AI-Native/flutter/rules/code-review.md（§二 档位 / §四 审查清单 / §五 P0–P3 与闭环）
 改动背景：STORY-FL-...；AC：...；不能破坏：...
 审查范围：git diff HEAD + git status 新增文件（本次相关；排除历史文件；重点：...）
 上游工件：Story ...；DD-FL ...；OpenAPI ... @ VERSION ...
 测试结果：分析和测试命令与结果；Android/iOS 证据；未验证项
 关注点：...
 只读：不修改仓库文件、不落盘报告
-输出：按 P0–P3 附 path:line，最多 5 条；按 templates/code-review-report.md 输出档位、P0–P2 计数与结论（报告由实现者落盘）
+输出：按 P0–P3 附 path:line，最多 5 条；按 AI-Native/flutter/templates/code-review-report.md 输出档位、P0–P2 计数与结论（报告由实现者落盘）
 ```
 
 > 这份任务书就是跨 Agent 的接口：任何独立审查人只要能读仓库并按此输出即可，不需要特定 Agent 或插件。
@@ -121,6 +121,6 @@
 ```text
 ## 代码审查
 Flutter 端代码改动（flutter-feature-coding 测试通过后、联调/提测前）必须走独立代码审查。
-规则：rules/code-review.md；模板：templates/code-review-report.md；报告：docs/reviews/{迭代}/REVIEW-CODE-FL-*。
+规则：AI-Native/flutter/rules/code-review.md；模板：AI-Native/flutter/templates/code-review-report.md；报告：AI-Native/flutter/docs/reviews/{迭代}/REVIEW-CODE-FL-*。
 审查通过前禁止 commit/push；L0 不送审；P0–P3 按 L1/L2/L3 闭环。
 ```

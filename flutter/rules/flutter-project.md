@@ -8,13 +8,16 @@
 
 以[系统画像](../architecture/system-landscape.md)记录的目录、SDK、路由和状态方案为准。新业务按 feature 收拢。共享代码有第二个明确使用者或独立的平台边界时再抽取。
 
-## 3. 必守的分层约定
+## 3. MVVM 分层约定
+
+按业务模块组织 View 和 ViewModel，Repository 和 Service 属于 Model 层。已有页面 Controller 承担相同职责时，可沿用其名称。
 
 | 边界 | 工作内容 |
 |---|---|
-| View / Widget | 渲染不可变状态，将点击、输入交给 Controller。build 可以重复调用，把 I/O、导航、弹窗移出 build。 |
-| Controller / ViewModel | 协调用户操作、恢复和状态转换。构造函数或项目容器注入 Repository，保持可替换。 |
+| View / Widget | 渲染不可变状态，将点击、输入交给 ViewModel。build 可以重复调用，把 I/O、导航、弹窗移出 build。 |
+| ViewModel（既有工程可命名为 Controller） | 协调用户操作、恢复和状态转换。构造函数或项目容器注入 Repository，保持可替换。 |
 | Repository | 合并服务端、本地和缓存，暴露领域模型。数据源负责 HTTP、SQL 或平台通信。DTO 在边界解析。 |
+| Service | 封装 HTTP、数据库或原生接口等单一数据源，供 Repository 调用。 |
 | 原生适配 | 通过类型化 Dart 接口调用 Android/iOS，测试可替换实现。业务 UI 不处理通道字符串。 |
 
 ## 4. 目录归属
@@ -56,6 +59,14 @@ class LotFeeInfo {
 ## 8. UI 组件与主题
 
 优先使用项目的公共组件与 ThemeData。按 Story 登记的设计稿映射 Widget 和交互状态，遵循[设计规则](ui-design.md)。
+
+### 8.1 列表刷新与分页
+
+在一个分页列表组件中封装下拉刷新和上拉加载更多。优先复用画像 §3.2 登记的组件。页面将两个回调绑定到 ViewModel，组件接收列表及加载状态并渲染。
+
+- **下拉刷新**。默认使用 `RefreshIndicator`，Cupertino sliver 布局可用 `CupertinoSliverRefreshControl`。刷新回调返回刷新任务的 Future。纵向短列表或空列表需要支持下拉时，保留可滚动容器并使用 `AlwaysScrollableScrollPhysics`。首屏刷新成功后替换列表和分页位置，失败时保留已展示的数据。
+- **上拉加载更多**。使用 `ListView.builder` 或 `SliverList` 按需构建列表，通过 `ScrollController` 在布局完成且接近底部（`extentAfter` 低于阈值）时通知 ViewModel 加载下一页。由 View 持有并释放滚动控制器。底部状态 Widget 渲染加载中、失败重试和到底状态，失败时保留已加载列表与待重试页。
+- **请求状态**。ViewModel 对重复分页请求去重，刷新期间暂停追加，刷新或切换筛选后丢弃旧查询的结果。下一页和末页以契约或本地数据源的约定为准。测试覆盖短列表刷新、到达末页、分页失败重试，以及刷新与旧分页结果乱序。
 
 ## 9. 反模式
 

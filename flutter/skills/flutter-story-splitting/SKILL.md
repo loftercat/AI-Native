@@ -7,6 +7,7 @@ description: >-
 
 > **模板版说明**　示例业务与客户端工作流共用。接入 Flutter 项目时按[使用手册](../../USAGE.md)填写[系统画像](../../architecture/system-landscape.md)，以本工程的组件、路由和契约替换示例值。
 
+接入项目后，先读项目根 AGENTS.md 和[本线入口](../../AGENTS.md)，按入口约定定位工作流文档和应用代码。
 
 # Flutter Story 拆分（flutter-story-splitting）
 
@@ -45,6 +46,8 @@ description: >-
 5. 产出 STORY-FL-*.md，每条 API 相关 AC 附追溯（§7 格式）
 6. 更新 docs/handoff/stories-index.md（Story ↔ operationId，可选）
 ```
+
+进入详设前，逐条确认 AC 的验收依据：网络行为关联契约版本及 operationId，视觉行为关联稿件或已确认的交互要求，本地和原生行为说明数据来源、目标平台及可观察结果。尚待确认的项注明影响范围。
 
 ## 5. 与后端 Story 的分工
 

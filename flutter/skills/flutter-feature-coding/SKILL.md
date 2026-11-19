@@ -8,6 +8,7 @@ description: >-
 
 > **模板版说明**　示例业务与客户端工作流共用。接入 Flutter 项目时按[使用手册](../../USAGE.md)填写[系统画像](../../architecture/system-landscape.md)，以本工程的组件、路由和契约替换示例值。
 
+接入项目后，先读项目根 AGENTS.md 和[本线入口](../../AGENTS.md)，按入口约定定位工作流文档和应用代码。
 
 # Flutter 功能编码（Story + 详设 → Flutter 应用 + 测试）
 
@@ -32,15 +33,15 @@ description: >-
 
 ```text
 /flutter-feature-coding 实现 STORY-FL-2026-S01-002
-@docs/requirements/2026-S01/STORY-FL-2026-S01-002-*.md
-@docs/design/2026-S01/DD-FL-2026-S01-002-*.md
+@AI-Native/flutter/docs/requirements/2026-S01/STORY-FL-2026-S01-002-*.md
+@AI-Native/flutter/docs/design/2026-S01/DD-FL-2026-S01-002-*.md
 ```
 
 ## 3. 流程
 
 ### 步骤 1：加载上下文
 
-- 读 STORY-FL、DD-FL、适用的契约和本卡范围。按系统画像 §3.1 选用对应组件，通过 §3.2 定位已有公共组件或工具。
+- 读 STORY-FL、DD-FL、适用的契约和本卡范围。先核对 DD 中本次 AC 的状态、失败分支与平台验收依据，待确认项只阻断受影响的范围。按系统画像 §3.1 选用对应组件，通过 §3.2 定位已有公共组件或工具。
 - 按 STORY-FL「设计稿」节加载稿件对照；标 `UI: TBD` 的项不猜样式，向用户要稿或确认
 - Rule：`rules/flutter-project.md`、`rules/flutter-performance.md`、`rules/api-client-conventions.md`、`rules/error-display-conventions.md`
 

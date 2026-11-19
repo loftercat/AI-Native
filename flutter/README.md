@@ -15,7 +15,7 @@ Epic/PRD/原型 + 后端 OpenAPI handoff（docs/handoff/）
 | 目录 | 职责 |
 |------|------|
 | `skills/` | 3 个客户端 Skill（自包含） |
-| `rules/` | 5 条对应前端的基础规范：API Client 约定、错误展示、性能、工程结构、代码审查 |
+| `rules/` | 工程与性能、契约与错误、状态与存储、原生桥接、UI 验收、测试发布、代码审查 |
 | `architecture/system-landscape.md` | 客户端画像（**接入必填**；含 §四 契约与鉴权、§六 与后端协作机制） |
 | `glossary/domain-glossary.md` | 客户端词表（与后端仓对齐的子集） |
 | `docs/handoff/` | 前后端契约交接区（openapi 快照 + VERSION pin + stories-index） |
@@ -26,7 +26,11 @@ Epic/PRD/原型 + 后端 OpenAPI handoff（docs/handoff/）
 | `config/current-sprint` | 当前迭代号 |
 | `scripts/validate-skills.sh` | 客户端资产完整性校验 |
 
-完整的 13 项技术选型见[项目画像 §3.1](architecture/system-landscape.md)。编写组件、工具和接口时，可参考[中文业务注释写法](rules/flutter-project.md)。
+MVVM、列表刷新与分页等技术选型见[项目画像 §3.1](architecture/system-landscape.md)。编写组件、工具和接口时，可参考[中文业务注释写法](rules/flutter-project.md)。
+
+## 接入项目
+
+将模板整目录嵌入项目根的 `AI-Native/`，把 Flutter 入口合并进项目根 AGENTS.md。从项目根运行 `bash AI-Native/flutter/scripts/validate-skills.sh`。首次接入、旧布局迁移、模板升级及真实卡验收见[使用手册](USAGE.md#接入与升级)。
 
 ## 使用
 
@@ -42,4 +46,4 @@ Epic/PRD/原型 + 后端 OpenAPI handoff（docs/handoff/）
 
 同源不同层：backend 线产出 OpenAPI 契约（`detail-design` 定稿），经 handoff 交接给本线消费；**客户端不定义契约**。两线可独立接入（只用客户端线时，handoff 包直接从你的后端团队拿）。
 
-运行 `bash scripts/validate-skills.sh` 校验本线资产。
+在线根运行 `bash scripts/validate-skills.sh` 校验本线资产。
