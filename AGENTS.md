@@ -26,16 +26,18 @@
 
 ## 代码审查
 
-代码改动（`feature-coding` / `bugfix` / `frontend-feature-coding` 的测试通过后，`integration-test-design` 的 IT 代码合入前，以及 `api-blackbox-test` / `test-data-design` 生成的 pytest/seed 脚本）必须走独立代码审查，规则见 [backend/rules/code-review.md](backend/rules/code-review.md)，报告模板见 [backend/templates/code-review-report.md](backend/templates/code-review-report.md)。以下链接是模板仓库布局；接入项目后按实际分发布局调整。
+代码与文档工件都必须独立审查；规则以三份 Rule 为准（接入项目后按实际分发布局调整链接）：
 
-**文档工件同样送审**：Story（拆卡后、进详设前）见 [backend/rules/story-review.md](backend/rules/story-review.md)（十条清单，「已确认」状态由校验器强制对应报告）；JSD / HLD / DD / TS 在进入下一环之前，由独立上下文审一次，规则见 [backend/rules/artifact-review.md](backend/rules/artifact-review.md)（每阶段三项必查、最多 5 条 findings、P0/P1 必修、限时 15–20 分钟）。
+| 对象 | 规则 | 报告落点 |
+|------|------|----------|
+| 代码：`feature-coding` / `bugfix` / `frontend-feature-coding` / IT / 黑盒 / 造数脚本 | [backend/rules/code-review.md](backend/rules/code-review.md) | `docs/reviews/{迭代}/REVIEW-CODE-{阶段}-*`（IMPL/IT/FIX/FE/BB/SEED） |
+| Story：拆卡后、进详设前 | [backend/rules/story-review.md](backend/rules/story-review.md) | `docs/reviews/{迭代}/REVIEW-STORY-{迭代}-{序号}-{slug}.md`；「已确认」须有通过报告 |
+| 阶段工件：JSD / HLD / DD / TS | [backend/rules/artifact-review.md](backend/rules/artifact-review.md) | `docs/reviews/{迭代}/REVIEW-{JSD\|HLD\|DD\|TS}-{slug}.md` |
 
 - 先跑自动门禁（`mvn test` / 前端测试 / 校验器 / 链接检查），不过不送审。
-- 档位：L0 文档/路径/重命名/目录移动/构建描述符（无运行时逻辑）不派 agent；L1 ≤3 文件；L2 一般功能；L3 核心链路/DDL/跨模块契约。机械改动不因文件数升档。
-- 同一批改动只审一次；L1–L3 分别 ≤10/20/30 分钟；最多 5 条 findings；不默认复审，连续 2 轮不通过交还人工。
-- 审查通过前禁止 commit/push；报告落 `docs/reviews/{迭代}/REVIEW-CODE-{阶段}-*`（IMPL/IT/FIX/FE/BB/SEED 分阶段，避免覆盖）。
-- 审查人只读（独立 AI 会话 / 审查 agent / 人）；L0 不落报告，在回复/提交说明写自动门禁结果。
-- 审查流程不绑定具体 Agent：任意独立审查人读取项目 `AGENTS.md` 与本规则即可执行；接入项目时把本节复制到项目 `AGENTS.md`。
+- 档位 L0–L3、P0–P3 闭环、审查时限与复审策略以 `code-review.md` 为准；L0 文档/路径/机械改动不派 agent，在回复或提交说明写自动门禁结果。
+- 审查通过前禁止 commit/push；审查人只读，可为独立 AI 会话 / 审查 agent / 人，不绑定具体 Agent。
+- 接入项目时用 `templates/AGENTS.template.md` 生成项目 `AGENTS.md`，不要直接复制本文件。
 
 ## 常用命令
 

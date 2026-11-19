@@ -121,7 +121,6 @@ AI 原生开发工作流模板：**后端线（12 Skill）+ 前端线（3 Skill�
 - **单点维护**：项目事实只在各线 `system-landscape.md` 定义，Skill 与 Rule 引用不复制。
 - **缺口三分法**：阻断（问用户）/ 可补充（`[AI推断]` 标注）/ 提醒（记录），AI 不静默猜。
 - **契约单向流**：后端定契约 → handoff → 前端消费；前端永远不直接改 OpenAPI。
-- **机械与语义分工**：确定性检查交给脚本（validate-skills、hooks、构建测试），语义与风险判断交给 Skill 流程与独立审查（Story 门禁见 [backend/rules/story-review.md](backend/rules/story-review.md)；代码审查见 [backend/rules/code-review.md](backend/rules/code-review.md)）。
-- **代码审查**：编码后、合并前由独立上下文审 diff + Story/DD/TS/OpenAPI，P0–P3 按档位闭环；报告落 `docs/reviews/{迭代}/REVIEW-CODE-{阶段}-*`。
+- **机械与语义分工**：确定性检查交给脚本（validate-skills、hooks、构建测试）；语义与风险交给 Skill 流程与独立审查（Story 门禁见 [backend/rules/story-review.md](backend/rules/story-review.md)；代码审查见 [backend/rules/code-review.md](backend/rules/code-review.md)，报告落 `docs/reviews/{迭代}/REVIEW-CODE-{阶段}-*`）。
 - **同场景只写一遍**：Java 白盒守代码逻辑（PR 门禁），Python 黑盒守部署环境（发版门禁），见 [backend/docs/methodology/test-line.md](backend/docs/methodology/test-line.md)。
 - **Golden 教学**：每类工件带标准样例（`_golden/`），「写一个 Golden，不是拷一个 Golden」——接入项目时应重写为本项目真实样例。

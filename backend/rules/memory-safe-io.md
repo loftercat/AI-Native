@@ -1,6 +1,6 @@
 # 内存安全 IO
 
-涉及文件上传、导入、导出、ZIP、大文件下载时，先读 [docs/reference/memory-safe-io-guide.md](../reference/memory-safe-io-guide.md)。
+涉及文件上传、导入、导出、ZIP、大文件下载时，先读 [reference/memory-safe-io-guide.md](../reference/memory-safe-io-guide.md)。
 
 ## 必守
 

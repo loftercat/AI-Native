@@ -116,8 +116,8 @@
 |------|------|----------|
 | 测试分层 Rule | `rules/tdd-project-conventions.md` | 集成测试位置 `booking-app/src/test/java/`；Mock Client |
 | Mock 边界 | `skills/feature-coding/references/test-quality.md` | 集成测试 Mock `PaymentClient` / `ParkingLotGateway`，不 Mock 核心链路 |
-| 集成矩阵 | `docs/architecture/system-landscape.md` §四 | 支付/iam-server/车场/室内导航的集成方式 |
-| 跨域约定 | `docs/architecture/system-landscape.md` §3.6 | V1 同 JVM `@Autowired XxxApi` 经 `app/client` |
+| 集成矩阵 | `architecture/system-landscape.md` §四 | 支付/iam-server/车场/室内导航的集成方式 |
+| 跨域约定 | `architecture/system-landscape.md` §3.6 | V1 同 JVM `@Autowired XxxApi` 经 `app/client` |
 | 集成测试样板 | `booking-bff-app/.../AppReservationControllerTest.java` | `@SpringBootTest(classes=...)` + `@AutoConfigureMockMvc` + `@MockBean` |
 | 启动配置 | `booking-app/src/main/resources/application.yml` | MySQL（`localhost:3306/booking`）、schema.sql、MyBatis XML |
 | 聚合模块 | `booking-app/pom.xml` | 唯一 `@SpringBootApplication` |
@@ -201,7 +201,7 @@ test-spec-alignment（已落地）    integration-test-design（决策 + 指南 
 | AI Native 方法论总览 | [docs/methodology/readme.md](readme.md) |
 | 功能编码（TDD 流程） | [docs/methodology/feature-coding.md](feature-coding.md) |
 | 单元测试质量约定 | [skills/feature-coding/references/test-quality.md](../../skills/feature-coding/references/test-quality.md) |
-| 系统画像（集成矩阵） | [docs/architecture/system-landscape.md](../../architecture/system-landscape.md) |
+| 系统画像（集成矩阵） | [architecture/system-landscape.md](../../architecture/system-landscape.md) |
 | TDD Rule | `rules/tdd-project-conventions.md` |
 
 ---
