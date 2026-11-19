@@ -74,8 +74,8 @@
 1. **HTTP 只在 BFF**：禁止在 BFF 写核心状态机；域逻辑在 `*-impl`。
 2. **api/impl 分离**：`*-api` 只放契约与 DTO，业务实现在 `*-impl`。
 3. **域间调用**：V1 同 JVM 直调 `XxxApi`，经 `app/client` 封装；不引入 OpenFeign/Nacos（除非架构变更）。
-4. **统一响应**：`{Result 类型全限定名}`；业务成败看 `code === {成功码}`。
-5. **错误码号段**：{填写各域号段}；域错误码放 `*-api`，BFF 守卫错误码放 `common`。
+4. **统一响应**：以 `AI-Native/backend/architecture/system-landscape.md` §3.7「公共基础库锚点」为准；业务成败看 `code === 成功码`。
+5. **错误码号段**：以画像 §3.7 号段表为准；域错误码放 `*-api`，BFF 守卫错误码放 `common`。
 6. **禁止造轮子**：不得自定义 `Result` / `BizException` / `ErrorCode` / `GlobalExceptionHandler` / `PageResult` / `PageQuery` / 雪花 ID 生成器；一律复用项目公共库。
 7. **数据访问**：ORM 为 `{MyBatis}`；主键查询可用 `{MyBatis Plus}`，其余 SQL 只写在 XML。
 8. **文档中文，代码标识符英文**；保持 diff 小。

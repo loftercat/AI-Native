@@ -8,7 +8,7 @@
 - **不要在本仓库造业务工件**：`{backend,frontend}/docs/*` 只放 `_golden/` 样例；接入项目后才会在迭代目录下产真实工件。
 - **保持 Skill 自包含**：templates/ 与 references/ 随 SKILL.md 同目录；引用外部文档用相对路径且须可达（校验器管链接，tick 提及仅 WARN）。
 - **修改画像模板**：`architecture/system-landscape.md` 是模板时，保留被 Skill 引用的小节编号（§3.7 错误码号段、§4.3.4 测试账号约定、§4.7 责任域定位）——Skill 按编号读画像，编号漂移锚点就断。接入后的画像变更须按 [backend/rules/system-landscape-change.md](backend/rules/system-landscape-change.md) 回刷派生项。
-- **项目示例值是有意的**：`booking-*` 模块名、`com.hema` 包名、错误码号段、`booking-bff-app.yaml` 等保留作示例（每个 SKILL.md 顶部有「模板版说明」）；不要在模板里"替换掉它们"，替换发生在接入项目时（清单见 backend/MIGRATION.md §一.2）。
+- **项目示例值是有意的**：`booking-*` 模块名、`com.hema` 包名、错误码号段、`booking-bff-app.yaml` 等保留作示例（每个 SKILL.md 顶部有「模板版说明」）；不要在模板里"替换掉它们"，替换发生在接入项目时（锚点处理见 backend/MIGRATION.md §一.3）。
 
 ## 接入引导（AI 主导）
 
@@ -17,7 +17,7 @@
 0. **定位模板**：会话不在模板仓时（如已开在目标项目），请用户提供模板仓路径，读取该路径下 AGENTS.md 的本节后继续。
 1. **探测优先，能不问就不问**：探测**目标项目根**（用户已给路径时用该路径；会话开在模板仓时先取得目标根再探测）——空目录 → 新项目；有代码 → 已有代码项目；已有 `AI-Native/` → 阻断确认是否重复接入；已有 `AGENTS.md` → 走整合。仅探测有歧义或用户主动说明时才问形态与路径。
 2. **引入**：按根 [README.md](README.md)「快速开始」步骤 1 执行（复制模板、命名 `AI-Native/`、建/整合项目根 AGENTS.md、链接加前缀）；目标目录非 git 仓库时提议 `git init`（接入完成即首提交）。
-3. **接入**：问接哪条线（后端 / 前端 / 都接，都接时先后端、再前端——契约单向流）。后端读 [backend/MIGRATION.md](backend/MIGRATION.md) 按任务书执行——画像步骤新项目走访谈、存量走扫码起草（§一.1 表）；介入点停下等人；前端读 [frontend/MIGRATION.md](frontend/MIGRATION.md)——handoff 包缺失时向用户提问（去后端拿 / 先后补），同样在介入点停下。分发方式与裁剪选项打包为一次收尾提问，不逐项问。分支细节住在各指南，本节只做路由，不复制。
+3. **接入**：问接哪条线（后端 / 前端 / 都接，都接时先后端、再前端——契约单向流）。后端读 [backend/MIGRATION.md](backend/MIGRATION.md) 按任务书执行——画像步骤新项目走访谈、存量走扫码起草（§一.2 表）；介入点停下等人；前端读 [frontend/MIGRATION.md](frontend/MIGRATION.md)——handoff 包缺失时向用户提问（去后端拿 / 先后补），同样在介入点停下。分发方式与裁剪选项打包为一次收尾提问，不逐项问。分支细节住在各指南，本节只做路由，不复制。
 4. **验收**：跑对应线校验器（tick 类 WARN 用 `--quiet-tick` 只看计数）与指南内验收命令，交报告给人确认。
 
 ## Skill 与 Rule 的分工

@@ -2,30 +2,63 @@
 
 AI 原生开发工作流模板：**后端线（12 Skill）+ 前端线（3 Skill）+ Rule + 项目画像 + Golden 样例 + 校验脚本**，把「需求 → 设计 → 代码 → 测试 → QA 验收」做成可重复、可审计的流程。
 
+> 新项目 / 存量项目均可接入；AI 负责执行，人只在画像拍板、映射确认、审查放行等固定介入点决策。
+
+---
+
+## 快速导航
+
+| 我想… | 读这份 |
+|--------|--------|
+| 把工作流接入项目 | [快速开始](#快速开始) |
+| 了解整体流水线 | [工作流全景](#工作流全景) |
+| 查某个 Skill 的触发/产出 | [Skill 体系](#skill-体系) |
+| 查 EPIC / JSD / DD / TS 等工件 | [工件速查](#工件速查) |
+| 看目录结构 | [目录职责](#目录职责) |
+| 准备或替换公共基础库 | [公共基础库替换任务书](backend/docs/methodology/common-foundation-migration.md) |
+| 日常使用（后端） | [backend/USAGE.md](backend/USAGE.md) |
+| 日常使用（前端） | [frontend/USAGE.md](frontend/USAGE.md) |
+
+---
+
 ## 快速开始
 
-**AI 辅助接入**：
-- 在模板仓内启动 ：对 AI 说 *「读取 AGENTS.md，按「接入引导」引导我接入，目标项目：`<项目路径>`」*
-- 在目标项目内启动 ：对 AI 说 *「从 `<模板仓路径>` 按 AGENTS.md「接入引导」把工作流接入到本项目」*——AI 读取模板的接入引导节后开始。
+接入分两种方式，选一种即可；两种方式最终都会走完下面的「手动接入」步骤。
 
-两种方式 AI 都会带你走完下方「手动接入」的全部步骤，你只在画像拍板、映射确认、验收等介入点做决策。新项目 / 存量项目均可。
+### 方式一：AI 辅助接入
 
-**手动接入**（新项目与存量项目同法）：
+- 在模板仓内启动 AI：*「读取 AGENTS.md，按「接入引导」引导我接入，目标项目：`<项目路径>`」*
+- 在目标项目内启动 AI：*「从 `<模板仓路径>` 按 AGENTS.md「接入引导」把工作流接入到本项目」*
 
-1. **引入**：把AI-Native工程放到项目的根目录下、**不带 `.git`**，放入后目录名保持为 `AI-Native/`。存量项目原有代码与目录不动，用 [templates/AGENTS.template.md](templates/AGENTS.template.md) 生成项目根 `AGENTS.md`（填完占位符）；存量项目已有 `AGENTS.md` 时进行整合。模板仓根 [AGENTS.md](AGENTS.md) 是模板仓入口，**不要直接复制**到目标项目。
-2. **接入**：后端按 [backend/MIGRATION.md](backend/MIGRATION.md) §一（填画像 → 替换锚点 → 重写 Golden → 分发到 Agent → 工作流裁剪，每步 AI 执行、人审定稿）；前端按 [frontend/MIGRATION.md](frontend/MIGRATION.md)。 
+AI 会读取模板仓的接入引导，带你走完手动步骤；你只在画像拍板、映射确认、验收等介入点做决策。
+
+### 方式二：手动接入
+
+新项目与存量项目同法：
+
+1. **引入**：把 AI-Native 工程放到项目的根目录下、**不带 `.git`**，放入后目录名保持为 `AI-Native/`。存量项目原有代码与目录不动，用 [templates/AGENTS.template.md](templates/AGENTS.template.md) 生成项目根 `AGENTS.md`（填完占位符）；存量项目已有 `AGENTS.md` 时进行整合。
+2. **接入**：后端按 [backend/MIGRATION.md](backend/MIGRATION.md) §一（填画像 → 替换锚点 → 重写 Golden → 分发到 Agent → 工作流裁剪，每步 AI 执行、人审定稿）；前端按 [frontend/MIGRATION.md](frontend/MIGRATION.md)。
+
+> 模板仓根 [AGENTS.md](AGENTS.md) 是模板仓入口，**不要直接复制**到目标项目；目标项目用 `templates/AGENTS.template.md` 生成自己的入口。
+
+---
 
 ## 详细使用说明
-后端线见 [backend/USAGE.md](backend/USAGE.md)；前端线见 [frontend/USAGE.md](frontend/USAGE.md)。   
-详细说明包含：各阶段skill提示词示例，使用skill时机，产物落地说明等内容，建议在接入AI-Native后阅读此文档来协助完成开发
 
-## 工作流全景介绍
+| 线 | 手册 | 包含 |
+|----|------|------|
+| 后端 | [backend/USAGE.md](backend/USAGE.md) | 前置条件、工作流环节选择、工作流迭代演示、AI 停下时怎么办 |
+| 前端 | [frontend/USAGE.md](frontend/USAGE.md) | 三段流水线、提示词 Demo、端到端示例、反模式 |
+
+建议接入完成后阅读，作为日常开发的操作手册。
+
+---
+
+## 工作流全景
 
 把「需求 → 设计 → 代码 → 测试 → 验收」拆成一组按序衔接的 Skill 流水线：每个环节的产出落盘为文档契约（Story / DD / TS / OpenAPI），作为下一环节的输入；流程由 AI 执行，人在固定介入点把关（映射确认、审查放行），Story / 文档工件 / 代码三道独立审查守住质量。后端线与前端线各一套完整流水线，经 handoff 契约衔接。
 
-## 双线全景
-
-```
+```text
 ── backend/（后端线，消费业务需求）──────────────────────────
 业务原始需求 / PRD
   → journey-scenario-design   → JSD（用户旅程 + 场景矩阵，AC 完备性源头）
@@ -50,14 +83,20 @@ AI 原生开发工作流模板：**后端线（12 Skill）+ 前端线（3 Skill�
   → 代码审查（rules/code-review.md）→ REVIEW-CODE-FE-*（联调/提测前）
 ```
 
-后端线开始时有两个场景入口：
+### 两个入口
+
+后端线开始时，按手上已有资产选入口：
 
 - **JSD 先行**：手上只有想法（口头需求 / PRD 草稿 / 原型链接），还没整理成 Epic 卡 → 先用 `journey-scenario-design` 把「用户会怎么用、每一步正常和出错时分别怎样」写清楚（这就是 JSD），缺的 Epic 卡也由它一并补出（范围由你确认）。
 - **EPIC 先行**：手上已有 PRD 定稿或 Epic 卡，需求已经比较清楚 → 直接用 `high-level-design` 出概要设计；如果 Epic 卡里用户怎么用的描述只有一两句话，先让 `journey-scenario-design` 补全，再出概要设计。
 
 两线可独立接入（只用前端线时，handoff 包直接向你的后端团队索取）。方法论见 [backend/docs/methodology/](backend/docs/methodology/) 与 [frontend/docs/methodology/](frontend/docs/methodology/)。
 
-## 四类 Skill 与入口
+---
+
+## Skill 体系
+
+### 四类入口
 
 | 类别 | Skill | 什么时候进 |
 |------|-------|-----------|
@@ -66,14 +105,16 @@ AI 原生开发工作流模板：**后端线（12 Skill）+ 前端线（3 Skill�
 | 旁路 2 环 | bugfix / legacy-test-migration | 缺陷 / 存量用例 |
 | 前端 3 环 | frontend-story-splitting → frontend-detail-design → frontend-feature-coding | 前端页面 |
 
-主线是菜单不是必经路：入口由手上已有资产决定；逐个 Skill 的触发时机与产出见下文「Skill 一览」。
+主线是菜单不是必经路：入口由手上已有资产决定。
 
-## Skill 一览
+### 完整清单
 
 - **后端线（12 个）**：见 [backend/Skill清单与栈依赖.md](backend/Skill清单与栈依赖.md)（触发时机、输入/产出、栈依赖、裁剪建议）。
 - **前端线（3 个）**：见 [frontend/README.md](frontend/README.md)（三段流水线）。
 
 > Golden 约定见 [backend/docs/methodology/golden.md](backend/docs/methodology/golden.md)。
+
+---
 
 ## 工件速查
 
@@ -93,9 +134,13 @@ AI 原生开发工作流模板：**后端线（12 Skill）+ 前端线（3 Skill�
 | REVIEW-* | 审查报告 | 独立审查人对需求卡、设计文档或代码的检查结论 | `docs/reviews/{迭代}/` | 独立审查人 |
 | STORY-FE / DD-FE | 前端需求卡 / 前端详设 | 页面要做什么、调用哪些后端接口；页面有哪些状态、组件怎么拆 | `frontend/docs/{requirements,design}/` | frontend-story-splitting / frontend-detail-design |
 
-每类工件的「标准长什么样」见各 `_golden/` 目录中的样例。
+> 每类工件的「标准长什么样」见各 `_golden/` 目录中的样例。
+
+---
 
 ## 目录职责
+
+模板仓按「根 / 后端线 / 前端线」组织；目标项目接入后，业务代码留在项目根，工作流资产在 `AI-Native/`。
 
 | 目录 | 职责 |
 |------|------|
@@ -115,6 +160,8 @@ AI 原生开发工作流模板：**后端线（12 Skill）+ 前端线（3 Skill�
 | `{backend,frontend}/config/current-sprint` | 各线当前迭代号（单一事实源） |
 
 > 系统画像与词表模板不在 `templates/`：分别是 `backend/architecture/system-landscape.md`、`backend/glossary/domain-glossary.md`；Skill 直接读这两个路径，`templates/` 只放需要生成到目标项目根的文件。
+
+---
 
 ## 设计原则
 

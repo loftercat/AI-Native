@@ -91,6 +91,20 @@
 
 统一响应与异常的来源（公司级 common 库或本仓库）、各层响应形态、**错误码号段分配表**（bugfix 责任域定位依赖此表）。
 
+**公共基础库锚点**（公共库替换任务先读这里；方法签名以库源码/文档为准）：
+
+| 项 | 值 |
+|----|----|
+| Maven 坐标 | `{groupId}:{common-core}`、`{groupId}:{common-web}` |
+| 版本属性 | `${...}` |
+| 包根 | `{com.acme.common}` |
+| 成功码 | `{200}` |
+| 统一响应 | `{Result 全限定名}` |
+| 错误码 | `{ErrorCode}` / `{BizErrorCode}` |
+| 分页 | `{PageQuery}` / `{PageResult}` |
+| ID 生成器 | `{SnowflakeIdGenerator#nextId}` |
+| 全局异常处理 | `{GlobalExceptionHandler}` |
+
 | 区间 | 用途 | 定义位置 |
 |------|------|----------|
 | 200 / 400~503 | 通用与 HTTP 层 | （示例）`{公司级 common}` → `ErrorCode` |
