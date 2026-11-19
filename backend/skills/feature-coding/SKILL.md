@@ -20,7 +20,7 @@ description: >-
 
 - **做什么**：Story 范围内 `*-api`/`*-impl`/BFF + 测试一体化 TDD；URL 整改时同步**当前 Story** 详设/OpenAPI
 - **不做**：需求拆解（`story-splitting`）、详设/OpenAPI 从零编写（`detail-design`）
-- **不做**：全库存量测试审计（本仓库无 `test-quality-audit` Skill）、禅道 Bug 单（无 `bug-fix` Skill，见下文区分）
+- **不做**：全库存量测试审计（本仓库无 `test-quality-audit` Skill）、禅道 Bug 单（走 `bugfix` Skill，见下文区分）
 - **不做**：`booking-app` 关键链路集成/场景测试（`*IT`/`*ScenarioIT`，归 `integration-test-design` Skill）；本 Skill 仅写单元 / BFF API / Mapper 测试
 - **不做**：独立「需求变更」Skill；默认不改 Story 卡
 - **不做**：改 Rule、`docs/*/_golden/`；改**非当前 Story** 的详设/OpenAPI operation 业务定义
@@ -353,7 +353,7 @@ mvn test
 
 Story 未更新但用户要求改实现 → **拒绝**，提示先更新 Story。
 
-**与 bug-fix 区分**：AC 未变、生产/联调行为与 AC 不符 → 按 Bug 修实现（本仓库无独立 `bug-fix` Skill，仍走本 Skill 但**不改 AC**）；AC 或变更记录已更新 → 本 Skill 需求变更流程。
+**与 bugfix 区分**：AC 未变、生产/联调行为与 AC 不符 → 走 `bugfix` Skill 修实现（**不改 AC**）；AC 或变更记录已更新 → 本 Skill 需求变更流程。
 
 ---
 

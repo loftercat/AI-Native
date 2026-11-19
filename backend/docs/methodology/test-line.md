@@ -12,7 +12,8 @@
 | **研发线（已落地）** | `high-level-design` / `story-splitting` / `detail-design` / `feature-coding` | ✅ |
 | **测试线（已落地）** | `test-spec-alignment` | ✅ → 产出 `docs/test-spec/{迭代}/TS-STORY-*.md` |
 | **测试线（已落地）** | `integration-test-design` | ✅（STORY-2026-S01-005）→ `booking-app` `*IT` / `*ScenarioIT` |
-| **测试线（未落地）** | `test-quality-audit` / `bug-fix` / `regression-guard` / `contract-test` | 规划中 |
+| **测试线（已落地）** | `bugfix` | ✅（旁路）→ 复现测试 + 修复报告 |
+| **测试线（未落地）** | `test-quality-audit` / `regression-guard` / `contract-test` | 规划中 |
 | **QA 专线（部分落地）** | `qa-acceptance-case-design` ✅（S01-090）/ `api-blackbox-test` ✅（S01-091）/ `test-data-design` ✅（S01-092，SQL 通道骨架）/ `performance-test` | 有 QA 团队再落地 |
 | **前端另仓（规划）** | `frontend-high-level-design`（可选）/ `frontend-story-splitting` / `frontend-detail-design` / `frontend-feature-coding` / `frontend-test-spec-alignment`（推荐）/ `frontend-contract-test` / `e2e-test` | 前端仓落地；本仓库只定协作接口（§4.4~§4.5） |
 
@@ -136,7 +137,7 @@
 | `integration-test-design` | 白盒集成/场景 | `*IT` / `*ScenarioIT` | TS 含集成层或按详设自行设计 | ✅ |
 | `test-quality-audit` | 全库测试债务扫描 | 审计报告 | 迭代末/发版前 | 规划中 |
 | `regression-guard` | 需求变更影响面 + 回归集 | 回归用例集 | 需求变更/跨 Story BR | 规划中 |
-| `bug-fix` | 先复现再修，不改 AC | 复现测试 + 根因记录 | 联调/上线后 | 规划中 |
+| `bugfix` | 先复现再修，不改 AC | 复现测试 + 根因记录 | 联调/上线后 | ✅ 已落地（旁路） |
 | `contract-test` | 微服务契约守护 | Pact / SCC | V2+ 拆服务后 | 未规划 |
 
 ### 4.2 QA 测试工程师专线（可选）
@@ -151,7 +152,7 @@
 | `e2e-test` | UI 端到端 | Playwright/Appium | 前端另仓，本仓库不规划 | 另仓 |
 | `performance-test` | 压测 | Locust/JMeter | 复用集成测链路设计 | 可选 |
 | `regression-guard` | 跨 Story 回归 | 回归集 | 互补 `feature-coding` 单 Story 增量 | 共用 |
-| `bug-fix`（QA 消费） | 提复现路径 + Bug 单 | Bug 单 | 研发侧修代码 | 共用 |
+| `bugfix`（QA 消费） | 提复现路径 + Bug 单 | Bug 单 | 研发侧修代码 | 共用 |
 
 **QA 用例 ≠ TS**：TS 是研发测试规格（哪层测、断言什么、Mock 什么）；验收用例是用户可见断言（`code=200`、主流程通），面向手工/UAT。二者平行、同源于需求卡，不可互相替代。
 
@@ -169,7 +170,7 @@
             │                   ├── api-blackbox-test（黑盒自动化）
    ┌────────┼────────┐          ├── test-data-design（造数）
    ▼        ▼        ▼          ├── e2e-test / performance-test
-feature-  integration-          └── regression-guard / bug-fix
+feature-  integration-          └── regression-guard / bugfix
 coding    test-design                │
    ▲        ▲        ▲              │
    └────────┴────────┴── TS 对齐 ───┘
@@ -299,7 +300,7 @@ Story/AC 变更（后端仓 §7 变更记录）
 4. **前端-only / N/A 标注**
 5. **缺口与阻断项**（AC 无计划、错误码与 OpenAPI 不一致 → 阻断）
 
-详设 §9 只到「类名 + AC 编号」；TS 细化到用例级 Given-When-Then。
+详设 §9 到「测试类/关注点 + 覆盖 AC」；TS 细化到方法级 Given-When-Then。
 
 ### 5.3 与相邻 Skill 边界
 
@@ -346,7 +347,7 @@ Epic/PRD → HLD → Story → DD + OpenAPI + §9
                               │
               ┌───────────────┼───────────────┐
               ▼               ▼               ▼
-      test-quality-audit   bug-fix    regression-guard
+      test-quality-audit   bugfix    regression-guard
                               │
                               ▼ 部署到测试环境（可选，有 QA）
               ┌───────────────┴───────────────┐
@@ -373,7 +374,7 @@ Epic/PRD → HLD → Story → DD + OpenAPI + §9
 |--------|-------|------|
 | **P0** | `test-spec-alignment` | ✅ 已落地 |
 | **P1** | `test-quality-audit` | 存量测试债治理 |
-| **P2** | `bug-fix` | 联调期缺陷闭环 |
+| **P2** | `bugfix` | 联调期缺陷闭环 |
 | **P3** | `integration-test-design` | ✅ 基建已落地（S01-005）；业务 `*IT` 按 Story 节奏增量 |
 | **P4** | `contract-test` / `regression-guard` | V2+ 拆微服务后 |
 | **可选** | QA 专线全套 | 有 QA 团队时：`qa-acceptance-case-design` → `api-blackbox-test` → `test-data-design` |

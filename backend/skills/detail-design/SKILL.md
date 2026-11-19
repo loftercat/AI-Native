@@ -65,7 +65,7 @@ Java 类/方法骨架、关键时序图，汇总为 `DD-STORY-*.md`。
 
 **Selection 阈值**：Golden ≤ 3 个全量；词表按 Story 关键词子集。
 
-> 产品背景：本仓库以 `system-landscape.md` + Epic/HLD 替代独立 `product-overview（公司级示例）。
+> 产品背景：本仓库以 `system-landscape.md` + Epic/HLD 替代独立 `product-overview.md`。
 
 ### 步骤 2：输入处理与 AC/BR 分析
 
@@ -91,7 +91,7 @@ Java 类/方法骨架、关键时序图，汇总为 `DD-STORY-*.md`。
    - **域层**：`*-api` `XxxApi` + DTO，V1 同 JVM 注入，**无 HTTP**
    - 跨 BFF → order → inventory / adapter 的 AC **须** Mermaid 时序图
 3. **增量契约自动查找**：
-   - `docs/api/{服务标识}/openapi.yaml`、`docs/api/{服务标识}/openapi.yaml`
+   - `docs/api/{服务标识}/openapi.yaml`（每个 BFF/服务一份，如 App / Admin）
    - `docs/api/{域服务}/`（若有）
    - `docs/schema/{服务标识}/schema.md`
 4. **存量代码扫描**（增量场景）：
@@ -195,7 +195,7 @@ Java 类/方法骨架、关键时序图，汇总为 `DD-STORY-*.md`。
    - 持久化：`*DO` + Mapper 接口 + XML `id`
 3. **§8.4 增量修改清单**（增量**必填**）：关联 AC，禁止模糊「改 Service」
 4. **§8.2 AC→代码追溯表**：每条后端 AC 至少一个落点；纯前端 AC 标 N/A
-5. **§9 测试策略**：`ServiceTest`、`@WebMvcTest`、可选 Newman  
+5. **§9 测试策略**：表格列「测试层 | 测试类/关注点 | 覆盖 AC | Mock 边界」；只到测试类，不写方法名
 6. **落盘前**：过 bff-domain-boundary-guide §6 与 schema-conventions §7 自检清单
 7. **事务边界硬约束**（写路径必过）：
    - Facade / CommandService 方法涉及**多步本地写**（状态迁移 + 关联表 + 跨域同 DataSource 释放/锁定）→ §8.3 方法签名**必须显式标注 `@Transactional`**（或注明为何不用，如纯外部调用编排）

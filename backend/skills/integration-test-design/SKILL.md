@@ -16,7 +16,7 @@ description: >-
 
 - **输入**：已实现业务 Story + 详设（含时序图或 §9）+ 可选 TS（含或不含集成段）
 - **输出**：`booking-app/src/test/java/` 下 `*IT` / `*ScenarioIT`（继承 `AbstractIntegrationTest`）
-- **不做**：单元测试 / BFF API `@WebMvcTest` / MockMvc 测试（归 `feature-coding`）；存量测试审计（`test-quality-audit`）；Bug 修复（`bug-fix`）；改业务实现代码；改 Story/详设正文
+- **不做**：单元测试 / BFF API `@WebMvcTest` / MockMvc 测试（归 `feature-coding`）；存量测试审计（`test-quality-audit`）；Bug 修复（`bugfix`）；改业务实现代码；改 Story/详设正文
 - **触发时机**：需验证「关键链路真实 SQL + 事务 + 跨域编排 + 落库」时；接入真实支付/车场前
 
 **与 `feature-coding` 的边界**：`feature-coding` 管单元 / BFF API / Mapper 测试；本 Skill 专管 `booking-app` 关键链路 `*IT`/`*ScenarioIT`，是集成测试的权威入口。

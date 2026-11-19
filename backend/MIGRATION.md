@@ -1,12 +1,39 @@
 # MIGRATION：后端线接入指南
 
-本文件为后端接入指南；前端请阅读 [frontend/MIGRATION.md](../frontend/MIGRATION.md)，模板结构抽取自落地项目，落地项目技术和架构：Java 21 + Spring Boot 3.2 + Maven 多模块 + 双 BFF。模板放入项目的方式见仓库根 [README.md](../README.md)「快速开始」。本指南由 AI 引导执行（见 AGENTS.md「接入引导」）：AI 按步骤推进、在介入点停下问人；用户可直接对 AI 说「帮我接入这套工作流」进入引导。
+本文件为**后端线**接入指南；前端见 [frontend/MIGRATION.md](../frontend/MIGRATION.md)。
+
+> 本指南由 AI 引导执行：AI 按步骤推进，在人工介入点停下问人。可以直接对 AI 说「帮我接入这套工作流」进入引导。
+
+## 快速导航
+
+| 阶段 | 内容 |
+|------|------|
+| [§一.1](#1-初始化迭代号) | 初始化迭代号 |
+| [§一.2](#2-填写项目画像) | 填写项目画像 |
+| [§一.3a](#3a-通用项目锚点) | 通用项目锚点 |
+| [§一.3b](#3b-公共基础库替换) | 公共基础库替换 |
+| [§一.4](#4-重写-golden) | 重写 Golden |
+| [§一.5](#5-分发到-agent) | 分发到 Agent |
+| [§一.6](#6-工作流裁剪) | 工作流裁剪 |
+| [§二](#二接入后验收) | 接入后验收 |
+
+---
 
 ## 一、接入步骤
 
-### 1. 填写项目画像（必做，AI 起草，人审定稿）
+### 1. 初始化迭代号
+
+把 `config/current-sprint` 设为接入后的第一个迭代（一行，如 `2026-S03`）。所有 Skill 的工件路径都从这里取迭代号；不要保留模板示例 `2026-S01` / `2026-S02`。
+
+**验收**：文件只有一行，值为目标首个迭代；后续锚点替换后再确认一次，避免被模板值覆盖。
+
+---
+
+### 2. 填写项目画像
 
 `architecture/system-landscape.md` 是模板中唯一必须逐节填写的文件——12 个 Skill 的项目层判断（模块归属、号段路由、测试账号、外部系统 Mock 边界）全部读它。两条路径均以人审定稿收口——画像是项目层事实唯一定义处，错了全链路漂；且须保留被 Skill 引用的小节编号（§3.7 / §4.3.4 / §4.7）。
+
+项目根 `AGENTS.md` 用 [templates/AGENTS.template.md](../templates/AGENTS.template.md) 生成（见根 [README.md](../README.md) 快速开始）；本线画像只写 `architecture/system-landscape.md`，不在 AGENTS.md 复制项目事实。
 
 | 项目形态 | 填法 |
 |----------|------|
@@ -17,91 +44,102 @@
 
 **画像变更后的回刷**：画像会在项目推进中完善（HLD 定稿回写、推断项确认、模块调整）。变更后须按回刷约束处理派生项，否则 `skills/`、`rules/` 与画像不一致且无任何报错——对照表与验证方式见 [rules/system-landscape-change.md](rules/system-landscape-change.md)。
 
-### 2. 全局替换项目锚点（AI 执行，人只确认映射）
+---
 
-本步由 AI 执行，人工辅助验收。全流程：**AI 映射提案 → 人确认 → AI 批量替换 + 规则重写（换栈时人审）→ AI 验收 → 人收报告**。
+### 3. 全局替换项目锚点
+
+本步分两部分：通用锚点替换与公共基础库替换。
+
+#### 3a. 通用项目锚点
+
+把模板里的源项目锚点替换为目标项目事实。人确认映射与验收。
 
 **人工介入点**
 
-AI 在每个介入点停下时，随附该步的简要修改结果供人审查。
+1. **映射确认**：AI 提交「源值 → 目标值」表（含裁剪/合并建议），人裁定。
+2. **换栈确认**：仅当技术栈变化时，人审重写后的 Rule；同栈接入跳过。
+3. **验收确认**：AI 提交残留清单与命令输出，人确认清零或登记豁免。
 
-| # | 介入时机 | AI 随附的简要结果 | 人做什么 |
-|---|----------|------------------|----------|
-| 1 | AI 提交映射提案后 | 映射提案表：源值→目标值、理由、裁剪与合并建议 | 裁定语义映射与结构变化：模块对应关系（域不一定对应，无对应域的裁掉，不硬凑）、BFF 合并/拆分方向 |
-| 2 | AI 完成规则重写后——**仅换栈时人审**；同栈接入（只替换模块名/路径）不停下，随验收报告备案 | 规则改动摘要：改了哪些 rule、关键差异 | 审按目标栈重写的规则文件（技术栈、测试基建两行） |
-| 3 | AI 提交验收报告后 | 验收报告：命令输出、残留清单、表外形态处理记录 | 确认残留清零、表外形态已逐条处理 |
+**AI 任务**
 
-每次介入点确认后，AI 回写一行留痕记录（介入点编号、确认项、结论、日期）到 `docs/reviews/接入日志.md`——人工裁定独立于会话留痕，接入完成时可审计。
+1. **提映射** → 人工介入点 1
+   - 先 grep 扫源值：模块、包名、公共库、号段、URL、迭代号。
+   - 读画像 §二 / §3.7，按职责映射。
+   - 模块与其 `*-api` / `*-impl`、错误码枚举、包名成对映射。
+   - 域无对应就裁掉，不硬凑；BFF 合并/拆分别只做机械替换。
+2. **替换**
+   - 按映射批量替换，长前缀先替换；同步 `config/current-sprint`。
+   - 技术栈 / 测试基建是规则重写，不是字符串替换；换栈时 → 人工介入点 2。
+   - Windows Git Bash 用 `find -exec` 调 `perl`，避免 `grep | xargs` 的路径转义问题。
+3. **验收** → 人工介入点 3
+   - 用映射表中**未被目标选用**的旧值构造 grep，排除 `_golden/`。
+   - 跑校验器；表外形态逐条报告。
+   - 重点抽查：重复模块名、只换 `-api` 未换 `-impl`、URL 前缀与 path 不一致、包名与模块名不一致。
 
-**AI 任务书**
-（按序执行；标注「→ 介入点 N」处停下，随附该介入点的简要修改结果待人审查。替换范围：本线 `skills/` 与 `rules/`）：
-1. **映射提案**：读 `architecture/system-landscape.md`（§二 模块清单、§3.7 号段表），对源值清单逐项产出「源值 → 目标值」提案。语义映射按职责推测并成对映射（`booking-order → love-advice` 时，`order-api` / `order-impl` / `OrderErrorCode` 同时映射），无对应域的列裁剪建议；BFF 合并/拆分给出方向建议（机械替换会把「App 端 → X，Admin 端 → Y」变成 `love-app / love-app`）。**→ 介入点 1**
-2. **批量替换**（提案确认后）：**优先批量命令**，逐文件编辑是兜底。长前缀先替换（`booking-bff-app` 先于 `booking-app`，否则得到 `{项目}-bff-<新前缀>-app`）；源值清单中 `booking-{order,payment,...}` 的花括号是简写，实际搜索用 `booking-` 前缀；`config/current-sprint` 同步改。Windows Git Bash 批替换用 `find ... -exec perl -pi -e '...' {} +`（`grep -rl | xargs` 传反斜杠路径，perl 打不开）。
-3. **规则重写**：技术栈、测试基建两行不是字符串替换——按目标栈重写源值清单「替换为」列点名的规则文件。**换栈时 → 介入点 2**；同栈接入不停，随验收报告备案。
-4. **验收**：跑下方验收命令与 `bash scripts/validate-skills.sh`；按判定不变式做**语义扫描**（凡具体文件名、系统名、路径、号段即项目层），表外形态单独报告并逐条处理，不静默放过；重点抽查 `love-app.*love-app`（重复）、`order-api`（子模块漏映射）、`/api/v1/`（前缀换了路径没换）。**→ 介入点 3**
+**源值类别**（具体值以当前模板为准，AI 从画像/目录扫描补全）：
 
-**源值清单**（左列是源项目真实值，不是可保留的占位符——AI 按此表替换，验收也按此表查残留）：
+| 类别 | 处理 |
+|------|------|
+| 模块 / 包名 | 模块按职责语义映射；包名机械替换；域无对应就裁剪 |
+| 公共库 | 见 §3b |
+| 错误码号段 | 按目标域重排，写入画像 §3.7 |
+| URL / 迭代号 | 替换前缀；同步 `config/current-sprint` |
+| 技术栈 / 测试基建 | 换栈时重写对应 Rule；同栈只确认 |
 
-| 类别 | 源项目原值（搜索用） | 操作（AI 步骤） | 替换为 |
-|------|---------------------|------------------|--------|
-| 模块名 | `booking-app`、`booking-bff-app`、`booking-bff-admin`、`booking-{order,payment,inventory,push,iot}`、`booking-common`、`booking-parking-adapter` | 语义映射（步骤 1）——域不一定对应，按职责重命名 | 目标模块清单（须与画像 §二 一致） |
-| 包名 | `com.hema.booking.*` | 机械替换（步骤 2） | 目标项目 groupId 路径 |
-| 公共库 | `hema-common`（`Result`/`BizException`/`ErrorCode`） | 机械替换（步骤 2）；**若无公司级公共库**，先在 `rules/exception-and-result.md` 定义本项目统一响应与异常 | 本项目公共库 |
-| 错误码号段 | 1500-1549 order / 1550-1599 payment / 1600-1699 inventory / 1700-1799 adapter / 1800-1899 push / 1900-1999 iot | 重新分配（步骤 1 人确认）——按目标项目域数重排 | 目标项目分域号段表（画像 §3.7 + bugfix 责任域定位依赖） |
-| URL 前缀 | `/api/v1/booking/app\|admin/` | 机械替换（步骤 2）；BFF 数量变化走步骤 1 | 目标项目前缀 |
-| 迭代号 | `2026-S01`、`2026-S02`（`{年}-S{序号}`） | 机械替换（步骤 2） | 目标迭代约定（`config/current-sprint` 同步改） |
-| 技术栈 | Java 21 / Spring Boot 3.2 / Maven / MyBatis / MySQL / Redis | 重写（步骤 3）——换栈时改 rule，不是替换字符串 | 目标栈；对应 `rules/java-project.md`、`mybatis-conventions.md`、`tdd-project-conventions.md`、`integration-test-conventions.md` 须重写 |
-| 测试基建 | `booking-app` 下 `*IT`、Testcontainers MySQL、`mvn -pl <module> test` | 重写（步骤 3）——落点与命令随模块结构变 | 目标项目集成测试落点与命令 |
+**替换边界**：删了 Skill 不能执行的（模块、包名、公共库、号段、URL、测试账号、构建命令）必须换；只是举例的（业务示例、Golden 文件名、模板说明）保留。
 
-**替换边界**（防过度替换，对 AI 同样生效）：判断标准是「删掉这条锚点，Skill 还能不能执行」。
+**验收**：
 
-| 必须替换（删了不能执行） | 保留（删了仍能执行，只是少了例子） |
-|--------------------------|-----------------------------------|
-| 模块清单、包名、公共库、错误码号段、URL 前缀、测试账号、构建命令 | Skill 正文的业务示例（车位、订单、支付）、Golden 样例文件名、「模板版说明」元描述 |
+- `bash scripts/validate-skills.sh --quiet-tick` PASSED
+- 映射表中未被目标选用的旧值 grep 为 0（`_golden/` 豁免）
+- 表外形态逐条有结论
 
-把业务示例一起换掉，会得到「新前缀 + 旧业务路径」的混搭（`/api/v1/love/app/pay/callback`），比不替换更难排查。
+#### 3b. 公共基础库替换
 
-**验收命令**（流程 4）：
+仅当目标公共库与模板不同（坐标/包根/API 形状变化）时执行；完整 AI 任务书（数据来源、映射表、四个人工介入点、验证命令）见 [common-foundation-migration.md](docs/methodology/common-foundation-migration.md)。
 
-```bash
-# 在项目根执行（范围含 .sh/.py，排除 _golden 样例目录）
-# 第一条同理按「未选用源值」口径：目标若同为停车行业，停车预订/parking-booking 是目标词，并入黑名单；
-# 公司专名（华智/河玛）无此问题，保留硬编码。
-grep -rn --include="*.md" --include="*.sh" --include="*.py" "停车预订\|parking-booking\|华智\|河玛" AI-Native/backend/ AI-Native/frontend/ | grep -v "_golden"
-# 预期：无输出（golden 样例保留源项目业务名，属豁免）
+---
 
-# 第二条按「未映射形态黑名单」执行：从映射提案取**未被目标选用**的源值构造 grep。
-# 目标可能复用源词根（如目标订单域也叫 booking，则 booking-api/BookingErrorCode 是目标值而非残留），
-# 不能拿整表源值做基线；迭代代号按前缀整列纳入（2026-S 覆盖 S01/S02）。黑名单示例（按映射提案调整）：
-grep -rn "com\.hema\|booking-bff\|order-api\|order-impl\|inventory-\|booking-inventory\|booking-parking\|booking-iot\|2026-S" AI-Native/backend/skills/ AI-Native/backend/rules/
-# 预期：无输出；有输出即残留，逐条处理。
-```
+### 4. 重写 Golden
 
-### 3. 重写 Golden
+- 从画像 §二 域清单与词表选取真实业务域，构造「查询-分配」同族用例（源项目为 query-allocate-space 一族）。
+- 保持文件名模式与结构，把 `docs/**/_golden/` 下 12 个样例用本项目业务重写一遍。
+- 提交人验收时随附「3 处关键改动 + 建议抽查 1 份」。
+- 画像与词表仍为占位、构造不出可信场景时，降级为人工指定场景后再重写。
 
-本步由 AI 执行：AI 从画像（§二 域清单）与词表选取真实业务域，构造「查询-分配」同族用例（源项目为 query-allocate-space 一族），保持文件名模式与结构，把 `docs/**/_golden/` 下 12 个样例用本项目业务重写一遍，提交人验收——提交时随附「3 处关键改动 + 建议抽查 1 份」给终审抓手，不让人面对 12 个文件无从看起。Golden 的价值是「标准长什么样」，不是「别人的业务长什么样」。画像与词表仍为占位、构造不出可信场景时，降级为人工指定场景后再重写。
+> Golden 的价值是「标准长什么样」，不是「别人的业务长什么样」。
 
-### 4. 分发到 Agent（AI 执行，探测优先）
+---
 
-本步由 AI 执行：AI 探测当前运行环境确定所用 Agent 与目标目录（如存在 `.zcode/` 即 ZCode），按该 Agent 的技能/规则目录约定完成分发与格式适配，跑校验器验证；仅用户提出多 Agent 需求时才询问。注意部分 Agent 的技能目录在**会话启动时扫描**（如 ZCode）——分发的技能当次会话不可见属预期，用新会话验证，或当前会话按路径直呼 SKILL.md。
+### 5. 分发到 Agent
+
+探测当前环境确定所用 Agent 与目标目录（如存在 `.zcode/` 即 ZCode），按该 Agent 的技能 / 规则目录约定完成分发与格式适配，跑校验器验证。仅用户提出多 Agent 需求时才询问。
+
+> 部分 Agent 的技能目录在**会话启动时扫描**（如 ZCode）——分发的技能当次会话不可见属预期，用新会话验证，或当前会话按路径直呼 SKILL.md。
 
 **AI 任务**：
 
 1. **分发资产（按线）**：后端线 = `skills/` + `rules/` + `templates/`（至少含 `code-review-report.md`、`stage-review-report.md`）+ 可选 `hooks/`；前端线 = `skills/` + `rules/` + `templates/`，不依赖 `backend/` 路径。
 2. **格式适配（按所用 Agent 的约定）**：技能放技能目录、规则放规则目录；Agent 对规则有格式要求时适配——如 Cursor 需转 `.mdc` 并加回 frontmatter（description + globs/alwaysApply），纯 markdown 可直接读的 Agent 原样落位。拿不准该 Agent 的目录约定时问人，不猜。
-3. **不变约束**：① 不用 symlink 做多 Agent 镜像——Windows 无特权检出时 symlink 物化成路径文本文件，镜像静默失效（源项目实测教训），多 Agent 用 CI 拷贝同步；② 代码审查不绑定 Agent——审查人可为独立 AI 会话、专用审查 agent、人或 CI 工具，统一使用 `rules/code-review.md` §三 的任务书；③ hooks 按 [hooks/README.md](hooks/README.md) 注册，`PROTECTED` 先改保护路径，前端线复用同机制、路径改前端公共组件目录。
+3. **不变约束**：
+   - 不用 symlink 做多 Agent 镜像——Windows 无特权检出时 symlink 物化成路径文本文件，镜像静默失效（源项目实测教训）；多 Agent 用 CI 拷贝同步。
+   - 代码审查不绑定 Agent——审查人可为独立 AI 会话、专用审查 agent、人或 CI 工具，统一使用 `rules/code-review.md` §三 的任务书。
+   - hooks 按 [hooks/README.md](hooks/README.md) 注册，`PROTECTED` 先改保护路径；前端线复用同机制、路径改前端公共组件目录。
 4. **验证**：分发后按目标布局调整 `AGENTS.md` 与规则内的相对链接，跑 `bash <线>/scripts/validate-skills.sh`；模板仓库里的 `backend/...` 链接只是示例布局。
 
-### 5. 工作流裁剪（按需）
+---
+
+### 6. 工作流裁剪
 
 - **无 QA 团队**：删 qa-acceptance-case-design / api-blackbox-test / test-data-design 三个 skill——黑盒冒烟由集成测试取代（见 [docs/methodology/test-line.md](docs/methodology/test-line.md) §4.2）。
 - **无独立前端仓**：忽略前端协作章节。
 - **legacy-test-migration**：仅当存量项目有历史用例时保留，否则删除。
 - 裁剪后跑对应线 `bash scripts/validate-skills.sh`，清掉对被裁 skill 的引用。
 
+---
+
 ## 二、接入后验收
 
-1. 本线校验器 **PASSED**：`bash scripts/validate-skills.sh`（WARN 新项目首跑常有 200+ 条，用 `--quiet-tick` 只看计数；需甄别新增形态时去掉参数逐条查看；前端线接入与校验见 frontend/MIGRATION.md）。
-2. 后端线挑一个真实小需求走通：journey-scenario-design（或直接 story-splitting）→ detail-design → test-spec-alignment → feature-coding，产出路径与命名符合 `docs/agile/card-naming-conventions.md`。
-3. 后端画像 §4.3.4 测试账号表填写后，test-data-design 造一次数验证对齐规则可执行。
-4. 跑一张真实卡，确认代码审查报告落盘且结论通过（至少 `REVIEW-CODE-IMPL-*`；含 IT/前端/黑盒/造数时对应 `IT/FE/BB/SEED` 阶段）。
+1. 本线校验器 **PASSED**：`bash scripts/validate-skills.sh --quiet-tick`（前端线见 [frontend/MIGRATION.md](../frontend/MIGRATION.md)）。
+2. 用一张真实小需求走通 `story-splitting → detail-design → test-spec-alignment → feature-coding`；产出路径/命名符合 `docs/agile/card-naming-conventions.md`，工件落在 §一.1 设置的迭代目录，并至少有一份代码审查报告落盘。
+3. 在干净目录/新克隆中重跑接入，确认不依赖本机缓存、未提交文件或旧镜像。
