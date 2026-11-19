@@ -1,6 +1,6 @@
 # MIGRATION：后端线接入指南
 
-本文件为后端接入指南；前端请阅读 [frontend/README.md](../frontend/README.md)，模板结构抽取自落地项目，落地项目技术和架构：Java 21 + Spring Boot 3.2 + Maven 多模块 + 双 BFF。模板放入项目的方式见仓库根 [README.md](../README.md)「快速开始」。本指南由 AI 引导执行（见 AGENTS.md「接入引导」）：AI 按步骤推进、在介入点停下问人；用户可直接对 AI 说「帮我接入这套工作流」进入引导。
+本文件为后端接入指南；前端请阅读 [frontend/MIGRATION.md](../frontend/MIGRATION.md)，模板结构抽取自落地项目，落地项目技术和架构：Java 21 + Spring Boot 3.2 + Maven 多模块 + 双 BFF。模板放入项目的方式见仓库根 [README.md](../README.md)「快速开始」。本指南由 AI 引导执行（见 AGENTS.md「接入引导」）：AI 按步骤推进、在介入点停下问人；用户可直接对 AI 说「帮我接入这套工作流」进入引导。
 
 ## 一、接入步骤
 
@@ -101,7 +101,7 @@ grep -rn "com\.hema\|booking-bff\|order-api\|order-impl\|inventory-\|booking-inv
 
 ## 二、接入后验收
 
-1. 本线校验器 **PASSED**：`bash scripts/validate-skills.sh`（WARN 新项目首跑常有 200+ 条，用 `--quiet-tick` 只看计数；需甄别新增形态时去掉参数逐条查看；前端线校验见 frontend/README）。
+1. 本线校验器 **PASSED**：`bash scripts/validate-skills.sh`（WARN 新项目首跑常有 200+ 条，用 `--quiet-tick` 只看计数；需甄别新增形态时去掉参数逐条查看；前端线接入与校验见 frontend/MIGRATION.md）。
 2. 后端线挑一个真实小需求走通：journey-scenario-design（或直接 story-splitting）→ detail-design → test-spec-alignment → feature-coding，产出路径与命名符合 `docs/agile/card-naming-conventions.md`。
 3. 后端画像 §4.3.4 测试账号表填写后，test-data-design 造一次数验证对齐规则可执行。
 4. 跑一张真实卡，确认代码审查报告落盘且结论通过（至少 `REVIEW-CODE-IMPL-*`；含 IT/前端/黑盒/造数时对应 `IT/FE/BB/SEED` 阶段）。

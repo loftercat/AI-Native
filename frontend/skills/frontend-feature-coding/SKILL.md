@@ -6,7 +6,7 @@ description: >-
   按详设编码、按 AC 写测试与实现等场景。不改 OpenAPI、不直连后端域。
 ---
 
-> **模板版说明**：本 Skill 自源项目（C 端微信小程序）抽取为通用模板。文中项目专属值（`docs/handoff/openapi/{后端服务标识}.yaml`、页面/组件名、Story 号）均为**示例**，接入时按 [frontend/README.md](../../README.md) 的「接入替换」节处理；「本仓库」指接入后的前端项目。
+> **模板版说明**：本 Skill 自源项目（C 端微信小程序）抽取为通用模板。文中项目专属值（`docs/handoff/openapi/{后端服务标识}.yaml`、页面/组件名、Story 号）均为**示例**，接入时按 [frontend/MIGRATION.md](../../MIGRATION.md) 处理；「本仓库」指接入后的前端项目。
 
 
 # 前端功能编码（Story + 详设 → 小程序 + 测试）

@@ -6,7 +6,7 @@ description: >-
   不改 OpenAPI、不写页面代码。
 ---
 
-> **模板版说明**：本 Skill 自源项目（C 端微信小程序）抽取为通用模板。文中项目专属值（`docs/handoff/openapi/{后端服务标识}.yaml`、页面/组件名、Story 号）均为**示例**，接入时按 [frontend/README.md](../../README.md) 的「接入替换」节处理；「本仓库」指接入后的前端项目。
+> **模板版说明**：本 Skill 自源项目（C 端微信小程序）抽取为通用模板。文中项目专属值（`docs/handoff/openapi/{后端服务标识}.yaml`、页面/组件名、Story 号）均为**示例**，接入时按 [frontend/MIGRATION.md](../../MIGRATION.md) 处理；「本仓库」指接入后的前端项目。
 
 
 # 前端详设（frontend-detail-design）
