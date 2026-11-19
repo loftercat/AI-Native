@@ -63,7 +63,7 @@
 | `api-layer` / `service-layer` 等 Rule | [layer-guides.md](references/layer-guides.md) |
 | `tests/_golden/` | `docs/design/_golden/` §9 + 同模块 `*Test.java` |
 | `/{product}/api/v1/{module}/` | `/api/v1/booking/app|admin/` |
-| `test-quality-audit` / `bug-fix` | 未落地；见 Skill 边界说明 |
+| `test-quality-audit` / `bugfix` | `test-quality-audit` 未落地；`bugfix` 已落地（旁路） |
 
 ## 边界
 

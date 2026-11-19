@@ -1,6 +1,6 @@
 # 微信小程序工程约束
 
-读代码或改代码前，先扫一眼 [AGENTS.md](../README.md) 与 [docs/architecture/system-landscape.md](../architecture/system-landscape.md)。
+读代码或改代码前，先扫一眼 [AGENTS.md](../README.md) 与 [architecture/system-landscape.md](../architecture/system-landscape.md)。
 
 > 权威来源：[微信开放文档 - 目录结构](https://developers.weixin.qq.com/miniprogram/dev/framework/structure.html)、[小程序代码构成](https://developers.weixin.qq.com/miniprogram/dev/framework/quickstart/code.html)。
 

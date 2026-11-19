@@ -35,8 +35,8 @@
 
 | 指南 | 路径 |
 |------|------|
-| 响应 / 异常 / 错误码 | [docs/reference/exception-and-result.md](../../../reference/exception-and-result.md) |
-| 幂等性 | [docs/reference/idempotency-guide.md](../../../reference/idempotency-guide.md) |
-| 定时任务 | [docs/reference/scheduled-task-guide.md](../../../reference/scheduled-task-guide.md) |
+| 响应 / 异常 / 错误码 | [reference/exception-and-result.md](../../../reference/exception-and-result.md) |
+| 幂等性 | [reference/idempotency-guide.md](../../../reference/idempotency-guide.md) |
+| 定时任务 | [reference/scheduled-task-guide.md](../../../reference/scheduled-task-guide.md) |
 | OpenAPI 自动化 | [openapi-conventions.md](./openapi-conventions.md) |
 | MyBatis 分工 | `rules/mybatis-conventions.md` |

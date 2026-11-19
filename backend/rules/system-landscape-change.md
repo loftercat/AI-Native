@@ -21,7 +21,7 @@
 回刷后：
 
 - 跑 `bash scripts/validate-skills.sh`（硬断链检查）
-- 跑 [MIGRATION.md](../MIGRATION.md) §一.2 的「未映射形态黑名单」grep（旧值残留检查）
+- 跑 [MIGRATION.md](../MIGRATION.md) §一.3 的残留检查（用映射表中未被目标选用的旧值构造 grep）
 
 ## 四、与单点维护的关系
 

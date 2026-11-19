@@ -21,7 +21,7 @@ description: >-
 - **做什么**：把「要测什么、怎么测、测哪一层」从 Story + 详设拆出来，落盘 TS；校验 AC 覆盖；标缺口与阻断
 - **不做**：写 Java 测试代码或业务实现（那是 `feature-coding` / `integration-test-design`）
 - **不做**：改 Story / 详设正文（缺断言文案或错误码 → 标阻断回溯，不静默改卡）
-- **不做**：存量测试审计、Bug 单处理（无 `test-quality-audit` / `bug-fix` Skill）
+- **不做**：存量测试审计、Bug 单处理（`test-quality-audit` / `bugfix` Skill）
 - **不做**：改 Rule、`docs/*/_golden/` 既有范本（新 Golden 需确认）
 
 ## 输入方式

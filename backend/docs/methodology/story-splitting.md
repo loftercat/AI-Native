@@ -133,7 +133,7 @@ Epic → Story（本 Skill）→ 详设 → Task / 编码（feature-coding）
 | AC 完备性清单 | `skills/story-splitting/references/ac-completeness-checklist.md` | **阻断** |
 | 迭代索引模板 | `skills/story-splitting/templates/sprint-index-template.md` | Epic 级拆卡 **阻断** |
 | Golden Story | `docs/requirements/_golden/STORY-GOLDEN-001-query-allocate-space.md` | 降级继续 |
-| 领域词表 | `docs/glossary/domain-glossary.md` | 降级继续 |
+| 领域词表 | `glossary/domain-glossary.md` | 降级继续 |
 | 迭代 |`config/current-sprint`（模板约定路径） | 询问用户 |
 
 Golden **只对齐写法与粒度**，不得把样例里的业务阈值（如 BR-02 步行距离）当成未经 PO 确认的真实约束。

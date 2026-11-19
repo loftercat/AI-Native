@@ -138,7 +138,7 @@ story-splitting ──► detail-design ──► feature-coding
 | 架构 Rule | `architecture.md` | `rules/java-project.md` |
 | 产品背景 | `product-overview.md` | system-landscape + Epic/HLD |
 | OpenAPI 路径 | `docs/api/openapi.yaml` | `docs/api/booking-bff-app/openapi.yaml` 等 |
-| 专项指南 | `docs/reference/idempotency-guide.md` 等 | [special-scenarios.md](../../skills/detail-design/references/special-scenarios.md) + 已落地 reference |
+| 专项指南 | `reference/idempotency-guide.md` 等 | [special-scenarios.md](../../skills/detail-design/references/special-scenarios.md) + 已落地 reference |
 
 ---
 
