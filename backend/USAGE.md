@@ -6,6 +6,35 @@
 
 ## 一、人工前置条件（AI 流程跑得动的前提）
 
+### 0. 公共基础库与编码前置（编码类 Skill 的硬前置）
+
+> 编码类 Skill 直接复用项目公共库；这些类型/契约缺失时，**不得**让 AI 在本项目重复定义。
+> 典型拆分：`common-core`（`Result` / `PageQuery` / `PageResult` / `ErrorCode` / `BizErrorCode` / `BizException` / `SnowflakeIdGenerator`）+ `common-web`（`GlobalExceptionHandler`）；项目自建时按等价职责拆分。
+
+**0.1 公共库类型与 API**（以 `rules/exception-and-result.md` 的「API 速查」为准）
+
+| 类别 | 必须具备 | 关键契约 |
+|------|----------|----------|
+| 统一响应 | `Result<T>` | `success` / `success(data)` / `fail(...)` / `isSuccess()`；业务成功码为 200（不是 0） |
+| 错误码 | `ErrorCode` + `BizErrorCode` | 系统码含 200 / 400 / 401 / 403 / 404 / 500 / 502；域枚举实现 `getCode` / `getMessage` |
+| 异常 | `BizException` + `GlobalExceptionHandler` | `BizException(ErrorCode)` / `(BizErrorCode)` / `(code,message)` / `(message)`；校验失败、业务异常、系统异常统一转 `Result` |
+| 分页 | `PageQuery` + `PageResult<T>` | `pageNum` 默认 1、`pageSize` 默认 20（1–100）；`PageResult.of(list,total,pageNum,pageSize)` |
+| ID | 雪花 ID 生成器 | 可注入、`long nextId()`；禁止 `AUTO_INCREMENT` |
+
+**0.2 项目公共模块与号段**
+
+- 项目 common 模块（如 `{项目}-common`）：放 BFF 守卫错误码与横向抽象；**不放** `Result` / `BizException`。
+- 各域 `*ErrorCode` 实现 `BizErrorCode`；号段表登记在 `architecture/system-landscape.md` §3.7，且与 `AGENTS.md` 一致。
+- 父 POM `dependencyManagement` 锁定公共库版本；本地无私服时先 `mvn install`。
+
+**0.3 同层基建（不是公共库本体，但相关 Skill 会阻断）**
+
+- **测试**：`AbstractIntegrationTest` 或项目等价基类（Testcontainers MySQL、`RANDOM_PORT`、`TestRestTemplate`、`JdbcTemplate`、测试 JWT）+ `TestDataFactory`；集成测试 Skill 依赖。
+- **鉴权**：BFF 鉴权 Filter / Token 服务或测试 JWT 签名；黑盒需要测试环境的管理员/用户 Token 环境变量（**不进 Git**）。
+- **契约**：OpenAPI 公共组件 `Result` / `BusinessErrorBody`、失败 examples、`bearerAuth`；详见 [openapi-conventions.md](skills/detail-design/references/openapi-conventions.md)。
+
+**验证**：新项目能编译并跑一个最小 `@SpringBootTest`；上述类型/契约逐项能调用或找到落点；`AGENTS.md` / Rule 中的「禁止造轮子」约束有落点。
+
 ### 1. 一次性前置（接入期做完，之后不再管）
 
 | # | 前置 | 验证方式 |

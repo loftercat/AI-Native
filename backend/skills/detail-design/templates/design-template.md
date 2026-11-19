@@ -212,10 +212,18 @@ booking-bff-app / booking-bff-admin  →  *-api
 
 ## 9. 测试策略
 
-- 单元：`ServiceTest` + Mockito
-- API：`@WebMvcTest` + MockMvc（断言 `Result.code` 与 AC 文案）
-- 集成：`@SpringBootTest`（按需）
-- 契约（可选）：Postman/Newman 导入 `docs/api/{服务标识}/openapi.yaml`；断言 `body.code === 200`
+| 测试层 | 测试类 / 关注点 | 覆盖 AC | Mock 边界 | 备注 |
+|--------|----------------|---------|-----------|------|
+| 单元 | `XxxServiceTest` | AC-01, AC-02 | 依赖的 Mapper / 外部 `XxxApi` | |
+| BFF API | `XxxControllerTest`（`@WebMvcTest`） | AC-01 | 下游域 `XxxApi` | 断言 `Result.code` 与 AC 文案 |
+| Mapper | `XxxMapperTest` | AC-03 | 无 | Testcontainers MySQL + 种子数据 |
+| 集成（可选） | `XxxIT` | AC-04 | 外部系统（支付/车场/iam） | 归 `integration-test-design` 消费 |
+
+> 填写规则：
+> - 只到**测试类/关注点**粒度，**不写测试方法名**；方法级展开由 `test-spec-alignment` 的 TS 负责。
+> - 每条 AC 至少出现一次；不测的 AC 填 `N/A（原因，如前端-only）`，不能留空。
+> - 一条 AC 跨多层时拆多行；一个测试类覆盖多条 AC 时全部列出。
+> - 标题固定为 `## 9. 测试策略`，不要用 `## §9`、`## 九、` 等变体。
 
 ---
 

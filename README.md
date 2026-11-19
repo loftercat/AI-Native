@@ -12,7 +12,7 @@ AI 原生开发工作流模板：**后端线（12 Skill）+ 前端线（3 Skill�
 
 **手动接入**（新项目与存量项目同法）：
 
-1. **引入**：把AI-Native工程放到项目的根目录下、**不带 `.git`**，放入后目录名保持为 `AI-Native/`。存量项目原有代码与目录不动，复制 [AGENTS.md](AGENTS.md) 文档到项目根路径下，假如存量项目已有AGENTS.md，则进行整合；复制/整合后把文中 `backend/`、`frontend/` 开头的相对链接统一加 `AI-Native/` 前缀。
+1. **引入**：把AI-Native工程放到项目的根目录下、**不带 `.git`**，放入后目录名保持为 `AI-Native/`。存量项目原有代码与目录不动，用 [templates/AGENTS.template.md](templates/AGENTS.template.md) 生成项目根 `AGENTS.md`（填完占位符）；存量项目已有 `AGENTS.md` 时进行整合。模板仓根 [AGENTS.md](AGENTS.md) 是模板仓入口，**不要直接复制**到目标项目。
 2. **接入**：后端按 [backend/MIGRATION.md](backend/MIGRATION.md) §一（填画像 → 替换锚点 → 重写 Golden → 分发到 Agent → 工作流裁剪，每步 AI 执行、人审定稿）；前端按 [frontend/MIGRATION.md](frontend/MIGRATION.md)。 
 
 ## 详细使用说明
@@ -70,23 +70,10 @@ AI 原生开发工作流模板：**后端线（12 Skill）+ 前端线（3 Skill�
 
 ## Skill 一览
 
-| 线 | Skill | 触发时机 | 产出 |
-|----|-------|----------|------|
-| backend | journey-scenario-design | 原始需求尚无结构化输入 | `JSD-EPIC-*.md` |
-| backend | high-level-design | Epic/PRD 定稿 | `HLD-EPIC-*.md` |
-| backend | story-splitting | HLD 完成要拆卡 | `STORY-{迭代}-*.md` + 迭代计划 |
-| backend | detail-design | Story 定稿要写方案 | `DD-*.md` + OpenAPI + schema + 骨架 |
-| backend | test-spec-alignment | DD 完成、编码前 | `TS-STORY-*.md` |
-| backend | feature-coding | TS 就绪要写代码 | 代码 + `*Test` |
-| backend | integration-test-design | 跨模块/外部链路实现后 | `*IT` / `*ScenarioIT` |
-| backend | qa-acceptance-case-design | QA 消费 Story + OpenAPI | `AC-STORY-*.md` + 追溯 CSV |
-| backend | api-blackbox-test | 验收用例含 blackbox 行 | `tests/blackbox/test_*.py` |
-| backend | test-data-design | blackbox 需环境造数 | `DP-*.yaml` + seed 脚本 |
-| backend | bugfix | 线上/联调缺陷（旁路） | 复现测试 + `FIX-*.md` |
-| backend | legacy-test-migration | 存量用例批量改造（旁路） | 分类矩阵 + `TS-LEGACY-*.md` |
-| frontend | frontend-story-splitting | 拿到 handoff 包要拆前端卡 | `STORY-FE-*.md` |
-| frontend | frontend-detail-design | 前端 Story 定稿 | `DD-FE-*.md` |
-| frontend | frontend-feature-coding | 详设完成要写页面 | 页面/组件/服务 + 测试 |
+- **后端线（12 个）**：见 [backend/Skill清单与栈依赖.md](backend/Skill清单与栈依赖.md)（触发时机、输入/产出、栈依赖、裁剪建议）。
+- **前端线（3 个）**：见 [frontend/README.md](frontend/README.md)（三段流水线）。
+
+> Golden 约定见 [backend/docs/methodology/golden.md](backend/docs/methodology/golden.md)。
 
 ## 工件速查
 
@@ -112,6 +99,7 @@ AI 原生开发工作流模板：**后端线（12 Skill）+ 前端线（3 Skill�
 
 | 目录 | 职责 |
 |------|------|
+| `templates/` | 目标项目根 `AGENTS.md` 模板（`AGENTS.template.md`） |
 | `backend/skills/`（12）+ `frontend/skills/`（3） | Skill（自包含：SKILL.md + templates/ + references/） |
 | `backend/rules/`（16）+ `frontend/rules/`（5） | 编码与文档规范（纯 markdown；「规范听 Rule，流程听 Skill」） |
 | `{backend,frontend}/architecture/system-landscape.md` | 各线**项目画像（接入必填）**：项目层事实唯一定义处 |
@@ -126,7 +114,9 @@ AI 原生开发工作流模板：**后端线（12 Skill）+ 前端线（3 Skill�
 | `{backend,frontend}/scripts/validate-skills.sh` | 各线资产完整性校验（frontmatter + 引用可达 + 坏链检测） |
 | `{backend,frontend}/config/current-sprint` | 各线当前迭代号（单一事实源） |
 
-## 设计原则（继承自源项目）
+> 系统画像与词表模板不在 `templates/`：分别是 `backend/architecture/system-landscape.md`、`backend/glossary/domain-glossary.md`；Skill 直接读这两个路径，`templates/` 只放需要生成到目标项目根的文件。
+
+## 设计原则
 
 - **单点维护**：项目事实只在各线 `system-landscape.md` 定义，Skill 与 Rule 引用不复制。
 - **缺口三分法**：阻断（问用户）/ 可补充（`[AI推断]` 标注）/ 提醒（记录），AI 不静默猜。

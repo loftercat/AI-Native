@@ -166,7 +166,7 @@ Golden（方法论范本）：
 | 运行时 | FastAPI `app/modules/` | Spring Boot `*-api`/`*-impl` + 双 BFF |
 | 分层 Rule | `architecture`（公司级 Rule，未随附） | `rules/java-project.md` |
 | 测试 | pytest | JUnit 5 + Mockito + `mvn test` |
-| 测试规格 Skill | test-spec-alignment（**已落地**）；integration-test-design（**已落地**）；test-quality-audit / bug-fix 未落地 | 编码前生成 TS（`docs/test-spec/`）；关键链路 `*IT`（`booking-app`） |
+| 测试规格 Skill | test-spec-alignment（**已落地**）；integration-test-design（**已落地**）；test-quality-audit 未落地；bugfix **已落地**（旁路） | 编码前生成 TS（`docs/test-spec/`）；关键链路 `*IT`（`booking-app`） |
 | 跨域调用 | 同进程 import | V1 `@Autowired XxxApi`；V2+ OpenFeign |
 | 系统画像实例 | `ai-native-org-project` | `源项目后端仓` / 源项目产品 |
 

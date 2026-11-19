@@ -8,6 +8,8 @@
 
 `architecture/system-landscape.md` 是模板中唯一必须逐节填写的文件——12 个 Skill 的项目层判断（模块归属、号段路由、测试账号、外部系统 Mock 边界）全部读它。两条路径均以人审定稿收口——画像是项目层事实唯一定义处，错了全链路漂；且须保留被 Skill 引用的小节编号（§3.7 / §4.3.4 / §4.7）。
 
+项目根 `AGENTS.md` 用 [templates/AGENTS.template.md](../templates/AGENTS.template.md) 生成（见根 [README.md](../README.md) 快速开始）；本线画像只写 `architecture/system-landscape.md`，不在 AGENTS.md 复制项目事实。
+
 | 项目形态 | 填法 |
 |----------|------|
 | 现有项目接入（已有代码） | AI 扫代码仓起草：构建文件→模块与技术栈、Controller→URL 前缀、错误码枚举→号段表、client/config→外部集成；人审补漏后定稿 |
@@ -105,3 +107,4 @@ grep -rn "com\.hema\|booking-bff\|order-api\|order-impl\|inventory-\|booking-inv
 2. 后端线挑一个真实小需求走通：journey-scenario-design（或直接 story-splitting）→ detail-design → test-spec-alignment → feature-coding，产出路径与命名符合 `docs/agile/card-naming-conventions.md`。
 3. 后端画像 §4.3.4 测试账号表填写后，test-data-design 造一次数验证对齐规则可执行。
 4. 跑一张真实卡，确认代码审查报告落盘且结论通过（至少 `REVIEW-CODE-IMPL-*`；含 IT/前端/黑盒/造数时对应 `IT/FE/BB/SEED` 阶段）。
+5. 在干净目录/新克隆中按接入流程重跑一次，确认不依赖本机缓存、未提交文件或旧镜像。

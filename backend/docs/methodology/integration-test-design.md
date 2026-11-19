@@ -13,7 +13,7 @@
 
 - **输入**：详设时序图 + 跨域调用矩阵 + 系统画像集成矩阵
 - **产出**：`booking-app/src/test/java/` 集成测试方案 + 基建（BaseIT、TestDataFactory、种子数据、Mock 策略）
-- **不做**：单元测试 / BFF API 测试（`feature-coding` 承担）、存量测试审计（`test-quality-audit`）、Bug 修复（`bug-fix`）
+- **不做**：单元测试 / BFF API 测试（`feature-coding` 承担）、存量测试审计（`test-quality-audit`）、Bug 修复（`bugfix`）
 - **触发时机**：V1 末期接入真实支付/车场前，或需要验证「关键链路真实 SQL + 事务 + 约束」时
 
 **与 `feature-coding` 的边界**：`feature-coding` 的集成测试是「按需、Mock 外部支付/车场」；本 Skill 专管**真实编排与保真策略**，是集成测试的权威入口。
@@ -133,7 +133,7 @@
 | 样例 | `docs/design/_golden/` 补集成测试用例 / `docs/test-spec/_golden/` | Few-shot |
 | 执行 | `skills/integration-test-design/SKILL.md` | 步骤 1 点名加载上述资产 + 缺失阻断策略 |
 
-> **`docs/test-spec/_golden/` 归属**：由 `test-spec-alignment`（未落地）维护；本 Skill 与其边界待定：
+> **`docs/test-spec/_golden/` 归属**：由 `test-spec-alignment`（已落地）维护；本 Skill 与其边界：
 >
 > - TS 模板**含集成层用例** → 本 Skill **消费** `TS-STORY-*.md` 中的集成测试段落，不重复设计用例
 > - TS 模板**仅单元/API 层** → 本 Skill **自行设计**集成用例，仅参考 `_golden/` 的文档格式
@@ -181,7 +181,7 @@ detail-design（时序图 + §9 测试策略）
         │
         ├──────────────────────────────┐
         ▼                              ▼
-test-spec-alignment（未落地）    integration-test-design（决策 + 指南 + 基建 + SKILL）
+test-spec-alignment（已落地）    integration-test-design（决策 + 指南 + 基建 + SKILL）
 产出 TS-STORY-*.md               │
         │                          ▼
         └──── 集成层用例（若有）──► booking-app/src/test/ 集成测试
@@ -189,7 +189,7 @@ test-spec-alignment（未落地）    integration-test-design（决策 + 指南 
 
 - `feature-coding` 只负责 Story 范围的单元/BFF API 测试；涉及**关键链路集成测试**时切换到本 Skill
 - `test-spec-alignment`（测试规格，P0）与本 Skill 并行于 `detail-design` 之后：若 TS 含集成层用例，本 Skill 消费 TS；否则自行设计，见 §3.2 归属说明
-- `test-quality-audit`（存量治理）与 `bug-fix`（缺陷闭环）是相邻后续 Skill，见 [test-line.md](test-line.md)
+- `test-quality-audit`（存量治理）与 `bugfix`（缺陷闭环）是相邻后续 Skill，见 [test-line.md](test-line.md)
 
 ---
 
