@@ -316,7 +316,7 @@ Story/AC 变更（后端仓 §7 变更记录）
 
 | 消费者 | 主输入 | 产出 | 断言粒度 |
 |--------|--------|------|----------|
-| `feature-coding` | **TS**（兜底 Story/详设） | 单元/BFF/Mapper 测试 | DB、状态机、错误码 |
+| `feature-coding` | **TS**（必备；缺失阻断。TS 未覆盖处回查 Story/详设） | 单元/BFF/Mapper 测试 | DB、状态机、错误码 |
 | `integration-test-design` | TS（若含集成层）或详设时序图 | `*IT` | 同上 + 跨域编排 |
 | QA（`qa-acceptance-case-design`） | Story + OpenAPI（TS 对齐参考） | 验收用例 | 用户可见结果 |
 

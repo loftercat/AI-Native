@@ -31,7 +31,8 @@ description: >-
 ## 输入方式
 
 - **必备**：Story 需求卡（用户 `@` 或按编号自动查找）
-- **强烈推荐**：详设 `DD-STORY-{迭代}-{序号}-*.md`（用户 `@` 或自动查找）
+- **必备**：测试规格 TS（`docs/test-spec/{迭代}/TS-{Story编号}-*.md`；缺失则阻断，提示先跑 `test-spec-alignment`）
+- **必备**：详设 `DD-STORY-{迭代}-{序号}-*.md`（§9 测试策略是 TS 的输入；缺失则阻断，见降级策略表）
 - **必备（含 HTTP 层时）**：OpenAPI（`docs/api/{服务标识}/openapi.yaml`）
 - **可选**：实现范围（全 Story / 指定层 / 指定 AC）；`@` schema、词表
 
@@ -70,7 +71,7 @@ description: >-
 6. `glossary/domain-glossary.md`（按需；缺失则跳过）
 7. `config/current-sprint`（迭代标识备用）
 8. 详设 §9 测试策略、§8 代码骨架（**编码权威来源**）
-9. **测试规格 TS（若存在）**：`glob docs/test-spec/{迭代}/TS-{Story编号}-*.md`（无迭代则 `glob docs/test-spec/**/TS-{Story编号}-*.md`）。TS 存在时，**用例来源与 Mock 边界以 TS 为准**（步骤 4 缺口清单、步骤 6 测试写法直接消费；见 [test-spec-alignment SKILL](../test-spec-alignment/SKILL.md)）
+9. **测试规格 TS（必备）**：`glob docs/test-spec/{迭代}/TS-{Story编号}-*.md`（无迭代则 `glob docs/test-spec/**/TS-{Story编号}-*.md`）。TS 为**用例来源与 Mock 边界权威**（步骤 4 缺口清单、步骤 6 测试写法直接消费；见 [test-spec-alignment SKILL](../test-spec-alignment/SKILL.md)）；**缺失则阻断**，提示先跑 `test-spec-alignment`
 
 进入步骤 6 前还须阅读：同模块已有 `*Test.java`、详设 §8 列出的类（增量场景）。
 
@@ -374,7 +375,8 @@ Story 未更新但用户要求改实现 → **拒绝**，提示先更新 Story�
 | 缺失资产 | 处理 |
 |----------|------|
 | `implementation-checklist.md` | **阻断** |
-| 详设 | Story + OpenAPI + §8 推断；`[AI推断]`；建议补详设 |
+| TS（测试规格） | **阻断**，提示先跑 `test-spec-alignment` |
+| 详设 | **阻断**——先补详设 §9，或由 `test-spec-alignment` 显式解除 TS §6 阻断 |
 | OpenAPI | 含 BFF HTTP → 阻断；仅域 Service → 跳过 API 层 |
 | schema | 从详设 §6 / OpenAPI 推断 |
 | 测试样板 | 读同模块已有 `*Test.java` |

@@ -1,6 +1,6 @@
 # MIGRATION：后端线接入指南
 
-本文件为后端接入指南；前端请阅读 [frontend/README.md](../frontend/README.md)，模板结构抽取自落地项目，落地项目技术和架构：Java 21 + Spring Boot 3.2 + Maven 多模块 + 双 BFF。
+本文件为后端接入指南；前端请阅读 [frontend/README.md](../frontend/README.md)，模板结构抽取自落地项目，落地项目技术和架构：Java 21 + Spring Boot 3.2 + Maven 多模块 + 双 BFF。模板放入项目的方式见仓库根 [README.md](../README.md)「快速开始」。本指南由 AI 引导执行（见 AGENTS.md「接入引导」）：AI 按步骤推进、在介入点停下问人；用户可直接对 AI 说「帮我接入这套工作流」进入引导。
 
 ## 一、接入步骤
 
@@ -15,9 +15,11 @@
 
 `glossary/domain-glossary.md` 按业务域重建词表（缺失时 Skill 降级运行，不阻断）。
 
+**画像变更后的回刷**：画像会在项目推进中完善（HLD 定稿回写、推断项确认、模块调整）。变更后须按回刷约束处理派生项，否则 `skills/`、`rules/` 与画像不一致且无任何报错——对照表与验证方式见 [rules/system-landscape-change.md](rules/system-landscape-change.md)。
+
 ### 2. 全局替换项目锚点（AI 执行，人只确认映射）
 
-本步由 AI 执行，人工辅助验收。全流程：**AI 映射提案 → 人确认 → AI 批量替换 + 规则重写 → 人审重写 → AI 验收 → 人收报告**。
+本步由 AI 执行，人工辅助验收。全流程：**AI 映射提案 → 人确认 → AI 批量替换 + 规则重写（换栈时人审）→ AI 验收 → 人收报告**。
 
 **人工介入点**
 
@@ -26,14 +28,16 @@ AI 在每个介入点停下时，随附该步的简要修改结果供人审查�
 | # | 介入时机 | AI 随附的简要结果 | 人做什么 |
 |---|----------|------------------|----------|
 | 1 | AI 提交映射提案后 | 映射提案表：源值→目标值、理由、裁剪与合并建议 | 裁定语义映射与结构变化：模块对应关系（域不一定对应，无对应域的裁掉，不硬凑）、BFF 合并/拆分方向 |
-| 2 | AI 完成规则重写后 | 规则改动摘要：改了哪些 rule、关键差异 | 审按目标栈重写的规则文件（技术栈、测试基建两行） |
+| 2 | AI 完成规则重写后——**仅换栈时人审**；同栈接入（只替换模块名/路径）不停下，随验收报告备案 | 规则改动摘要：改了哪些 rule、关键差异 | 审按目标栈重写的规则文件（技术栈、测试基建两行） |
 | 3 | AI 提交验收报告后 | 验收报告：命令输出、残留清单、表外形态处理记录 | 确认残留清零、表外形态已逐条处理 |
+
+每次介入点确认后，AI 回写一行留痕记录（介入点编号、确认项、结论、日期）到 `docs/reviews/接入日志.md`——人工裁定独立于会话留痕，接入完成时可审计。
 
 **AI 任务书**
 （按序执行；标注「→ 介入点 N」处停下，随附该介入点的简要修改结果待人审查。替换范围：本线 `skills/` 与 `rules/`）：
 1. **映射提案**：读 `architecture/system-landscape.md`（§二 模块清单、§3.7 号段表），对源值清单逐项产出「源值 → 目标值」提案。语义映射按职责推测并成对映射（`booking-order → love-advice` 时，`order-api` / `order-impl` / `OrderErrorCode` 同时映射），无对应域的列裁剪建议；BFF 合并/拆分给出方向建议（机械替换会把「App 端 → X，Admin 端 → Y」变成 `love-app / love-app`）。**→ 介入点 1**
-2. **批量替换**（提案确认后）：长前缀先替换（`booking-bff-app` 先于 `booking-app`，否则得到 `{项目}-bff-<新前缀>-app`）；源值清单中 `booking-{order,payment,...}` 的花括号是简写，实际搜索用 `booking-` 前缀；`config/current-sprint` 同步改。Windows Git Bash 批替换用 `find ... -exec perl -pi -e '...' {} +`（`grep -rl | xargs` 传反斜杠路径，perl 打不开）。
-3. **规则重写**：技术栈、测试基建两行不是字符串替换——按目标栈重写源值清单「替换为」列点名的规则文件。**→ 介入点 2**
+2. **批量替换**（提案确认后）：**优先批量命令**，逐文件编辑是兜底。长前缀先替换（`booking-bff-app` 先于 `booking-app`，否则得到 `{项目}-bff-<新前缀>-app`）；源值清单中 `booking-{order,payment,...}` 的花括号是简写，实际搜索用 `booking-` 前缀；`config/current-sprint` 同步改。Windows Git Bash 批替换用 `find ... -exec perl -pi -e '...' {} +`（`grep -rl | xargs` 传反斜杠路径，perl 打不开）。
+3. **规则重写**：技术栈、测试基建两行不是字符串替换——按目标栈重写源值清单「替换为」列点名的规则文件。**换栈时 → 介入点 2**；同栈接入不停，随验收报告备案。
 4. **验收**：跑下方验收命令与 `bash scripts/validate-skills.sh`；按判定不变式做**语义扫描**（凡具体文件名、系统名、路径、号段即项目层），表外形态单独报告并逐条处理，不静默放过；重点抽查 `love-app.*love-app`（重复）、`order-api`（子模块漏映射）、`/api/v1/`（前缀换了路径没换）。**→ 介入点 3**
 
 **源值清单**（左列是源项目真实值，不是可保留的占位符——AI 按此表替换，验收也按此表查残留）：
@@ -60,22 +64,26 @@ AI 在每个介入点停下时，随附该步的简要修改结果供人审查�
 **验收命令**（流程 4）：
 
 ```bash
-# 在模板根目录执行（范围含 .sh/.py，排除 _golden 样例目录）
-grep -rn --include="*.md" --include="*.sh" --include="*.py" "停车预订\|parking-booking\|华智\|河玛" backend/ frontend/ | grep -v "_golden"
+# 在项目根执行（范围含 .sh/.py，排除 _golden 样例目录）
+# 第一条同理按「未选用源值」口径：目标若同为停车行业，停车预订/parking-booking 是目标词，并入黑名单；
+# 公司专名（华智/河玛）无此问题，保留硬编码。
+grep -rn --include="*.md" --include="*.sh" --include="*.py" "停车预订\|parking-booking\|华智\|河玛" AI-Native/backend/ AI-Native/frontend/ | grep -v "_golden"
 # 预期：无输出（golden 样例保留源项目业务名，属豁免）
 
-grep -rn "booking\|hema\|2026-S" backend/skills/ backend/rules/
-# 预期：输出应全部是上表已声明的示例值；出现表外形态才需处理。
-# 注意 "schema" 含 "hema" 子串属误报，可加 grep -v schema 排除。
+# 第二条按「未映射形态黑名单」执行：从映射提案取**未被目标选用**的源值构造 grep。
+# 目标可能复用源词根（如目标订单域也叫 booking，则 booking-api/BookingErrorCode 是目标值而非残留），
+# 不能拿整表源值做基线；迭代代号按前缀整列纳入（2026-S 覆盖 S01/S02）。黑名单示例（按映射提案调整）：
+grep -rn "com\.hema\|booking-bff\|order-api\|order-impl\|inventory-\|booking-inventory\|booking-parking\|booking-iot\|2026-S" AI-Native/backend/skills/ AI-Native/backend/rules/
+# 预期：无输出；有输出即残留，逐条处理。
 ```
 
 ### 3. 重写 Golden
 
-本步由 AI 执行：AI 从画像（§二 域清单）与词表选取真实业务域，构造「查询-分配」同族用例（源项目为 query-allocate-space 一族），保持文件名模式与结构，把 `docs/**/_golden/` 下 12 个样例用本项目业务重写一遍，提交人验收——Golden 的价值是「标准长什么样」，不是「别人的业务长什么样」。画像与词表仍为占位、构造不出可信场景时，降级为人工指定场景后再重写。
+本步由 AI 执行：AI 从画像（§二 域清单）与词表选取真实业务域，构造「查询-分配」同族用例（源项目为 query-allocate-space 一族），保持文件名模式与结构，把 `docs/**/_golden/` 下 12 个样例用本项目业务重写一遍，提交人验收——提交时随附「3 处关键改动 + 建议抽查 1 份」给终审抓手，不让人面对 12 个文件无从看起。Golden 的价值是「标准长什么样」，不是「别人的业务长什么样」。画像与词表仍为占位、构造不出可信场景时，降级为人工指定场景后再重写。
 
-### 4. 分发到 Agent（AI 执行，人告知所用 Agent）
+### 4. 分发到 Agent（AI 执行，探测优先）
 
-本步由 AI 执行：人告知所用 Agent 与目标目录，AI 按该 Agent 的技能/规则目录约定完成分发与格式适配，跑校验器验证。
+本步由 AI 执行：AI 探测当前运行环境确定所用 Agent 与目标目录（如存在 `.zcode/` 即 ZCode），按该 Agent 的技能/规则目录约定完成分发与格式适配，跑校验器验证；仅用户提出多 Agent 需求时才询问。注意部分 Agent 的技能目录在**会话启动时扫描**（如 ZCode）——分发的技能当次会话不可见属预期，用新会话验证，或当前会话按路径直呼 SKILL.md。
 
 **AI 任务**：
 
@@ -86,14 +94,14 @@ grep -rn "booking\|hema\|2026-S" backend/skills/ backend/rules/
 
 ### 5. 工作流裁剪（按需）
 
-- **无 QA 团队**：可去掉 QA 专线 4 个 skill（qa-acceptance-case-design / api-blackbox-test / test-data-design / legacy-test-migration 的黑盒部分）——黑盒冒烟由集成测试取代（见 [docs/methodology/test-line.md](docs/methodology/test-line.md) §4.2）。
+- **无 QA 团队**：删 qa-acceptance-case-design / api-blackbox-test / test-data-design 三个 skill——黑盒冒烟由集成测试取代（见 [docs/methodology/test-line.md](docs/methodology/test-line.md) §4.2）。
 - **无独立前端仓**：忽略前端协作章节。
-- **存量项目无历史用例**：去掉 legacy-test-migration。
+- **legacy-test-migration**：仅当存量项目有历史用例时保留，否则删除。
 - 裁剪后跑对应线 `bash scripts/validate-skills.sh`，清掉对被裁 skill 的引用。
 
 ## 二、接入后验收
 
-1. 本线校验器 **PASSED**：`bash scripts/validate-skills.sh`（WARN 逐条确认是「提及目标项目文件」而非真断链；前端线校验见 frontend/README）。
-2. 后端线挑一个真实小需求走通：journey-scenario-design（或直接 story-splitting）→ detail-design → feature-coding，产出路径与命名符合 `docs/agile/card-naming-conventions.md`。
+1. 本线校验器 **PASSED**：`bash scripts/validate-skills.sh`（WARN 新项目首跑常有 200+ 条，用 `--quiet-tick` 只看计数；需甄别新增形态时去掉参数逐条查看；前端线校验见 frontend/README）。
+2. 后端线挑一个真实小需求走通：journey-scenario-design（或直接 story-splitting）→ detail-design → test-spec-alignment → feature-coding，产出路径与命名符合 `docs/agile/card-naming-conventions.md`。
 3. 后端画像 §4.3.4 测试账号表填写后，test-data-design 造一次数验证对齐规则可执行。
 4. 跑一张真实卡，确认代码审查报告落盘且结论通过（至少 `REVIEW-CODE-IMPL-*`；含 IT/前端/黑盒/造数时对应 `IT/FE/BB/SEED` 阶段）。

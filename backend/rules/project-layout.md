@@ -1,62 +1,39 @@
 # 项目布局与工作流边界
 
-> 目的：避免「工作流方法 / 项目上下文 / 项目产物 / 可执行测试」混放。布局二选一，不要半拆。
+> 目的：工作流（方法 + 工件）与业务代码各有其位，不混放。布局唯一：模板整目录嵌入项目，新项目与存量项目同法。
 
-## 一、四类资产
+## 一、五类资产
 
 | 类型 | 内容 | 归属 |
 |------|------|------|
-| 工作流方法 | `skills/`、`rules/`、`templates/`、`reference/`、`hooks/`、`scripts/`、`docs/methodology|training|_golden` | 工作流目录 |
-| 项目上下文 | `architecture/`（画像）、`glossary/`（词表）、`config/`（current-sprint / sprint-registry） | 工作流目录 |
-| 项目产物 | `docs/requirements|design|test-spec|qa|reviews|api|schema` | 工程目录 |
-| 可执行测试 | `tests/blackbox`、`tests/data` | 工程目录 |
-| 业务代码 | Maven 模块、构建文件 | 工程目录 |
+| 工作流方法 | `AI-Native/{线}/` 下 `skills/`、`rules/`、`templates/`、`reference/`、`hooks/`、`scripts/`、`docs/{methodology,_golden}`（`training` 仅后端线） | 工作流层 |
+| 项目上下文 | `AI-Native/{线}/` 下 `architecture/`（画像）、`glossary/`（词表）、`config/`（current-sprint） | 工作流层 |
+| 项目产物 | `AI-Native/{线}/docs/{requirements,design,test-spec,qa,reviews,api,schema}` | 工作流层 |
+| 可执行测试 | `AI-Native/{线}/tests/{blackbox,data}` | 工作流层 |
+| 业务代码 | Maven 模块、构建文件 | **项目根**；路径以画像 §二 模块表为准 |
 
-## 二、两种布局
+## 二、唯一布局（AI-Native 嵌入式）
 
-### 标准布局（默认，单线/小项目）
-
-```text
-{project}/
-├── backend/                     # 后端线项目根
-│   ├── skills/ rules/ templates/ reference/ hooks/ scripts/
-│   ├── docs/{methodology,training,_golden}/
-│   ├── architecture/ glossary/ config/
-│   ├── docs/{requirements,design,test-spec,qa,reviews,api,schema}/
-│   ├── tests/{blackbox,data}/
-│   └── {maven-modules}/
-└── frontend/                    # 前端线项目根，结构同源
-```
-
-所有 Skill 路径按**项目根**解析。
-
-### 分离式布局（一个项目一个工作流实例）
+模板整目录嵌入项目根（放入方式与项目根 `AGENTS.md` 的建法见仓库根 [README.md](../../README.md)「快速开始」）；存量项目原有代码不动。布局如下：
 
 ```text
 {project}/
-├── ai-workflow/                 # 工作流实例
-│   ├── skills/ rules/ templates/ reference/ hooks/ scripts/
-│   ├── docs/{methodology,training,_golden}/
-│   └── architecture/ glossary/ config/
-├── backend/                     # 工程
-│   ├── {maven-modules}/
-│   ├── docs/{requirements,design,test-spec,qa,reviews,api,schema}/
-│   └── tests/{blackbox,data}/
-└── frontend/                    # 可选的另一条线，同样处理
+├── AGENTS.md            # 项目 AI 入口（建法见根 README「快速开始」）
+├── README.md            # 项目自己的说明
+├── {业务代码}            # Maven 模块等，在项目根生长（模块路径写进画像 §二）
+└── AI-Native/           # 工作流层（模板整目录；升级时只对比替换通用层，工件目录不动）
+    ├── backend/         # 后端线根：skills/rules/…/architecture/config + docs 工件 + tests
+    │   └── MIGRATION.md # 后端线接入指南
+    └── frontend/        # 前端线根（可选）
 ```
 
-路径解析：
+- 所有 Skill 与校验器按**线根**（`AI-Native/backend/`、`AI-Native/frontend/`）解析路径。
+- Skill 找业务代码按画像 §二 的模块路径，不依赖目录巧合。
+- **不要拆散 `AI-Native/`**：把 skills/ 或画像挪到项目其他位置会让线根路径约定与校验器失效；要调整就整层一起动，并同步项目根 `AGENTS.md` 的指路。
 
-- `architecture/...`、`glossary/...`、`config/...` → **工作流根**（`ai-workflow/`）
-- `docs/...`、`tests/...` → **工程根**（如 `backend/`）
-- Skill 只写逻辑路径，不写死 `../`；移动布局时只改「根映射」和校验器。
+## 三、模板升级
 
-## 三、采用规则
-
-- 单线、单人维护、工作流不单独交付 → **标准布局**，少一层。
-- 多线（后端 + 前端）、或工作流本身要作为交付物 → **分离式**；多线必须**统一**拆分，不能只拆后端。
-- **不要半拆**：只移 skills 不移 context，或只移 context 不改校验器，都会让路径解析分裂。
-- 校验器必须同时识别两个根；必需目录缺失时 **fail-closed**，不能静默 `PASSED`。
+母版（GitHub）通用层更新后，只把 `AI-Native/{线}/` 下的方法目录（`skills/`、`rules/`、`templates/`、`reference/`、`scripts/`、`docs/methodology` 等）与母版对比合并；`docs/{迭代工件}`、`architecture/`（画像）、`config/`、`glossary/` 是项目自己的，**不随模板覆盖**。
 
 ## 四、模块聚合（多域仓库推荐）
 

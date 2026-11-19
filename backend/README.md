@@ -1,6 +1,6 @@
 # backend：后端 AI 原生工作流模板
 
-自已落地的源项目后端仓抽取。12 个 Skill + 15 条 Rule + 项目画像 + QA 专线 + 旁路（bugfix / 存量迁移）。
+自已落地的源项目后端仓抽取。12 个 Skill + 16 条 Rule + 项目画像 + QA 专线 + 旁路（bugfix / 存量迁移）。
 
 - **怎么用**：[USAGE.md](USAGE.md)（前置条件、入口选择、迭代走法、人工介入点）
 - **怎么接入**：[MIGRATION.md](MIGRATION.md) §一（画像必填 + 锚点替换清单）§二（接入后验收）

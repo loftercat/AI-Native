@@ -10,11 +10,11 @@
 
 ## 定位
 
-流水线**最上游**：输入业务原始需求（PRD 草稿 / 口头需求 / 原型），产出 `docs/requirements/epics/JSD-EPIC-{slug}.md`。
+流水线**最上游**：输入业务原始需求（PRD 草稿 / 口头需求 / 原型），产出 `docs/requirements/epics/JSD-EPIC-{slug}.md`；Epic 卡缺失时一并起草（提交人确认）。
 
 ```text
-原始需求 ──► journey-scenario-design ──► high-level-design ──► story-splitting ──► detail-design ──► ...
-              JSD（旅程+场景）            HLD                    Story（AC 源于场景）
+原始需求 ──► journey-scenario-design ──► EPIC 卡 ──► high-level-design ──► story-splitting ──► detail-design ──► ...
+              JSD（旅程+场景）          （缺失时本 Skill 起草，已有则跳过）  HLD            Story（AC 源于场景）
 ```
 
 - **旅程管广度**（路径不缺环）→ HLD §5 关键流程、Story 波次划分的依据
