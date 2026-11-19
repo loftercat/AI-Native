@@ -13,7 +13,7 @@ AI 原生开发工作流模板：**后端线（12 Skill）+ 前端线（3 Skill�
 **手动接入**（新项目与存量项目同法）：
 
 1. **引入**：把AI-Native工程放到项目的根目录下、**不带 `.git`**，放入后目录名保持为 `AI-Native/`。存量项目原有代码与目录不动，复制 [AGENTS.md](AGENTS.md) 文档到项目根路径下，假如存量项目已有AGENTS.md，则进行整合；复制/整合后把文中 `backend/`、`frontend/` 开头的相对链接统一加 `AI-Native/` 前缀。
-2. **接入**：后端按 [backend/MIGRATION.md](backend/MIGRATION.md) §一（填画像 → 替换锚点 → 重写 Golden → 分发到 Agent → 工作流裁剪，每步 AI 执行、人审定稿）；前端按 [frontend/README.md](frontend/README.md) 的「接入替换」。 
+2. **接入**：后端按 [backend/MIGRATION.md](backend/MIGRATION.md) §一（填画像 → 替换锚点 → 重写 Golden → 分发到 Agent → 工作流裁剪，每步 AI 执行、人审定稿）；前端按 [frontend/MIGRATION.md](frontend/MIGRATION.md)。 
 
 ## 详细使用说明
 后端线见 [backend/USAGE.md](backend/USAGE.md)；前端线见 [frontend/USAGE.md](frontend/USAGE.md)。   
