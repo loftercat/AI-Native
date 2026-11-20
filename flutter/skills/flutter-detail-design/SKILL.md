@@ -1,12 +1,12 @@
 ---
 name: flutter-detail-design
 description: >-
-  将客户端 Story（STORY-FL-*）+ OpenAPI 落地为页面详设：页面状态机、组件树、
-  AC→operationId 映射、路由、错误展示。产出 DD-FL-*.md，供 feature-coding 直接消费。
+  将客户端 Story（STORY-Flutter-*）+ 适用的 OpenAPI 落地为页面详设：页面状态机、组件树、
+  AC→operationId 映射、路由、错误展示。产出 DD-Flutter-*.md，供 feature-coding 直接消费。
   不改 OpenAPI、不写页面代码。
 ---
 
-> **模板版说明**　示例业务与客户端工作流共用。接入 Flutter 项目时按[使用手册](../../USAGE.md)填写[系统画像](../../architecture/system-landscape.md)，以本工程的组件、路由和契约替换示例值。
+> **模板版说明**　示例业务与客户端工作流共用。接入 Flutter 项目时按[接入指南](../../MIGRATION.md)填写[系统画像](../../architecture/system-landscape.md)，以本工程的组件、路由和契约替换示例值。
 
 接入项目后，先读项目根 AGENTS.md 和[本线入口](../../AGENTS.md)，按入口约定定位工作流文档和应用代码。
 
@@ -14,12 +14,12 @@ description: >-
 
 ## 1. 定位
 
-**把 STORY-FL + 适用的契约 转成页面详设：路由、组件树、状态机、AC→operationId 映射、错误展示。不改 Story 卡、不写页面代码。**
+**把 STORY-Flutter + 适用的契约 转成页面详设：路由、组件树、状态机、AC→operationId 映射、错误展示。不改 Story 卡、不写页面代码。**
 
 ## 2. 何时触发
 
-- STORY-FL 已定稿，需出页面详设
-- 用户要求写 `docs/design/{迭代}/DD-FL-*.md`
+- STORY-Flutter 已定稿，需出页面详设
+- 用户要求写 `docs/design/{迭代}/DD-Flutter-*.md`
 
 **不触发**：Story 拆解（`flutter-story-splitting`）、页面代码（`flutter-feature-coding`）。
 
@@ -27,11 +27,13 @@ description: >-
 
 | # | 资产 | 路径 |
 |---|------|------|
-| 1 | STORY-FL | `docs/requirements/{迭代}/STORY-FL-*.md` |
+| 1 | STORY-Flutter | `docs/requirements/{迭代}/STORY-Flutter-*.md` |
 | 2 | OpenAPI（网络 AC） | `docs/handoff/openapi/{后端服务标识}.yaml` + `VERSION` |
 | 3 | 系统画像 | `architecture/system-landscape.md` |
-| 4 | 设计稿 | 按 STORY-FL「设计稿」节登记的位置（`docs/prototype/`）或 handoff |
+| 4 | 设计稿 | 按 STORY-Flutter「设计稿」节登记的位置（`docs/prototype/`）或 handoff |
 | 5 | Rule | `rules/flutter-project.md`、`rules/api-client-conventions.md`、`rules/error-display-conventions.md`、`rules/flutter-performance.md` |
+
+网络 AC 核对快照与 `docs/handoff/VERSION`，版本必须与 Story 一致；缺失、空值、`TBD` 或版本不一致时先补齐/对齐上游。无后端调用的卡沿用 Story 的 `N/A`，依据本地交互、存储或 SDK 约定设计。
 
 ## 4. 详设必含
 
@@ -70,8 +72,8 @@ description: >-
 
 ### 4.7 设计稿追溯
 
-- 沿用 STORY-FL「设计稿」节的登记（稿件位置 + 状态），逐条核对一致；位置、状态或版本不一致时，暂停该项设计并请用户确认采用哪份稿件，保留原 Story 登记
-- 条目为 `无 → UI: TBD` 的按无稿处理；STORY-FL 未登记的：有稿列 `docs/prototype/` 文件名并注明「详设补登」；无稿标 `UI: TBD`
+- 沿用 STORY-Flutter「设计稿」节的登记（稿件位置 + 状态），逐条核对一致；位置、状态或版本不一致时，暂停该项设计并请用户确认采用哪份稿件，保留原 Story 登记
+- 条目为 `无 → UI: TBD` 的按无稿处理；STORY-Flutter 未登记的：有稿列 `docs/prototype/` 文件名并注明「详设补登」；无稿标 `UI: TBD`
 
 - [设计规则](../../rules/ui-design.md)用于将 Frame、主题、素材及状态映射到 Widget，列出设备、基准尺寸与截图验收点。
 
@@ -86,7 +88,7 @@ description: >-
 
 ## 6. 输出路径
 
-`docs/design/{迭代}/DD-FL-{迭代}-{序号}-{slug}.md`
+`docs/design/{迭代}/DD-Flutter-{迭代}-{序号}-{slug}.md`
 
 ## 7. 反模式
 

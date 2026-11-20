@@ -1,11 +1,11 @@
 ---
 name: flutter-story-splitting
 description: >-
-  将 Epic/PRD/原型及适用的后端 OpenAPI handoff 拆为带 AC 的 Flutter Story 卡（STORY-FL-*）。
+  将 Epic/PRD/原型及适用的后端 OpenAPI handoff 拆为带 AC 的 Flutter Story 卡（STORY-Flutter-*）。
   用于 Flutter 需求拆解、迭代规划、写 docs/requirements 时。不改 OpenAPI、不写后端代码。
 ---
 
-> **模板版说明**　示例业务与客户端工作流共用。接入 Flutter 项目时按[使用手册](../../USAGE.md)填写[系统画像](../../architecture/system-landscape.md)，以本工程的组件、路由和契约替换示例值。
+> **模板版说明**　示例业务与客户端工作流共用。接入 Flutter 项目时按[接入指南](../../MIGRATION.md)填写[系统画像](../../architecture/system-landscape.md)，以本工程的组件、路由和契约替换示例值。
 
 接入项目后，先读项目根 AGENTS.md 和[本线入口](../../AGENTS.md)，按入口约定定位工作流文档和应用代码。
 
@@ -18,7 +18,7 @@ description: >-
 ## 2. 何时触发
 
 - 新 Epic / 迭代规划 / 从 PRD 或后端 Story 拆客户端卡
-- 用户要求写 `docs/requirements/{迭代}/STORY-FL-*.md`
+- 用户要求写 `docs/requirements/{迭代}/STORY-Flutter-*.md`
 
 **不触发**：页面详设、组件代码、OpenAPI 设计。
 
@@ -30,20 +30,22 @@ description: >-
 | 2 | 系统画像 | `architecture/system-landscape.md` | **阻断** |
 | 3 | AGENTS.md | 做什么 / 不做什么 | 必须读 |
 | 4 | 后端 OpenAPI | `docs/handoff/openapi/{后端服务标识}.yaml` | **阻断**（调用后端 API 时必备；纯 UI、本地或仅原生 SDK 的卡填 N/A） |
-| 5 | 契约版本 | `docs/handoff/VERSION` | **阻断**（同第 4 项） |
+| 5 | 契约版本 | `docs/handoff/VERSION` | **阻断**（缺失、空值或 `TBD`；随第 4 项豁免） |
 | 6 | Epic/PRD/原型 | Epic 来源路径 | 必须有（至少其一） |
 | 7 | 后端 Story 摘要 | §1 用户故事 + §2.3 客户端职责 + 相关 AC/BR | 强烈推荐 |
 | 8 | 词表 | `glossary/domain-glossary.md` | 降级 |
 | 9 | Rule | `rules/flutter-project.md`、`rules/api-client-conventions.md` | 必须读 |
 
+网络卡缺少快照、有效版本或所需 operationId 时，按[接入指南](../../MIGRATION.md)补齐后再拆卡，不以模板示例代替契约。无后端调用的卡将契约、版本和 API 范围填 `N/A`，写明本地或原生验收依据；含服务端下单/查单的支付卡仍需契约。
+
 ## 4. 拆卡步骤
 
 ```text
-1. 读 Epic/PRD/原型 → 划定 Android/iOS 验收范围、页面和用户价值 → 候选 STORY-FL
+1. 读 Epic/PRD/原型 → 划定 Android/iOS 验收范围、页面和用户价值 → 候选 STORY-Flutter
 2. 对网络 AC，在 openapi.yaml 检索本页 paths → 列出 operationId 清单
 3. 读每个 operation 的 examples → 把分支写成可验收 AC（Given/When/Then）
 4. 视觉项在「设计稿」节登记稿件位置与状态（§6）；无稿的项标 `UI: TBD`；不调 API 的 Story 可不绑 operationId
-5. 产出 STORY-FL-*.md，每条 API 相关 AC 附追溯（§7 格式）
+5. 产出 STORY-Flutter-*.md，每条 API 相关 AC 附追溯（§7 格式）
 6. 更新 docs/handoff/stories-index.md（Story ↔ operationId，可选）
 ```
 

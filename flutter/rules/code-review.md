@@ -29,9 +29,9 @@
 | # | 输入 | 说明 |
 |---|------|------|
 | 1 | 审查档位 | L1 / L2 / L3 |
-| 2 | 改动背景 | `STORY-FL-*` 编号、AC、不能破坏的行为 |
+| 2 | 改动背景 | `STORY-Flutter-*` 编号、AC、不能破坏的行为 |
 | 3 | 审查范围 | `git diff HEAD` + `git status` 中的**本次相关**新增未跟踪文件；或 `<base>..HEAD`；排除无关历史文件 |
-| 4 | 上游工件 | `STORY-FL`、`DD-FL`、`docs/handoff/openapi/*.yaml`、`VERSION`（有则给） |
+| 4 | 上游工件 | `STORY-Flutter`、`DD-Flutter`、`docs/handoff/openapi/*.yaml`、`VERSION`（有则给） |
 | 5 | 测试结果 | flutter analyze / flutter test、设备上的 AC 与设计对照结果 |
 | 6 | 关注点 | 本次最担心的 3–5 项（operationId、字段契约、请求层、状态机、性能等） |
 
@@ -40,9 +40,9 @@
 ```text
 审查档位：L2
 规则：从项目根读 AI-Native/flutter/rules/code-review.md（§二 档位 / §四 审查清单 / §五 P0–P3 与闭环）
-改动背景：STORY-FL-...；AC：...；不能破坏：...
+改动背景：STORY-Flutter-...；AC：...；不能破坏：...
 审查范围：git diff HEAD + git status 新增文件（本次相关；排除历史文件；重点：...）
-上游工件：Story ...；DD-FL ...；OpenAPI ... @ VERSION ...
+上游工件：Story ...；DD-Flutter ...；OpenAPI ... @ VERSION ...
 测试结果：分析和测试命令与结果；Android/iOS 证据；未验证项
 关注点：...
 只读：不修改仓库文件、不落盘报告
@@ -61,7 +61,7 @@
 6. **生命周期**：dispose 取消订阅与计时器；原生事件核对权限、取消与重复回调。
 7. **测试**：分析与测试结果逐条对照 AC，记录本卡目标平台、设备及待验项。涉及存储、支付时验证迁移与服务端结果。
 8. **可维护性**：组件边界、Dart 命名和重复实现；按档位记录。
-9. **设计稿还原**：按 STORY-FL「设计稿」节逐项核对运行截图与交互状态，纯 UI 卡以此为重点。
+9. **设计稿还原**：按 STORY-Flutter「设计稿」节逐项核对运行截图与交互状态，纯 UI 卡以此为重点。
 
 按画像 §3.1 核对本卡使用的技术。
 
@@ -82,7 +82,7 @@
 
 ## 六、报告
 
-- **落点**：`docs/reviews/{迭代}/REVIEW-CODE-FL-{Story编号}-{slug}.md`
+- **落点**：`docs/reviews/{迭代}/REVIEW-CODE-Flutter-{Story编号}-{slug}.md`
 - **模板**：[code-review-report.md](../templates/code-review-report.md)
 - **固定 footer**（由实现者/主流程按审查人输出落盘）：
 
@@ -105,7 +105,7 @@
 | 时机 | 拆卡后、详设前 | 编码后、合并前 | 编码后、联调/提测前 |
 | 对象 | Story 卡 | 后端代码 diff | Flutter 端代码 diff |
 | 分级 | Blocker/Major/Minor | P0–P3 | P0–P3 |
-| 报告 | `REVIEW-STORY-*` | `REVIEW-CODE-*` | `REVIEW-CODE-FL-*` |
+| 报告 | `REVIEW-STORY-*` | `REVIEW-CODE-*` | `REVIEW-CODE-Flutter-*` |
 
 > 三者不能互相替代：Story 审查发生在代码之前；前后端代码审查各审各的 diff。
 > Story 审查属后端线；Flutter 线不设 Story 审查门禁，本表仅用于区分审查对象。
@@ -121,6 +121,6 @@
 ```text
 ## 代码审查
 Flutter 端代码改动（flutter-feature-coding 测试通过后、联调/提测前）必须走独立代码审查。
-规则：AI-Native/flutter/rules/code-review.md；模板：AI-Native/flutter/templates/code-review-report.md；报告：AI-Native/flutter/docs/reviews/{迭代}/REVIEW-CODE-FL-*。
+规则：AI-Native/flutter/rules/code-review.md；模板：AI-Native/flutter/templates/code-review-report.md；报告：AI-Native/flutter/docs/reviews/{迭代}/REVIEW-CODE-Flutter-*。
 审查通过前禁止 commit/push；L0 不送审；P0–P3 按 L1/L2/L3 闭环。
 ```

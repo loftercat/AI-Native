@@ -1,29 +1,43 @@
 # AI Native 使用手册（Flutter Android / iOS）
 
-本手册与 frontend/USAGE.md 的章节、编号和九个调用示例一一对应。示例预约业务、契约版本和目录在接入时以实际项目替换。示例开头的 /flutter-… 表示调用该 Skill；工具未注册该命令时，从项目根指定 AI-Native/flutter/skills 下的对应 SKILL.md 即可。
+本手册沿用前端的章节组织和九个调用示例。示例预约业务、契约版本和目录在接入时按 [MIGRATION.md](MIGRATION.md) 处理。示例开头的 /flutter-… 表示调用该 Skill；工具未注册该命令时，从项目根指定 AI-Native/flutter/skills 下的对应 SKILL.md 即可。
 
 > 配套：[flutter/README.md](README.md) · [docs/methodology/readme.md](docs/methodology/readme.md) · [architecture/system-landscape.md](architecture/system-landscape.md)
 
 ---
 
-## 一、总览：三段流水线 + 审查门禁
+## 快速导航
+
+| 我想… | 看 |
+|--------|----|
+| 接入或升级 | [MIGRATION.md](MIGRATION.md) |
+| 看总览 | [总览](#总览) |
+| 确认开工前提 | [前置准备](#前置准备) |
+| 拆卡 / 详设 / 编码 | [需求拆解](#需求拆解) · [详细设计](#详细设计) · [编码](#编码) |
+| 看调用示例 | [端到端 Demo](#端到端-demo) · [提示词通用模板](#提示词通用模板) |
+| 查反模式与落点 | [常见反模式](#常见反模式) · [文件落点速查](#文件落点速查) |
+| 延伸阅读 | [延伸阅读](#延伸阅读) |
+
+---
+
+## 总览
 
 ```text
 Epic/PRD/原型 + 适用的后端 OpenAPI handoff
         ↓
-flutter-story-splitting   →  STORY-FL-*.md（AC + 本卡 operationId 范围）
+flutter-story-splitting   →  STORY-Flutter-*.md（AC + 本卡 operationId 范围）
         ↓
-flutter-detail-design      →  DD-FL-*.md（页面状态机、组件树、AC→operationId 映射）
+flutter-detail-design      →  DD-Flutter-*.md（页面状态机、组件树、AC→operationId 映射）
         ↓
 flutter-feature-coding     →  Widget / Controller / Repository + 测试
         ↓
-代码审查（rules/code-review.md）→ REVIEW-CODE-FL-*（联调/提测前）
+代码审查（rules/code-review.md）→ REVIEW-CODE-Flutter-*（联调/提测前）
 ```
 
 | Skill | 做什么 | 产出 | 不做什么 |
 |-------|--------|------|----------|
-| `flutter-story-splitting` | 把需求拆成可验收的 Flutter Story | `docs/requirements/{迭代}/STORY-FL-*.md` | 详设、代码、改 OpenAPI |
-| `flutter-detail-design` | 把 Story 转成页面详设 | `docs/design/{迭代}/DD-FL-*.md` | 改 Story、写代码 |
+| `flutter-story-splitting` | 把需求拆成可验收的 Flutter Story | `docs/requirements/{迭代}/STORY-Flutter-*.md` | 详设、代码、改 OpenAPI |
+| `flutter-detail-design` | 把 Story 转成页面详设 | `docs/design/{迭代}/DD-Flutter-*.md` | 改 Story、写代码 |
 | `flutter-feature-coding` | TDD 实现页面/组件 | `lib/` 及本卡的原生适配 + 测试 | 拆卡、详设、改 OpenAPI |
 
 **核心原则**：
@@ -32,30 +46,27 @@ flutter-feature-coding     →  Widget / Controller / Repository + 测试
 2. **调用后端的 Flutter Story 必须点名本卡 `operationId`**，不能只丢整份 YAML
 3. **契约边界**：示例只调 booking BFF，成功判据取自 handoff。纯 UI、本地或仅原生 SDK 功能的 API 范围填 N/A
 4. **性能**：限制 Widget 重建范围，dispose 时释放监听与 Timer（见 `rules/flutter-performance.md`）
-5. **设计稿登记**：视觉项在 STORY-FL「设计稿」节登记稿件位置与状态；无稿才标 `UI: TBD`，不允许整卡视觉项全留空
+5. **设计稿登记**：视觉项在 STORY-Flutter「设计稿」节登记稿件位置与状态；无稿才标 `UI: TBD`，不允许整卡视觉项全留空
 
 ### 三段输入一览
 
 | Skill | 关键输入 | 产出 |
 |-------|----------|------|
-| story-splitting | 适用的后端契约及版本 + Epic/PRD/原型 + **后端 Story 摘要** | STORY-FL-*.md（含「设计稿」节） |
-| detail-design | Flutter Story + 适用的后端 OpenAPI + 设计稿（按卡登记） + Rule | DD-FL-*.md |
+| story-splitting | 适用的后端契约及版本 + Epic/PRD/原型 + **后端 Story 摘要** | STORY-Flutter-*.md（含「设计稿」节） |
+| detail-design | Flutter Story + 适用的后端 OpenAPI + 设计稿（按卡登记） + Rule | DD-Flutter-*.md |
 | feature-coding | Flutter Story + Flutter 详设 + 适用的后端 OpenAPI + Rule | Flutter 页面、Widget 和数据层 + 测试 |
 
 > 进入详设前核对每条 AC 的验收依据。进入编码前核对本次 AC 的状态、失败分支、平台差异和验证方式。网络 AC 在三段引用同一契约版本。
 
 ---
 
-## 二、前置准备
+## 前置准备
 
 ### 接入与升级
 
-**首次接入**
+首次接入按 [MIGRATION.md](MIGRATION.md) 完成 handoff、画像、锚点、Golden、分发与裁剪；旧布局迁移和模板升级也由该指南维护。
 
-1. 将模板整目录（排除其 `.git`）放在项目根的 `AI-Native/`。在项目根 AGENTS.md 合并一句可直接使用的指引：「Flutter 开发先读 `AI-Native/flutter/AGENTS.md`，从中选择 Skill 和 Rule。」保留项目自己的运行说明和约束。
-2. 在[画像 §3.2](architecture/system-landscape.md) 登记含 `pubspec.yaml` 的应用根。AI 根据 pubspec、Android/iOS 工程和 CI 填写 §3.1 的实际选型、版本、目标平台与命令，依据 §3.2 登记已有组件。维护者确认有歧义的技术映射、鉴权与设备范围。
-3. 更新线内 `config/current-sprint` 和词表。网络功能同步后端发布的 OpenAPI 快照与 VERSION 到 [handoff](docs/handoff/README.md)。VERSION 待定或缺少接口时，在对应 AC 标明依赖。按真实契约替换服务标识、baseUrl 和可用 operationId。纯 UI、本地或仅原生能力的卡写明可观察行为，API 范围填 N/A。
-4. AI 从真实页面选一个小需求，重写线内 `docs/requirements/_golden/` 和 `docs/design/_golden/` 的配套样例，维护者核对同一 AC 能追到设计依据、页面状态和测试。模板示例文件名可保留；若按业务改名，同步对应链接和校验清单。
+开工前读取 `config/current-sprint` 和画像。网络卡必须具备真实 OpenAPI、`docs/handoff/VERSION` 及本卡 operationId；VERSION 缺失、为空或 `TBD` 时阻断相关网络卡，按接入指南补齐。纯 UI、本地或仅原生 SDK 且无后端调用的卡填 `N/A`，仍需明确交互、数据或 SDK 验收依据。
 
 **路径怎么读**
 
@@ -66,24 +77,14 @@ flutter-feature-coding     →  Widget / Controller / Repository + 测试
 
 后续调用示例从项目根发起，文件名和版本替换为本卡实际值。文档内的 Markdown 链接按所在文件解析。
 
-**从旧布局迁移与后续升级**
+---
 
-旧版曾将工作流平铺在工程根。先在项目副本盘点同名目录和已有入口，将属于 Flutter 工作流的资产按相对路径归入线根；业务文档、应用测试仍归项目管理。核对旧路径在项目 AGENTS.md、提示词、CI 及历史工件中的引用，保持已有卡、报告、设计稿和契约版本可追溯。共用的 `docs/`、`scripts/` 要逐项归属。
-
-日后升级时对比合并 `skills/`、`rules/`、`templates/`、`scripts/`、方法论和入口说明，保留项目对命令、迭代命名及其他校验项的适配。画像、词表、配置、真实 handoff、设计稿、项目 Golden 和迭代工件以项目版本为准。
-
-**接入验收**
-
-1. 从项目根按 AGENTS.md 打开线入口和三个 Skill，运行 `bash AI-Native/flutter/scripts/validate-skills.sh`。
-2. 从实际需求拆一张小卡，依次生成 Story、DD，再进入编码。在应用根运行 `flutter analyze` 和 `flutter test`。逐条对照 AC，并按编码 Skill 记录适用的独立审查或 L0 检查结果。
-3. 核对本次 Story、DD、适用的报告均落在线根的 `docs/{requirements,design,reviews}/{迭代}/`，代码和测试落在画像登记的应用。网络卡核对三个阶段引用同一份真实快照、VERSION 和 operationId；本地卡用本地数据或交互验证。缺少真实 handoff 时记录网络路径待验。
-
-## 三、Skill 1：需求拆解（flutter-story-splitting）
+## 需求拆解
 
 ### 何时用
 
 - 新 Epic / 迭代规划 / 从 PRD 或后端 Story 拆 Flutter 卡
-- 需要写 `docs/requirements/{迭代}/STORY-FL-*.md`
+- 需要写 `docs/requirements/{迭代}/STORY-Flutter-*.md`
 
 ### 输入
 
@@ -101,11 +102,11 @@ flutter-feature-coding     →  Widget / Controller / Repository + 测试
 
 - 后端 Story 摘要：打开后端 `STORY-*`，复制 §1 + §2.3 + 相关 AC/BR 到提示词；或 `@` 后端 Story 路径让 AI 自取摘要
 - OpenAPI：本仓 `docs/handoff/openapi/` 已同步副本；提示词里 `@` 该文件
-- 原型（交互稿，拆卡输入）：后端仓 `docs/prototype/源项目原型 demo/*.html`；可 `@` 或描述文件名；拆卡时登记进 STORY-FL「设计稿」节，之后按设计稿管理
+- 原型（交互稿，拆卡输入）：后端仓 `docs/prototype/源项目原型 demo/*.html`；可 `@` 或描述文件名；拆卡时登记进 STORY-Flutter「设计稿」节，之后按设计稿管理
 
 ### 产出格式
 
-每张 `STORY-FL-*` 必含四节：
+每张 `STORY-Flutter-*` 必含四节：
 
 ```markdown
 ## 契约
@@ -146,7 +147,7 @@ flutter-feature-coding     →  Widget / Controller / Repository + 测试
 契约：AI-Native/flutter/docs/handoff/openapi/booking-bff-app.yaml @ 9f3673b
 本卡涉及的 operationId：getActiveReservation（GET /reservations/active）
 
-请拆出 Flutter Story STORY-FL-2026-S01-002，AC 用 Given/When/Then，字段认 OpenAPI examples。
+请拆出 Flutter Story STORY-Flutter-2026-S01-002，AC 用 Given/When/Then，字段认 OpenAPI examples。
 视觉项（底 Tab、地图背景）在「设计稿」节登记稿件位置；无稿才标 UI: TBD。
 ```
 
@@ -171,37 +172,37 @@ flutter-feature-coding     →  Widget / Controller / Repository + 测试
 ```text
 /flutter-story-splitting
 
-已有 STORY-FL-2026-S01-002（首页）。现需补「订单详情页」客户端卡。
+已有 STORY-Flutter-2026-S01-002（首页）。现需补「订单详情页」客户端卡。
 契约：AI-Native/flutter/docs/handoff/openapi/booking-bff-app.yaml @ 9f3673b
 本卡 operationId：getOrderDetail（若 OpenAPI 已有）/ 否则标「待后端补 OpenAPI」
 ```
 
 ---
 
-## 四、Skill 2：详细设计（flutter-detail-design）
+## 详细设计
 
 ### 何时用
 
-- `STORY-FL-*` 已定稿，需出页面详设
-- 需要写 `docs/design/{迭代}/DD-FL-*.md`
+- `STORY-Flutter-*` 已定稿，需出页面详设
+- 需要写 `docs/design/{迭代}/DD-Flutter-*.md`
 
 ### 输入
 
 | 输入 | 必须？ | 来源 | 说明 |
 |------|--------|------|------|
-| **Flutter Story** | ✅ 必须 | `docs/requirements/{迭代}/STORY-FL-*.md` | 上一段 story-splitting 产出；含本卡 operationId 范围 |
+| **Flutter Story** | ✅ 必须 | `docs/requirements/{迭代}/STORY-Flutter-*.md` | 上一段 story-splitting 产出；含本卡 operationId 范围 |
 | **后端 OpenAPI** | 网络 AC 必备 | `docs/handoff/openapi/booking-bff-app.yaml` | 读 schema/examples 设计状态机与字段展示 |
 | **契约版本** | 网络 AC 必备 | `docs/handoff/VERSION` | 与 Story 一致 |
-| **设计稿** | ◯ 按 Story 卡登记 | Figma Frame、交付截图或交互稿（位置见 STORY-FL「设计稿」节） | 视觉参考；卡上 `UI: TBD` 项不可猜样式 |
+| **设计稿** | ◯ 按 Story 卡登记 | Figma Frame、交付截图或交互稿（位置见 STORY-Flutter「设计稿」节） | 视觉参考；卡上 `UI: TBD` 项不可猜样式 |
 | **系统画像** | ✅ 必读 | `architecture/system-landscape.md` | 路由/模块/平台边界 |
 | **领域词表** | ◯ 降级 | `glossary/domain-glossary.md` | 术语一致 |
 | **Rule** | ✅ 必读 | `rules/flutter-project.md`、`rules/api-client-conventions.md`、`rules/error-display-conventions.md`、`rules/flutter-performance.md` | 分层/请求/错误/性能约束 |
 
 **输入获取方式**：
 
-- Story：`@AI-Native/flutter/docs/requirements/{迭代}/STORY-FL-*.md`
+- Story：`@AI-Native/flutter/docs/requirements/{迭代}/STORY-Flutter-*.md`
 - OpenAPI：`@AI-Native/flutter/docs/handoff/openapi/booking-bff-app.yaml`
-- 设计稿：按 STORY-FL「设计稿」节登记的位置 `@` 对应稿件；位置或状态冲突时确认采用的稿件；卡未登记且有稿时在 DD 注明「详设补登」
+- 设计稿：按 STORY-Flutter「设计稿」节登记的位置 `@` 对应稿件；位置或状态冲突时确认采用的稿件；卡未登记且有稿时在 DD 注明「详设补登」
 
 ### 产出必含
 
@@ -220,11 +221,11 @@ flutter-feature-coding     →  Widget / Controller / Repository + 测试
 ```text
 /flutter-detail-design
 
-Story：@AI-Native/flutter/docs/requirements/2026-S01/STORY-FL-2026-S01-002-active-booking-home.md
+Story：@AI-Native/flutter/docs/requirements/2026-S01/STORY-Flutter-2026-S01-002-active-booking-home.md
 契约：AI-Native/flutter/docs/handoff/openapi/booking-bff-app.yaml @ 9f3673b
-设计稿：@AI-Native/flutter/docs/prototype/源项目原型 demo/存在进行中的预约单.html（按 STORY-FL「设计稿」节登记）
+设计稿：@AI-Native/flutter/docs/prototype/源项目原型 demo/存在进行中的预约单.html（按 STORY-Flutter「设计稿」节登记）
 
-请出 DD-FL-2026-S01-002，含：
+请出 DD-Flutter-2026-S01-002，含：
 - 页面状态机（loading / empty / error / hasActive / noActive）
 - AC→operationId 映射表（getActiveReservation）
 - 错误展示（鉴权失效由会话层处理，其他错误按 AC 提示）
@@ -237,7 +238,7 @@ Story：@AI-Native/flutter/docs/requirements/2026-S01/STORY-FL-2026-S01-002-acti
 ```text
 /flutter-detail-design
 
-Story：@AI-Native/flutter/docs/requirements/2026-S01/STORY-FL-2026-S01-007-payment-countdown.md
+Story：@AI-Native/flutter/docs/requirements/2026-S01/STORY-Flutter-2026-S01-007-payment-countdown.md
 契约：AI-Native/flutter/docs/handoff/openapi/booking-bff-app.yaml @ 9f3673b
 
 待支付页有 5 分钟倒计时。请重点说明：
@@ -248,7 +249,7 @@ Story：@AI-Native/flutter/docs/requirements/2026-S01/STORY-FL-2026-S01-007-paym
 
 ---
 
-## 五、Skill 3：编码（flutter-feature-coding）
+## 编码
 
 ### 何时用
 
@@ -259,8 +260,8 @@ Story：@AI-Native/flutter/docs/requirements/2026-S01/STORY-FL-2026-S01-007-paym
 
 | 输入 | 必须？ | 来源 | 说明 |
 |------|--------|------|------|
-| **Flutter Story** | ✅ 必须 | `docs/requirements/{迭代}/STORY-FL-*.md` | AC + 本卡 operationId 范围 |
-| **Flutter 详设** | ✅ 必须 | `docs/design/{迭代}/DD-FL-*.md` | 页面状态机、组件树、AC→operationId 映射 |
+| **Flutter Story** | ✅ 必须 | `docs/requirements/{迭代}/STORY-Flutter-*.md` | AC + 本卡 operationId 范围 |
+| **Flutter 详设** | ✅ 必须 | `docs/design/{迭代}/DD-Flutter-*.md` | 页面状态机、组件树、AC→operationId 映射 |
 | **后端 OpenAPI** | 网络 AC 必备 | `docs/handoff/openapi/booking-bff-app.yaml` | 字段/错误码/examples；**不发明字段** |
 | **契约版本** | 网络 AC 必备 | `docs/handoff/VERSION` | 与 Story/详设一致 |
 | **系统画像** | ✅ 必读 | `architecture/system-landscape.md` | 分层/集成边界 |
@@ -278,13 +279,13 @@ Story：@AI-Native/flutter/docs/requirements/2026-S01/STORY-FL-2026-S01-007-paym
 ### 流程
 
 ```text
-1. 加载 STORY-FL + DD-FL + OpenAPI + Rule；按 Story「设计稿」节对照稿件（`UI: TBD` 项向用户要稿，不猜样式）
+1. 加载 STORY-Flutter + DD-Flutter + OpenAPI + Rule；按 Story「设计稿」节对照稿件（`UI: TBD` 项向用户要稿，不猜样式）
 2. 契约对齐：确认本卡 operationId，读 schema/examples
 3. TDD：先写 Controller/Repository 单测和 Widget 测试，再实现对应行为
 4. 实现：Widget 经 Controller、Repository 调用数据源。结合业务和后端契约，为含义容易误解的组件、工具或字段写中文说明。
 5. 性能自检：局部重建、dispose 与前台恢复
 6. 验证：格式检查、flutter analyze、flutter test 通过 + 本卡设备验证 + AC 逐条对照
-7. 代码审查：按 rules/code-review.md 审 diff + STORY-FL/DD-FL/OpenAPI（含设计稿还原）；报告 docs/reviews/{迭代}/REVIEW-CODE-FL-*；L0 跳过并说明
+7. 代码审查：按 rules/code-review.md 审 diff + STORY-Flutter/DD-Flutter/OpenAPI（含设计稿还原）；报告 docs/reviews/{迭代}/REVIEW-CODE-Flutter-*；L0 跳过并说明
 ```
 
 ### 提示词 Demo
@@ -292,10 +293,10 @@ Story：@AI-Native/flutter/docs/requirements/2026-S01/STORY-FL-2026-S01-007-paym
 #### Demo 6：实现首页（全 Story）
 
 ```text
-/flutter-feature-coding 实现 STORY-FL-2026-S01-002
+/flutter-feature-coding 实现 STORY-Flutter-2026-S01-002
 
-@AI-Native/flutter/docs/requirements/2026-S01/STORY-FL-2026-S01-002-active-booking-home.md
-@AI-Native/flutter/docs/design/2026-S01/DD-FL-2026-S01-002-active-booking-home.md
+@AI-Native/flutter/docs/requirements/2026-S01/STORY-Flutter-2026-S01-002-active-booking-home.md
+@AI-Native/flutter/docs/design/2026-S01/DD-Flutter-2026-S01-002-active-booking-home.md
 契约：AI-Native/flutter/docs/handoff/openapi/booking-bff-app.yaml @ 9f3673b
 
 本卡仅使用 operationId：getActiveReservation
@@ -309,16 +310,16 @@ Story：@AI-Native/flutter/docs/requirements/2026-S01/STORY-FL-2026-S01-007-paym
 #### Demo 7：只实现某一层
 
 ```text
-/flutter-feature-coding 实现 STORY-FL-2026-S01-002
+/flutter-feature-coding 实现 STORY-Flutter-2026-S01-002
 范围：仅预约模块的 reservation_repository.dart 和单测
-详设：@AI-Native/flutter/docs/design/2026-S01/DD-FL-2026-S01-002-active-booking-home.md
-@AI-Native/flutter/docs/requirements/2026-S01/STORY-FL-2026-S01-002-active-booking-home.md
+详设：@AI-Native/flutter/docs/design/2026-S01/DD-Flutter-2026-S01-002-active-booking-home.md
+@AI-Native/flutter/docs/requirements/2026-S01/STORY-Flutter-2026-S01-002-active-booking-home.md
 ```
 
 #### Demo 8：需求变更后同步
 
 ```text
-/flutter-feature-coding 按变更记录重新实现 STORY-FL-2026-S01-002
+/flutter-feature-coding 按变更记录重新实现 STORY-Flutter-2026-S01-002
 
 后端 OpenAPI 已更新：getActiveReservation 新增 spaceId 字段。
 契约：AI-Native/flutter/docs/handoff/openapi/booking-bff-app.yaml @ 2026-S01-rc2
@@ -328,10 +329,10 @@ Story：@AI-Native/flutter/docs/requirements/2026-S01/STORY-FL-2026-S01-007-paym
 #### Demo 9：实现带倒计时页面
 
 ```text
-/flutter-feature-coding 实现 STORY-FL-2026-S01-007-payment-countdown
+/flutter-feature-coding 实现 STORY-Flutter-2026-S01-007-payment-countdown
 
-@AI-Native/flutter/docs/requirements/2026-S01/STORY-FL-2026-S01-007-payment-countdown.md
-@AI-Native/flutter/docs/design/2026-S01/DD-FL-2026-S01-007-payment-countdown.md
+@AI-Native/flutter/docs/requirements/2026-S01/STORY-Flutter-2026-S01-007-payment-countdown.md
+@AI-Native/flutter/docs/design/2026-S01/DD-Flutter-2026-S01-007-payment-countdown.md
 
 重点遵守 AI-Native/flutter/rules/flutter-performance.md：
 - 倒计时按截止时间计算，恢复前台时重算
@@ -341,7 +342,7 @@ Story：@AI-Native/flutter/docs/requirements/2026-S01/STORY-FL-2026-S01-007-paym
 
 ---
 
-## 六、端到端 Demo（一张卡走完三段）
+## 端到端 Demo
 
 以「首页进行中预约」为例，完整三段提示词：
 
@@ -354,7 +355,7 @@ Story：@AI-Native/flutter/docs/requirements/2026-S01/STORY-FL-2026-S01-007-paym
 契约：AI-Native/flutter/docs/handoff/openapi/booking-bff-app.yaml @ 9f3673b
 operationId：getActiveReservation（GET /reservations/active）
 
-拆 STORY-FL-2026-S01-002，AC 用 Given/When/Then，字段认 OpenAPI examples。
+拆 STORY-Flutter-2026-S01-002，AC 用 Given/When/Then，字段认 OpenAPI examples。
 ```
 
 ### 第 2 段：详设
@@ -362,20 +363,20 @@ operationId：getActiveReservation（GET /reservations/active）
 ```text
 /flutter-detail-design
 
-Story：@AI-Native/flutter/docs/requirements/2026-S01/STORY-FL-2026-S01-002-active-booking-home.md
+Story：@AI-Native/flutter/docs/requirements/2026-S01/STORY-Flutter-2026-S01-002-active-booking-home.md
 契约：AI-Native/flutter/docs/handoff/openapi/booking-bff-app.yaml @ 9f3673b
-设计稿：@AI-Native/flutter/docs/prototype/源项目原型 demo/存在进行中的预约单.html（按 STORY-FL「设计稿」节登记）
+设计稿：@AI-Native/flutter/docs/prototype/源项目原型 demo/存在进行中的预约单.html（按 STORY-Flutter「设计稿」节登记）
 
-出 DD-FL-2026-S01-002，含页面状态机 + AC→operationId 映射表 + 错误展示 + 性能关注。
+出 DD-Flutter-2026-S01-002，含页面状态机 + AC→operationId 映射表 + 错误展示 + 性能关注。
 ```
 
 ### 第 3 段：编码
 
 ```text
-/flutter-feature-coding 实现 STORY-FL-2026-S01-002
+/flutter-feature-coding 实现 STORY-Flutter-2026-S01-002
 
-@AI-Native/flutter/docs/requirements/2026-S01/STORY-FL-2026-S01-002-active-booking-home.md
-@AI-Native/flutter/docs/design/2026-S01/DD-FL-2026-S01-002-active-booking-home.md
+@AI-Native/flutter/docs/requirements/2026-S01/STORY-Flutter-2026-S01-002-active-booking-home.md
+@AI-Native/flutter/docs/design/2026-S01/DD-Flutter-2026-S01-002-active-booking-home.md
 契约：AI-Native/flutter/docs/handoff/openapi/booking-bff-app.yaml @ 9f3673b
 
 仅用 getActiveReservation。401 由会话层处理。不引入其它 operationId。
@@ -383,7 +384,7 @@ Story：@AI-Native/flutter/docs/requirements/2026-S01/STORY-FL-2026-S01-002-acti
 
 ---
 
-## 七、提示词通用模板
+## 提示词通用模板
 
 无论哪段，建议都包含：
 
@@ -412,7 +413,7 @@ Story：@AI-Native/flutter/docs/requirements/2026-S01/STORY-FL-2026-S01-002-acti
 | 倒计时页面 | 给截止时间来源，测试挂起后恢复、到期和页面释放 |
 | 增量或需求变更 | 给旧卡、差异、契约新版本；顺序更新 AC、DD、失败测试和实现 |
 
-## 八、常见反模式（避免）
+## 常见反模式
 
 | 反模式 | 正确做法 |
 |--------|----------|
@@ -423,20 +424,20 @@ Story：@AI-Native/flutter/docs/requirements/2026-S01/STORY-FL-2026-S01-002-acti
 | 页面退出仍监听原生事件 | 由订阅所有者取消监听并释放资源 |
 | 跨段越界（编码时改 Story/OpenAPI） | 先回 story-splitting/detail-design |
 | 401 在页面处理 | 会话层统一恢复认证 |
-| 视觉 AC 一律标 `UI: TBD`、不登记设计稿 | 有稿登记 STORY-FL「设计稿」节；无稿才标 TBD |
+| 视觉 AC 一律标 `UI: TBD`、不登记设计稿 | 有稿登记 STORY-Flutter「设计稿」节；无稿才标 TBD |
 
 ---
 
-## 九、文件落点速查
+## 文件落点速查
 
 | 工件 | 路径 |
 |------|------|
-| Flutter Story | `docs/requirements/{迭代}/STORY-FL-{迭代}-{序号}-{slug}.md` |
-| Flutter 详设 | `docs/design/{迭代}/DD-FL-{迭代}-{序号}-{slug}.md` |
+| Flutter Story | `docs/requirements/{迭代}/STORY-Flutter-{迭代}-{序号}-{slug}.md` |
+| Flutter 详设 | `docs/design/{迭代}/DD-Flutter-{迭代}-{序号}-{slug}.md` |
 | 后端 OpenAPI 副本 | `docs/handoff/openapi/booking-bff-app.yaml` |
 | 契约版本 | `docs/handoff/VERSION` |
-| 设计稿 | `docs/prototype/…`（位置登记在 STORY-FL「设计稿」节） |
-| 代码审查报告 | `docs/reviews/{迭代}/REVIEW-CODE-FL-STORY-FL-{迭代}-{序号}-{slug}.md` |
+| 设计稿 | `docs/prototype/…`（位置登记在 STORY-Flutter「设计稿」节） |
+| 代码审查报告 | `docs/reviews/{迭代}/REVIEW-CODE-Flutter-STORY-Flutter-{迭代}-{序号}-{slug}.md` |
 | 页面代码 | `lib/features/{feature}/presentation/{page}_page.dart` |
 | 组件代码 | `lib/features/{feature}/presentation/widgets/{name}.dart` |
 | 业务封装 | `lib/features/{feature}/data/{name}_repository.dart` |
@@ -445,7 +446,7 @@ Story：@AI-Native/flutter/docs/requirements/2026-S01/STORY-FL-2026-S01-002-acti
 
 ---
 
-## 十、延伸阅读
+## 延伸阅读
 
 | 主题 | 文档 |
 |------|------|
@@ -468,4 +469,5 @@ Flutter 规则按本卡范围取用：[共享状态、存储与事件](rules/sta
 
 | 日期 | 变更 |
 |------|------|
+| 2026-11-20 | 对齐新版前端导航；接入、升级与验收统一由 MIGRATION 维护，明确 handoff 待补门槛。 |
 | 2026-11-17 | 对齐前端三段手册、九个场景示例和设计稿登记约定，替换为 Flutter 实现及双端验证。 |

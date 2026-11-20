@@ -1,11 +1,11 @@
-# REVIEW-CODE-FL-{Story编号}-{slug}
+# REVIEW-CODE-Flutter-{Story编号}-{slug}
 
 > 复制到 `docs/reviews/{迭代}/` 后填写；L0 不落报告。规则见 [rules/code-review.md](../rules/code-review.md)。
 
 | 字段 | 值 |
 |------|-----|
-| 审查对象 | STORY-FL-{迭代}-{序号}-{slug} |
-| 审查阶段 | FL（Flutter 实现） |
+| 审查对象 | STORY-Flutter-{迭代}-{序号}-{slug} |
+| 审查阶段 | Flutter 实现 |
 | 审查档位 | L1 / L2 / L3 |
 | 审查范围 | 变更文件清单或 `git diff` 范围 |
 | 技术选型 | 记录本卡采用的技术方案及与画像基线的差异。 |
