@@ -18,6 +18,7 @@
 | 数据画像（DP） | `docs/qa/data-profiles/{迭代}/DP-STORY-{迭代}-{序号}-{slug}.yaml` |
 | 修复报告（FIX） | `docs/qa/{迭代}/FIX-{迭代}-{序号}-{slug}.md` |
 | 审查报告 | `docs/reviews/{迭代}/REVIEW-STORY-{迭代}-{序号}-{slug}.md` |
+| 归档摘要（ARCHIVE） | `docs/archive/ARCHIVE-{迭代}-summary.md` |
 
 > 前端工件（STORY-FE / DD-FE）见 [frontend/docs/methodology/readme.md](../../../frontend/docs/methodology/readme.md)；本表只管后端线执行向命名。
 
