@@ -244,9 +244,50 @@ def story_gate():
                     warns.append(f"  [WARN] {disp(it)} 存在{kind}，但 {cands[0][1][0].name} 状态≠已确认（流程跳跃提示，见 rules/story-review.md）")
     return errs, warns
 
+# ── 4) 迭代收尾提醒（依据 USAGE「迭代收尾」）─────────────
+# status=active 且 end 已过 → WARN（不阻断）：提醒执行归档，避免迭代一直未关闭
+# 扫描线根与项目根的 docs/agile/sprint-registry.yaml；无 status 字段的旧格式行静默跳过
+def sprint_gate():
+    import datetime
+    warns = []
+    regs = []
+    for base, tag in ((LINE_DOCS, "[线根] "), (PROJ_DOCS, "")):
+        if base is None:
+            continue
+        p = base / "agile" / "sprint-registry.yaml"
+        if p.exists():
+            regs.append((p, tag))
+    if not regs:
+        return warns
+    today = datetime.date.today()
+    for reg, tag in regs:
+        text = reg.read_text(encoding="utf-8", errors="replace")
+        for block in re.split(r"\n\s*-\s+", text)[1:]:
+            m_st = re.search(r"\bstatus:\s*([^#\n,}]+)", block)
+            if not m_st:
+                continue  # 无状态字段的旧格式迭代行，跳过
+            status = m_st.group(1).strip().strip("\"'")
+            if status != "active":
+                continue
+            m_id = re.search(r"\bid:\s*[\"']?([^\"'\n,}]+)", block)
+            sid = m_id.group(1).strip() if m_id else "(未命名迭代)"
+            m_end = re.search(r"\bend:\s*[\"']?(\d{4}-\d{2}-\d{2})", block)
+            if not m_end:
+                warns.append(f"  [WARN] {tag}迭代 {sid} 状态为 active 但 end 缺失或格式非 YYYY-MM-DD，无法判断是否过期")
+                continue
+            try:
+                end = datetime.date.fromisoformat(m_end.group(1))
+            except ValueError:
+                warns.append(f"  [WARN] {tag}迭代 {sid} 的 end 日期无法解析（{m_end.group(1)}），无法判断是否过期")
+                continue
+            if end < today:
+                warns.append(f"  [WARN] {tag}迭代 {sid} 已过期未收尾（end: {end}），请执行迭代收尾（见 USAGE「迭代收尾」）")
+    return warns
+
 g_errs, g_warns = story_gate()
 errors.extend(g_errs)
 warnings.extend(g_warns)
+warnings.extend(sprint_gate())
 
 import os
 if errors:
@@ -262,7 +303,7 @@ if warnings and os.environ.get("QUIET_TICK") == "1":
 else:
     for w in warnings:
         print(w)
-print("  all hard links resolved + story review gate checked"
+print("  all hard links resolved + story review + sprint gate checked"
       + (f"（{len(warnings)} 个提示）" if warnings else ""))
 PYEOF
 if [ $? -ne 0 ]; then FAIL=1; fi
