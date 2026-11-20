@@ -116,7 +116,7 @@ images/            静态资源
 
 迭代标识：`{年}-S{两位序号}`（如 `2026-S01`）。
 
-| 工件 | 路径模式 |
+| 工件 | 路径模式（前端 Story/详设/审查报告相对前端工程根 `docs/`；handoff 快照与词表相对线根 `AI-Native/frontend/`） |
 |------|----------|
 | 前端 Story | `docs/requirements/{迭代}/STORY-FE-{迭代}-{序号}-{slug}.md` |
 | 前端详设 | `docs/design/{迭代}/DD-FE-{迭代}-{序号}-{slug}.md` |
