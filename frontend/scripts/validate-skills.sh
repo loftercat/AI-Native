@@ -3,7 +3,8 @@
 #   1. 每个 SKILL.md 有 YAML frontmatter（name + description）
 #   2. 文中引用的相对路径 / 模板根路径均可解析（链接缺失 = FAIL，须在 CI 拦截）
 #   3. 未闭合方括号坏链检测（[text(url) 形态，防批量替换丢 ] 回归）
-# 用法：bash scripts/validate-skills.sh   （退出码非 0 = 存在错误）
+# 用法：bash scripts/validate-skills.sh [--quiet-tick]   （退出码非 0 = 存在错误）
+#   --quiet-tick：WARN 仅报计数，不逐条列出
 # 扫描范围：skills/ rules/ templates/ reference/ architecture/ glossary/ docs/methodology/
 # （docs/**/_golden 为样例目录、docs/training 为课件，正文链接已按样例约定豁免，不扫）
 # 与源项目的差异：无 symlink 镜像检查、无 docs/skills 历史残留检查（模板无迁移历史）。
@@ -11,6 +12,9 @@ set -uo pipefail
 cd "$(dirname "$0")/.."
 
 FAIL=0
+QUIET_TICK=0
+[ "${1:-}" = "--quiet-tick" ] && QUIET_TICK=1
+export QUIET_TICK
 
 echo "== 1) frontmatter 检查 =="
 for f in skills/*/SKILL.md; do
@@ -100,8 +104,12 @@ for scan_root in SCAN_ROOTS:
 if errors:
     print("\n".join(errors))
     sys.exit(1)
-for w in warnings:
-    print(w)
+import os
+if warnings and os.environ.get("QUIET_TICK") == "1":
+    print(f"  [WARN] 提示共 {len(warnings)} 条（--quiet-tick 模式：仅计数；去掉参数查看逐条明细）")
+else:
+    for w in warnings:
+        print(w)
 print("  all hard links resolved"
       + (f"（{len(warnings)} 个裸文件名提示）" if warnings else ""))
 PYEOF

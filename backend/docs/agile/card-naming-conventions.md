@@ -2,6 +2,8 @@
 
 迭代标识：`{年}-S{两位序号}`（例 `2026-S01`）。
 
+> 本文件是命名/落点契约；面向读者的工件释义见根 [README.md](../../../README.md)「工件速查」节。
+
 ## 文档路径
 
 | 工件 | 路径 |
@@ -12,7 +14,12 @@
 | Story | `docs/requirements/{迭代}/STORY-{迭代}-{序号}-{slug}.md` |
 | 详设 | `docs/design/{迭代}/DD-STORY-{迭代}-{序号}-{slug}.md` |
 | 测试规格 | `docs/test-spec/{迭代}/TS-STORY-{迭代}-{序号}-{slug}.md` |
+| 验收用例（AC-STORY） | `docs/qa/{迭代}/AC-STORY-{迭代}-{序号}-{slug}.md` |
+| 数据画像（DP） | `docs/qa/data-profiles/{迭代}/DP-STORY-{迭代}-{序号}-{slug}.yaml` |
+| 修复报告（FIX） | `docs/qa/{迭代}/FIX-{迭代}-{序号}-{slug}.md` |
 | 审查报告 | `docs/reviews/{迭代}/REVIEW-STORY-{迭代}-{序号}-{slug}.md` |
+
+> 前端工件（STORY-FE / DD-FE）见 [frontend/docs/methodology/readme.md](../../../frontend/docs/methodology/readme.md)；本表只管后端线执行向命名。
 
 ## 命名规则
 

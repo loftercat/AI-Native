@@ -194,7 +194,7 @@ description: 将 Epic/PRD/HLD 拆为带 AC 的 Story 卡。用于新需求、迭
 ## 7. 边界
 
 - 不写详设、OpenAPI、schema、Java  
-- 不写测试规格（本仓库无独立 test-spec Skill）  
+- 不写测试规格（由 `test-spec-alignment` 承担）  
 - 需求小变更：改 Story + 变更记录 → 增量详设 → feature-coding
 
 ---

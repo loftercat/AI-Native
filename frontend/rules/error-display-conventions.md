@@ -1,6 +1,7 @@
 # 错误展示约束
 
-> 与后端错误码分层对齐，详见后端仓 `docs/reference/exception-and-result.md`。  
+> 与后端错误码分层对齐，详见后端仓 `reference/exception-and-result.md`。
+>
 > 业务成败判据：`body.code === 200`（HTTP 常为 200，以 body 为准）。
 
 ## 1. 错误码分层

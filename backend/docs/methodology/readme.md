@@ -1,7 +1,7 @@
 # AI Native 架构说明
 
 > 本文描述**本仓库**（已落地源项目）的 AI Native 工程方法论：Skill 流水线、文档资产、Java 代码分层。  
-> 产品域系统画像见 [`docs/architecture/system-landscape.md`](../../architecture/system-landscape.md)。
+> 产品域系统画像见 [`architecture/system-landscape.md`](../../architecture/system-landscape.md)。
 
 ---
 
@@ -12,7 +12,7 @@
 | **方法论流水线** | 用 Agent Skill + Rule + 文档契约，把「需求 → 设计 → 代码 → 测试」做成可重复、可审计的流程 | `skills/`（模板平铺，无镜像）、`docs/*/_golden/`、`docs/agile/` |
 | **可运行后端** | Java 单体（V1）实现预订编排：双 BFF + 域模块 + 南向适配器 | `booking-*/`（规划）、`docs/api/`、`docs/schema/` |
 
-**本仓库不是 Python/FastAPI Demo**；Skill 与 Rule 已按 **Java 21 + Spring Boot 3.2 + Maven 多模块** 特化。方法论精华可迁移到其他 Java 业务仓库；`docs/architecture/system-landscape.md` 为**本项目独有**，勿被其它产品线覆盖。
+**本仓库不是 Python/FastAPI Demo**；Skill 与 Rule 已按 **Java 21 + Spring Boot 3.2 + Maven 多模块** 特化。方法论精华可迁移到其他 Java 业务仓库；`architecture/system-landscape.md` 为**本项目独有**，勿被其它产品线覆盖。
 
 ---
 
@@ -27,7 +27,10 @@
     业务原始需求 ──► journey-scenario-design ──► JSD（用户旅程 + 业务场景）
                                     │
                                     ▼
-    Epic/PRD ──► high-level-design ──► HLD（边界/集成/建议 Story）
+        EPIC 卡（Epic/PRD 先行则直接建；JSD 先行则缺失时由 JSD 起草，人确认）
+                                    │
+                                    ▼
+                       high-level-design ──► HLD（边界/集成/建议 Story）
                          │
                          ▼
               story-splitting ──► Story（AC/BR）
@@ -40,6 +43,15 @@
                          │
                          ▼
               feature-coding ──► TDD 实现（mvn test）
+                         │
+                         ▼
+              代码审查 ──► REVIEW-CODE-IMPL-*
+                         │
+                         ▼
+              integration-test-design ──► *IT / *ScenarioIT
+                         │
+                         ├── QA 专线：qa-acceptance-case-design → api-blackbox-test / test-data-design
+                         └── 旁路：bugfix / legacy-test-migration
 ```
 
 ### 2.1 四层资产模型
@@ -59,12 +71,14 @@
 |------|------|------|
 | 当前迭代 |`config/current-sprint`（模板约定路径） | 单一事实源（如 `2026-S01`） |
 | 卡片命名 | `docs/agile/card-naming-conventions.md` | Story / DD / HLD 编号与目录 |
-| 领域词表 | `docs/glossary/domain-glossary.md` | Story / 详设术语一致 |
-| 系统画像 | `docs/architecture/system-landscape.md` | 模块边界、集成、URL、技术栈（**权威**） |
+| 领域词表 | `glossary/domain-glossary.md` | Story / 详设术语一致 |
+| 系统画像 | `architecture/system-landscape.md` | 模块边界、集成、URL、技术栈（**权威**） |
 
 ---
 
-## 3. Skill 职责与边界
+## 3. 主线 7 环职责与边界
+
+> 完整 12 个后端 Skill（含 QA 专线 3 环与旁路 2 环）的触发时机、输入/产出、栈依赖见 [Skill清单与栈依赖.md](../../Skill清单与栈依赖.md)；本节只保留主线前 7 环的边界。
 
 | Skill | 输入 | 产出 | 不做 |
 |-------|------|------|------|
@@ -75,6 +89,8 @@
 | **test-spec-alignment** | Story + 详设 §9 | `docs/test-spec/{迭代}/TS-*.md`（AC→用例追溯、分层矩阵、Fixture、缺口阻断） | 写 Java 测试/实现、改 Story/详设正文 |
 | **integration-test-design** | 已实现业务 Story + 详设（+ 可选 TS） | `booking-app/src/test/java/` 下 `*IT`/`*ScenarioIT`（继承 `AbstractIntegrationTest`） | 单元/BFF API 测试（归 feature-coding）、改业务实现、改 Story/详设正文 |
 | **feature-coding** | Story + 详设（+ TS） | `*-api`/`*-impl`/BFF Java、`mvn test` | 无变更记录时偷偷改 AC |
+
+> QA 专线（`qa-acceptance-case-design` → `api-blackbox-test` / `test-data-design`）与旁路（`bugfix` / `legacy-test-migration`）不占主线；触发与产出见清单表。
 
 ### 3.1 需求变更
 
@@ -163,7 +179,7 @@ Golden（方法论范本）：
 | 运行时 | FastAPI `app/modules/` | Spring Boot `*-api`/`*-impl` + 双 BFF |
 | 分层 Rule | `architecture`（公司级 Rule，未随附） | `rules/java-project.md` |
 | 测试 | pytest | JUnit 5 + Mockito + `mvn test` |
-| 测试规格 Skill | test-spec-alignment（**已落地**）；integration-test-design（**已落地**）；test-quality-audit / bug-fix 未落地 | 编码前生成 TS（`docs/test-spec/`）；关键链路 `*IT`（`booking-app`） |
+| 测试规格 Skill | test-spec-alignment（**已落地**）；integration-test-design（**已落地**）；test-quality-audit 未落地；bugfix **已落地**（旁路） | 编码前生成 TS（`docs/test-spec/`）；关键链路 `*IT`（`booking-app`） |
 | 跨域调用 | 同进程 import | V1 `@Autowired XxxApi`；V2+ OpenFeign |
 | 系统画像实例 | `ai-native-org-project` | `源项目后端仓` / 源项目产品 |
 
@@ -175,7 +191,7 @@ Golden（方法论范本）：
 |------|------|
 | 旅程与场景设计 | [skills/journey-scenario-design/](../../skills/journey-scenario-design/)（SKILL、JSD 模板、场景分支清单） |
 | AI 入口 | [AGENTS.md](../../../AGENTS.md) |
-| 系统画像（实例） | [docs/architecture/system-landscape.md](../../architecture/system-landscape.md) |
+| 系统画像（实例） | [architecture/system-landscape.md](../../architecture/system-landscape.md) |
 | 系统画像（写法） | [system-landscape.md](./system-landscape.md) |
 | Story 拆解思想 | [story-splitting.md](./story-splitting.md) |
 | 功能编码思想 | [feature-coding.md](./feature-coding.md) |

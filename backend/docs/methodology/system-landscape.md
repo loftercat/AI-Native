@@ -1,8 +1,10 @@
 # 系统画像：应写什么、给谁用
 
-> **约定路径**：各业务仓库维护 `docs/architecture/system-landscape.md`（文件名固定）。  
-> **本文性质**：方法论——说明系统画像**必须体现的内容**与 Skill 消费关系。  
-> **本仓库实例**：[`docs/architecture/system-landscape.md`](../../architecture/system-landscape.md)（源项目）。
+> **约定路径**：各业务仓库维护 `architecture/system-landscape.md`（文件名固定）。
+>
+> **本文性质**：方法论——说明系统画像**必须体现的内容**与 Skill 消费关系。
+>
+> **本仓库实例**：[`architecture/system-landscape.md`](../../architecture/system-landscape.md)（源项目）。
 
 ---
 
@@ -122,7 +124,7 @@ BFF 统一返回 `com.hema.common.core.result.Result<T>`（`hema-common`）；�
 
 ## 6. 新建 / 迁移检查清单
 
-- [ ] 已创建 `docs/architecture/system-landscape.md`
+- [ ] 已创建 `architecture/system-landscape.md`
 - [ ] 模块清单含 Maven 路径与服务标识
 - [ ] **分层**节明确 BFF / api / impl 与 V1 调用方式
 - [ ] 外部系统与 MVP 优先级

@@ -133,7 +133,7 @@ Epic → Story（本 Skill）→ 详设 → Task / 编码（feature-coding）
 | AC 完备性清单 | `skills/story-splitting/references/ac-completeness-checklist.md` | **阻断** |
 | 迭代索引模板 | `skills/story-splitting/templates/sprint-index-template.md` | Epic 级拆卡 **阻断** |
 | Golden Story | `docs/requirements/_golden/STORY-GOLDEN-001-query-allocate-space.md` | 降级继续 |
-| 领域词表 | `docs/glossary/domain-glossary.md` | 降级继续 |
+| 领域词表 | `glossary/domain-glossary.md` | 降级继续 |
 | 迭代 |`config/current-sprint`（模板约定路径） | 询问用户 |
 
 Golden **只对齐写法与粒度**，不得把样例里的业务阈值（如 BR-02 步行距离）当成未经 PO 确认的真实约束。
@@ -155,7 +155,7 @@ INVEST 的 **Small**：一个迭代内可**独立验收**的业务切片，不�
 ## 7. 边界：本 Skill 不做
 
 - 架构设计、接口/OpenAPI、数据库设计  
-- 测试用例编写（本仓库由 **feature-coding** + TDD Rule 承担，无独立 test-spec Skill）  
+- 测试用例编写（测试规格由 `test-spec-alignment` 承担，编码与测试实现由 **feature-coding** + TDD Rule 承担）  
 - Story → 开发 Task 拆解（详设后实现层）  
 - 修改已上线逻辑的实现代码  
 

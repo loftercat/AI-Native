@@ -1,7 +1,6 @@
-# AI Native 使用手册（C 端小程序）
+# AI Native 使用手册：C 端小程序
 
-> **模板版说明**：本文档自源项目（C 端微信小程序）抽取为通用模板。文中项目专属值（`booking-*`、`booking-bff-app.yaml`、页面/组件名、Story 号）均为**示例**，接入时按 [frontend/README.md](README.md) 的「接入替换」节处理；「本仓库」指接入后的前端项目。
-
+> **模板版说明**：本文档自源项目（C 端微信小程序）抽取为通用模板。文中项目专属值（`booking-*`、`booking-bff-app.yaml`、页面/组件名、Story 号）均为**示例**，接入时按 [MIGRATION.md](MIGRATION.md) 处理；「本仓库」指接入后的前端项目。
 
 > 本手册说明在已落地的源项目前端仓中如何用三个 AI Skill 完成 **需求拆解 → 详细设计 → 编码** 全流程，并给出可直接复制的提示词 Demo。
 >
@@ -9,7 +8,24 @@
 
 ---
 
-## 一、总览：三段流水线 + 审查门禁
+## 快速导航
+
+| 我想… | 看 |
+|--------|----|
+| 看总览 | [总览](#总览) |
+| 确认开工前提 | [前置准备](#前置准备) |
+| 看需求拆解 | [需求拆解](#需求拆解) |
+| 看详细设计 | [详细设计](#详细设计) |
+| 看编码 | [编码](#编码) |
+| 看端到端 Demo | [端到端 Demo](#端到端-demo) |
+| 查提示词模板 | [提示词通用模板](#提示词通用模板) |
+| 看反模式 | [常见反模式](#常见反模式) |
+| 查文件落点 | [文件落点速查](#文件落点速查) |
+| 延伸阅读 | [延伸阅读](#延伸阅读) |
+
+---
+
+## 总览
 
 ```text
 Epic/PRD/原型 + 后端 OpenAPI handoff
@@ -49,7 +65,7 @@ frontend-feature-coding     →  pages/ components/ services/ + 测试
 
 ---
 
-## 二、前置准备（每次开工前确认）
+## 前置准备
 
 ```text
 1. 当前迭代：config/current-sprint（如 2026-S01）
@@ -62,7 +78,9 @@ frontend-feature-coding     →  pages/ components/ services/ + 测试
 
 ---
 
-## 三、Skill 1：需求拆解（frontend-story-splitting）
+## 需求拆解
+
+> Skill：`frontend-story-splitting`
 
 ### 何时用
 
@@ -116,7 +134,7 @@ frontend-feature-coding     →  pages/ components/ services/ + 测试
 
 ### 提示词 Demo
 
-#### Demo 1：从后端 Story 拆前端卡（契约驱动）
+#### Demo 1：从后端 Story 拆前端卡
 
 ```text
 /frontend-story-splitting
@@ -134,7 +152,7 @@ frontend-feature-coding     →  pages/ components/ services/ + 测试
 视觉项（底 Tab、地图背景）在「设计稿」节登记稿件位置；无稿才标 UI: TBD。
 ```
 
-#### Demo 2：从 PRD + 原型拆卡（产品驱动）
+#### Demo 2：从 PRD + 原型拆卡
 
 ```text
 /frontend-story-splitting
@@ -162,7 +180,9 @@ frontend-feature-coding     →  pages/ components/ services/ + 测试
 
 ---
 
-## 四、Skill 2：详细设计（frontend-detail-design）
+## 详细设计
+
+> Skill：`frontend-detail-design`
 
 ### 何时用
 
@@ -232,7 +252,9 @@ Story：@docs/requirements/2026-S01/STORY-FE-2026-S01-007-payment-countdown.md
 
 ---
 
-## 五、Skill 3：编码（frontend-feature-coding）
+## 编码
+
+> Skill：`frontend-feature-coding`
 
 ### 何时用
 
@@ -273,7 +295,7 @@ Story：@docs/requirements/2026-S01/STORY-FE-2026-S01-007-payment-countdown.md
 
 ### 提示词 Demo
 
-#### Demo 6：实现首页（全 Story）
+#### Demo 6：实现首页
 
 ```text
 /frontend-feature-coding 实现 STORY-FE-2026-S01-002
@@ -324,7 +346,7 @@ Story：@docs/requirements/2026-S01/STORY-FE-2026-S01-007-payment-countdown.md
 
 ---
 
-## 六、端到端 Demo（一张卡走完三段）
+## 端到端 Demo
 
 以「首页进行中预约」为例，完整三段提示词：
 
@@ -366,7 +388,7 @@ Story：@docs/requirements/2026-S01/STORY-FE-2026-S01-002-active-booking-home.md
 
 ---
 
-## 七、提示词通用模板
+## 提示词通用模板
 
 无论哪段，建议都包含：
 
@@ -386,7 +408,7 @@ Story：@docs/requirements/2026-S01/STORY-FE-2026-S01-002-active-booking-home.md
 
 ---
 
-## 八、常见反模式（避免）
+## 常见反模式
 
 | 反模式 | 正确做法 |
 |--------|----------|
@@ -401,7 +423,7 @@ Story：@docs/requirements/2026-S01/STORY-FE-2026-S01-002-active-booking-home.md
 
 ---
 
-## 九、文件落点速查
+## 文件落点速查
 
 | 工件 | 路径 |
 |------|------|
@@ -419,7 +441,7 @@ Story：@docs/requirements/2026-S01/STORY-FE-2026-S01-002-active-booking-home.md
 
 ---
 
-## 十、延伸阅读
+## 延伸阅读
 
 | 主题 | 文档 |
 |------|------|

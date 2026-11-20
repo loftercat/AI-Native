@@ -151,7 +151,7 @@ Story 未更新但要求改实现 → **拒绝**。
 | 单元测试质量 Rule | `unit-test-quality.md` | [test-quality.md](../../skills/feature-coding/references/test-quality.md) |
 | 分层 Rule | `api-layer` 等 | [layer-guides.md](../../skills/feature-coding/references/layer-guides.md) |
 | 架构 Rule | `architecture.md` | `rules/java-project.md` |
-| 其它 Skill | `test-quality-audit` / `bug-fix` | 未落地；边界见主 Skill |
+| 其它 Skill | `test-quality-audit` / `bugfix` | `test-quality-audit` 未落地；`bugfix` 已落地（旁路） |
 
 ---
 

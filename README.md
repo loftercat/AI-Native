@@ -1,27 +1,68 @@
 # AI-Native-template
 
-AI 原生开发工作流模板：**后端、小程序前端、Flutter 移动端工作流 + Rule + 项目画像 + Golden 样例 + 校验脚本**，把「需求 → 设计 → 代码 → 测试 → QA 验收」做成可重复、可审计的流程。
+AI 原生开发工作流模板：**后端线（12 Skill）+ 前端线（3 Skill）+ Rule + 项目画像 + Golden 样例 + 校验脚本**，把「需求 → 设计 → 代码 → 测试 → QA 验收」做成可重复、可审计的流程。
+
+> 新项目 / 存量项目均可接入；AI 负责执行，人只在画像拍板、映射确认、审查放行等固定介入点决策。
+
+---
+
+## 快速导航
+
+| 我想… | 读这份 |
+|--------|--------|
+| 把工作流接入项目 | [快速开始](#快速开始) |
+| 了解整体流水线 | [工作流全景](#工作流全景) |
+| 查某个 Skill 的触发/产出 | [Skill 体系](#skill-体系) |
+| 查 EPIC / JSD / DD / TS 等工件 | [工件速查](#工件速查) |
+| 看目录结构 | [目录职责](#目录职责) |
+| 准备或替换公共基础库 | [公共基础库替换任务书](backend/docs/methodology/common-foundation-migration.md) |
+| 日常使用（后端） | [backend/USAGE.md](backend/USAGE.md) |
+| 日常使用（前端） | [frontend/USAGE.md](frontend/USAGE.md) |
+
+---
 
 ## 快速开始
 
-**接入（新项目与存量项目同法）**：
+接入分两种方式，选一种即可；两种方式最终都会走完下面的「手动接入」步骤。
 
-1. **引入**：把AI-Native工程放到项目的根目录下、**不带 `.git`**，放入后目录名保持为 `AI-Native/`。存量项目原有代码与目录不动，复制 [AGENTS.md](AGENTS.md) 文档到项目根路径下，假如存量项目已有AGENTS.md，则进行整合；复制/整合后为文中指向模板的相对链接和命令补上 `AI-Native/` 前缀（包括指向模板 README 的链接）。
-2. **接入**：后端按 [backend/MIGRATION.md](backend/MIGRATION.md) §一（填画像 → 替换锚点 → 重写 Golden → 分发到 Agent → 工作流裁剪，每步 AI 执行、人审定稿）；前端按 [frontend/README.md](frontend/README.md) 的「接入替换」。Flutter 项目按 [Flutter 接入与升级](flutter/USAGE.md#接入与升级) 填画像并验收。
+### 方式一：AI 辅助接入
+
+- 在模板仓内启动 AI：*「读取 AGENTS.md，按「接入引导」引导我接入，目标项目：`<项目路径>`」*
+- 在目标项目内启动 AI：*「从 `<模板仓路径>` 按 AGENTS.md「接入引导」把工作流接入到本项目」*
+
+AI 会读取模板仓的接入引导，带你走完手动步骤；你只在画像拍板、映射确认、验收等介入点做决策。
+
+### 方式二：手动接入
+
+新项目与存量项目同法：
+
+1. **引入**：把 AI-Native 工程放到项目的根目录下、**不带 `.git`**，放入后目录名保持为 `AI-Native/`。存量项目原有代码与目录不动，用 [templates/AGENTS.template.md](templates/AGENTS.template.md) 生成项目根 `AGENTS.md`（填完占位符）；存量项目已有 `AGENTS.md` 时进行整合。
+2. **接入**：后端按 [backend/MIGRATION.md](backend/MIGRATION.md) §一（填画像 → 替换锚点 → 重写 Golden → 分发到 Agent → 工作流裁剪，每步 AI 执行、人审定稿）；前端按 [frontend/MIGRATION.md](frontend/MIGRATION.md)。
+
+> 模板仓根 [AGENTS.md](AGENTS.md) 是模板仓入口，**不要直接复制**到目标项目；目标项目用 `templates/AGENTS.template.md` 生成自己的入口。
+
+---
 
 ## 详细使用说明
-后端线见 [backend/USAGE.md](backend/USAGE.md)；前端线见 [frontend/USAGE.md](frontend/USAGE.md)，移动端见 [Flutter 使用手册](flutter/USAGE.md)。
 
-## 工作流全景介绍
+| 线 | 手册 | 包含 |
+|----|------|------|
+| 后端 | [backend/USAGE.md](backend/USAGE.md) | 前置条件、工作流环节选择、工作流迭代演示、AI 停下时怎么办 |
+| 前端 | [frontend/USAGE.md](frontend/USAGE.md) | 三段流水线、提示词 Demo、端到端示例、反模式 |
 
-把「需求 → 设计 → 代码 → 测试 → 验收」拆成一组按序衔接的 Skill 流水线：每个环节的产出落盘为文档契约（Story / DD / TS / OpenAPI），作为下一环节的输入；流程由 AI 执行，人在固定介入点把关（映射确认、审查放行），Story / 文档工件 / 代码三道独立审查守住质量。后端发布契约，小程序与 Flutter 按各自 Story 消费 handoff。
+建议接入完成后阅读，作为日常开发的操作手册。
+
+---
 
 ## 工作流全景
 
-```
+把「需求 → 设计 → 代码 → 测试 → 验收」拆成一组按序衔接的 Skill 流水线：每个环节的产出落盘为文档契约（Story / DD / TS / OpenAPI），作为下一环节的输入；流程由 AI 执行，人在固定介入点把关（映射确认、审查放行），Story / 文档工件 / 代码三道独立审查守住质量。后端线与前端线各一套完整流水线，经 handoff 契约衔接。
+
+```text
 ── backend/（后端线，消费业务需求）──────────────────────────
-业务原始需求
+业务原始需求 / PRD
   → journey-scenario-design   → JSD（用户旅程 + 场景矩阵，AC 完备性源头）
+  → EPIC 卡                   → 来源：PRD 提炼，或由 JSD 起草（人确认）；两条入口见下
   → high-level-design         → HLD（模块边界/集成矩阵/建议 Story）
   → story-splitting           → STORY 卡（AC/BR + 依赖拓扑 + 迭代计划）
   → detail-design             → DD + OpenAPI + schema/DDL + 代码骨架 + 测试策略
@@ -42,11 +83,21 @@ AI 原生开发工作流模板：**后端、小程序前端、Flutter 移动端�
   → 代码审查（rules/code-review.md）→ REVIEW-CODE-FE-*（联调/提测前）
 ```
 
+### 两个入口
+
+后端线开始时，按手上已有资产选入口：
+
+- **JSD 先行**：手上只有想法（口头需求 / PRD 草稿 / 原型链接），还没整理成 Epic 卡 → 先用 `journey-scenario-design` 把「用户会怎么用、每一步正常和出错时分别怎样」写清楚（这就是 JSD），缺的 Epic 卡也由它一并补出（范围由你确认）。
+- **EPIC 先行**：手上已有 PRD 定稿或 Epic 卡，需求已经比较清楚 → 直接用 `high-level-design` 出概要设计；如果 Epic 卡里用户怎么用的描述只有一两句话，先让 `journey-scenario-design` 补全，再出概要设计。
+
+两线可独立接入（只用前端线时，handoff 包直接向你的后端团队索取）。方法论见 [backend/docs/methodology/](backend/docs/methodology/) 与 [frontend/docs/methodology/](frontend/docs/methodology/)。
 Flutter 移动端同样消费后端 handoff，纯本地卡直接从需求拆分开始。拆卡、详设、编码和审查的入口见 [Flutter 工作流](flutter/README.md)。
 
-后端与客户端可独立接入（只用前端线时，handoff 包直接向你的后端团队索取）。方法论见 [backend/docs/methodology/](backend/docs/methodology/) 与 [frontend/docs/methodology/](frontend/docs/methodology/)。
+---
 
-## Skill 入口
+## Skill 体系
+
+### 四类入口
 
 | 类别 | Skill | 什么时候进 |
 |------|-------|-----------|
@@ -56,37 +107,48 @@ Flutter 移动端同样消费后端 handoff，纯本地卡直接从需求拆分�
 | Flutter 移动端 | flutter-story-splitting → flutter-detail-design → flutter-feature-coding | Android / iOS 页面、本地数据或原生能力 |
 | 前端 3 环 | frontend-story-splitting → frontend-detail-design → frontend-feature-coding | 前端页面 |
 
-主线是菜单不是必经路：入口由手上已有资产决定；逐个 Skill 的触发时机与产出见下文「Skill 一览」。
+主线是菜单不是必经路：入口由手上已有资产决定。
 
-## Skill 一览
+### 完整清单
 
-| 线 | Skill | 触发时机 | 产出 |
-|----|-------|----------|------|
-| backend | journey-scenario-design | 原始需求尚无结构化输入 | `JSD-EPIC-*.md` |
-| backend | high-level-design | Epic/PRD 定稿 | `HLD-EPIC-*.md` |
-| backend | story-splitting | HLD 完成要拆卡 | `STORY-{迭代}-*.md` + 迭代计划 |
-| backend | detail-design | Story 定稿要写方案 | `DD-*.md` + OpenAPI + schema + 骨架 |
-| backend | test-spec-alignment | DD 完成、编码前 | `TS-STORY-*.md` |
-| backend | feature-coding | TS 就绪要写代码 | 代码 + `*Test` |
-| backend | integration-test-design | 跨模块/外部链路实现后 | `*IT` / `*ScenarioIT` |
-| backend | qa-acceptance-case-design | QA 消费 Story + OpenAPI | `AC-STORY-*.md` + 追溯 CSV |
-| backend | api-blackbox-test | 验收用例含 blackbox 行 | `tests/blackbox/test_*.py` |
-| backend | test-data-design | blackbox 需环境造数 | `DP-*.yaml` + seed 脚本 |
-| backend | bugfix | 线上/联调缺陷（旁路） | 复现测试 + `FIX-*.md` |
-| backend | legacy-test-migration | 存量用例批量改造（旁路） | 分类矩阵 + `TS-LEGACY-*.md` |
-| frontend | frontend-story-splitting | 拿到 handoff 包要拆前端卡 | `STORY-FE-*.md` |
-| frontend | frontend-detail-design | 前端 Story 定稿 | `DD-FE-*.md` |
-| frontend | frontend-feature-coding | 详设完成要写页面 | 页面/组件/服务 + 测试 |
-| flutter | flutter-story-splitting | 需求或契约已就绪 | STORY-FL 卡 |
-| flutter | flutter-detail-design | Story 范围和验收依据明确 | DD-FL 详设 |
-| flutter | flutter-feature-coding | 详设可实现 | 应用代码、测试及适用的审查报告 |
+- **后端线（12 个）**：见 [backend/Skill清单与栈依赖.md](backend/Skill清单与栈依赖.md)（触发时机、输入/产出、栈依赖、裁剪建议）。
+- **前端线（3 个）**：见 [frontend/README.md](frontend/README.md)（三段流水线）。
+
+> Golden 约定见 [backend/docs/methodology/golden.md](backend/docs/methodology/golden.md)。
+
+---
+
+## 工件速查
+
+读到不懂的缩写查这张表：
+
+| 缩写 | 全称 | 干什么用的 | 存在哪 | 谁产出 |
+|------|------|-----------|--------|--------|
+| EPIC | Epic 卡 | 这次要做的业务能力：为什么做、包含哪些功能、涉及哪些概念、用户怎么走一遍、不做什么 | `docs/requirements/epics/` | 人从 PRD 提炼，或 JSD 完成后由 AI 补齐 |
+| JSD | 旅程与场景设计 | 用户从进入到完成的每一步，以及每步顺利 / 出错时分别怎样 | `docs/requirements/epics/` | journey-scenario-design |
+| HLD | 概要设计 | 这件事拆进哪些模块、模块之间怎么配合、对外大体有哪些接口 | `docs/design/epics/` | high-level-design |
+| STORY | 需求卡 | 一张卡要交付什么、怎样算做完、卡与卡之间谁先谁后 | `docs/requirements/{迭代}/` | story-splitting |
+| DD | 详细设计 | 接口字段级定义、表结构和建表语句、类方法骨架、调用顺序 | `docs/design/{迭代}/` | detail-design |
+| TS | 测试规格 | 每条验收条件由哪个测试覆盖、在哪一层测、哪些外部依赖要模拟 | `docs/test-spec/{迭代}/` | test-spec-alignment |
+| AC-STORY | 验收用例 | 给人照着操作的清单：点哪里、应该看到什么 | `docs/qa/{迭代}/` | qa-acceptance-case-design |
+| DP | 数据画像 | 测试前环境里要准备哪些数据，附造数和清理脚本 | `docs/qa/data-profiles/` | test-data-design |
+| FIX | 修复报告 | 这个 bug 为什么出现、改了什么、影响哪些地方 | `docs/qa/{迭代}/` | bugfix |
+| REVIEW-* | 审查报告 | 独立审查人对需求卡、设计文档或代码的检查结论 | `docs/reviews/{迭代}/` | 独立审查人 |
+| STORY-FE / DD-FE | 前端需求卡 / 前端详设 | 页面要做什么、调用哪些后端接口；页面有哪些状态、组件怎么拆 | `frontend/docs/{requirements,design}/` | frontend-story-splitting / frontend-detail-design |
+
+> 每类工件的「标准长什么样」见各 `_golden/` 目录中的样例。
+
+---
 
 ## 目录职责
 
+模板仓按「根 / 后端线 / 前端线」组织；目标项目接入后，业务代码留在项目根，工作流资产在 `AI-Native/`。
+
 | 目录 | 职责 |
 |------|------|
+| `templates/` | 目标项目根 `AGENTS.md` 模板（`AGENTS.template.md`） |
 | `backend/skills/`（12）+ `frontend/skills/`（3） | Skill（自包含：SKILL.md + templates/ + references/） |
-| `backend/rules/`（15）+ `frontend/rules/`（5） | 编码与文档规范（纯 markdown；「规范听 Rule，流程听 Skill」） |
+| `backend/rules/`（16）+ `frontend/rules/`（5） | 编码与文档规范（纯 markdown；「规范听 Rule，流程听 Skill」） |
 | `{backend,frontend}/architecture/system-landscape.md` | 各线**项目画像（接入必填）**：项目层事实唯一定义处 |
 | `flutter/` | [移动端资产目录](flutter/README.md)，含画像、契约交接、阶段工件和校验器 |
 | `backend/reference/` | 后端通用工程指南（幂等、内存安全 IO、定时任务、统一响应） |
@@ -100,12 +162,15 @@ Flutter 移动端同样消费后端 handoff，纯本地卡直接从需求拆分�
 | `{backend,frontend}/scripts/validate-skills.sh` | 各线资产完整性校验（frontmatter + 引用可达 + 坏链检测） |
 | `{backend,frontend}/config/current-sprint` | 各线当前迭代号（单一事实源） |
 
-## 设计原则（继承自源项目）
+> 系统画像与词表模板不在 `templates/`：分别是 `backend/architecture/system-landscape.md`、`backend/glossary/domain-glossary.md`；Skill 直接读这两个路径，`templates/` 只放需要生成到目标项目根的文件。
+
+---
+
+## 设计原则
 
 - **单点维护**：项目事实只在各线 `system-landscape.md` 定义，Skill 与 Rule 引用不复制。
 - **缺口三分法**：阻断（问用户）/ 可补充（`[AI推断]` 标注）/ 提醒（记录），AI 不静默猜。
 - **契约单向流**：后端定契约 → handoff → 前端消费；前端永远不直接改 OpenAPI。
-- **机械与语义分工**：确定性检查交给脚本（validate-skills、hooks、构建测试），语义与风险判断交给 Skill 流程与独立审查（Story 门禁见 [backend/rules/story-review.md](backend/rules/story-review.md)；代码审查见 [backend/rules/code-review.md](backend/rules/code-review.md)）。
-- **代码审查**：编码后、合并前由独立上下文审 diff + Story/DD/TS/OpenAPI，P0–P3 按档位闭环；报告落 `docs/reviews/{迭代}/REVIEW-CODE-{阶段}-*`。
+- **机械与语义分工**：确定性检查交给脚本（validate-skills、hooks、构建测试）；语义与风险交给 Skill 流程与独立审查（Story 门禁见 [backend/rules/story-review.md](backend/rules/story-review.md)；代码审查见 [backend/rules/code-review.md](backend/rules/code-review.md)，报告落 `docs/reviews/{迭代}/REVIEW-CODE-{阶段}-*`）。
 - **同场景只写一遍**：Java 白盒守代码逻辑（PR 门禁），Python 黑盒守部署环境（发版门禁），见 [backend/docs/methodology/test-line.md](backend/docs/methodology/test-line.md)。
 - **Golden 教学**：每类工件带标准样例（`_golden/`），「写一个 Golden，不是拷一个 Golden」——接入项目时应重写为本项目真实样例。
