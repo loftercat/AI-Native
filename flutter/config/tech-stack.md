@@ -1,9 +1,10 @@
 # Flutter 新项目默认技术栈
 
-此处维护新项目统一采用的架构和可复用的技术选型。按[接入指南](../MIGRATION.md#2-填写-flutter-画像)生成画像时，将下表写入项目画像 §3.1。MVVM 是固定架构，其余条目以项目明确指定的方案为先，缺省时使用表中方案。画像记录各项实施状态，开发时按功能需要引入依赖。
+此处维护新项目的架构、SDK 基线和可复用的技术选型。按[接入指南](../MIGRATION.md#2-填写-flutter-画像)生成画像时，将下表写入项目画像 §3.1。项目统一使用 MVVM 和鸿蒙兼容的 Flutter SDK。其余条目以项目明确指定的方案为先，缺省时使用表中方案。画像记录各项实施状态，开发时按功能需要引入依赖。
 
 | 领域 | 约定方案 | 实现要求 |
 |---|---|---|
+| Flutter / Dart SDK | [CPF-Flutter 鸿蒙适配版](https://gitcode.com/CPF-Flutter/flutter_flutter)，Flutter `3.41.10-ohos-1.0.1`，Dart `3.11.5` | Flutter tag 为 `3.41.10-ohos-1.0.1`，框架修订为 `adaf911c35c9136a7d18fc424d714c9ec7724e60`。创建脚手架、本地开发和 CI 使用项目锁定的同一 SDK，Dart 随 SDK。升级时选择经过验证的鸿蒙适配版本，同步更新项目画像与工具链配置。 |
 | 项目架构（固定） | 按业务模块组织的 MVVM（Model–View–ViewModel） | 职责划分和业务 ViewModel 命名见[Flutter 工程规则](../rules/flutter-project.md)。 |
 | 网络请求 | Dio | 按信任域配置客户端，统一超时、鉴权、取消、错误转换。 |
 | 状态共享 | Riverpod（flutter_riverpod） | 页面和会话状态按生命周期提供，切换账号时隔离状态。 |

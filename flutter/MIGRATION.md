@@ -41,11 +41,11 @@
 
 ### 2. 填写 Flutter 画像
 
-以[技术栈配置](config/tech-stack.md)起草目标项目的[画像 §3.1](architecture/system-landscape.md#31-技术栈)。项目架构固定为 MVVM，管理业务页面状态与操作的 ViewModel 按[工程规则](rules/flutter-project.md#5-命名规范)统一命名。其余技术项采用模板默认值，项目明确指定的选型优先。扫描已存在的 SDK、`pubspec.yaml`、平台工程和 CI 配置，再通过访谈补齐应用根、目标平台、原生能力和验证环境等事实。[词表](glossary/domain-glossary.md)与后端领域术语对齐。
+以[技术栈配置](config/tech-stack.md)起草目标项目的[画像 §3.1](architecture/system-landscape.md#31-技术栈)。项目架构固定为 MVVM，管理业务页面状态与操作的 ViewModel 按[工程规则](rules/flutter-project.md#5-命名规范)统一命名。Flutter 和 Dart 使用配置中的鸿蒙兼容版本基线，核对 `flutter --version` 并登记实际版本。其余技术项采用模板默认值，项目明确指定的选型优先。扫描 `pubspec.yaml`、平台工程和 CI 配置等已有资料，再通过访谈补齐应用根、目标平台、原生能力和验证环境等事实。[词表](glossary/domain-glossary.md)与后端领域术语对齐。
 
 新项目 §3.1 分别记录「项目选型」和「落地状态」。例如，采用默认 Riverpod 的脚手架项目可登记「共享状态采用 Riverpod，待功能使用时引入」，并同时注明现有计数示例以 `setState` 运行。接入时无需逐项询问默认选型，在原有第 1 个确认点一起确认画像与映射。依赖安装和架构改动随对应实现任务进行，实际版本以项目 SDK 约束、`pubspec.yaml` 和 `pubspec.lock` 为准。
 
-项目接入后，可在 `AI-Native/flutter/architecture/system-landscape.md` §3.1 调整 MVVM 架构下的其他技术选型，并同步实施状态。跨项目默认值在模板仓的 `flutter/config/tech-stack.md` 维护，供以后接入的新项目采用。
+项目接入后，可在 `AI-Native/flutter/architecture/system-landscape.md` §3.1 调整其他技术选型，并同步实施状态。Flutter SDK 升级遵循技术栈配置中的鸿蒙兼容要求。跨项目默认值在模板仓的 `flutter/config/tech-stack.md` 维护，供以后接入的新项目采用。
 
 重点：§3.1 技术与版本、§3.2 含 `pubspec.yaml` 的应用根及现有组件、§3.3 环境与构建变体、§四契约与鉴权、§六协作机制。测试账号只登记取得方式，不写密钥。
 
@@ -111,7 +111,7 @@ AI 探测当前 Agent 的技能/规则目录并做格式适配。分发方式和
 2. 真实小卡走通 flutter-story-splitting → flutter-detail-design → flutter-feature-coding；按编码 Skill 完成自动检查和适用的独立代码审查。在画像 §3.2 的应用根执行格式检查、`flutter analyze`、`flutter test` 及所需设备验证，保存实际结果。
 3. 核对 Story / DD / 审查报告落在 `AI-Native/flutter/docs/{requirements,design,reviews}/{迭代}/`，代码和测试在应用根；网络三段引用同一真实快照、VERSION 和 operationId。
 4. handoff 待补时网络卡试跑延后，报告区分「模板接入通过」与「网络开发待补」；纯本地项目以本地卡验收。设备未验证项按[审查规则](rules/code-review.md)记录，不能写成通过。
-5. 核对画像 §3.1 采用 MVVM，其他选型来自模板默认值或项目明确的覆盖项，分别核实已落地和待引入的条目。试跑使用业务 ViewModel 时，按[工程规则](rules/flutter-project.md#5-命名规范)核对命名。
+5. 核对画像 §3.1 采用 MVVM 和鸿蒙兼容的 Flutter SDK，实际 Flutter、Dart 版本与项目锁定版本一致。确认其他选型的来源，分别核实已落地和待引入的条目。试跑使用业务 ViewModel 时，按[工程规则](rules/flutter-project.md#5-命名规范)核对命名。
 
 汇总以上结果、源值残留和全部待补项后，到**第 2/2 个确认点**。
 
