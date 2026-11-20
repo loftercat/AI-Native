@@ -103,23 +103,101 @@ for scan_root in SCAN_ROOTS:
 
 # ── 3) Story 审查门禁（rules/story-review.md §五）─────────────
 # FAIL：状态=已确认 但无报告 / 报告结论行缺失或不通过 / Blocker≠0 而通过
-# WARN：存在 DD/TS 而 Story 状态≠已确认（流程跳跃提示，按去 slug 前缀匹配）；_golden 豁免
+# WARN：存在 DD/TS 而 Story 状态≠已确认（流程跳跃提示）；线根出现非样例工件（应迁项目根）
+# 工件根：线根 docs（模板仓自检）+ 项目根 docs（接入后工件），存在的合并扫描
+# 项目根判定：候选 = AI-Native/{线}/../..；无 git（未 init）直接用候选；
+# 有 git 时候选须位于仓库根内（monorepo 子目录接入时 top 高于候选；AI-Native 自带 .git 时候选在 top 外，不扫项目根）
+def project_root():
+    cand = (ROOT.parent.parent).resolve()
+    try:
+        import subprocess
+        out = subprocess.run(["git", "-C", str(ROOT), "rev-parse", "--show-toplevel"],
+                             capture_output=True, text=True, encoding="utf-8",
+                             errors="replace", timeout=5)
+        if out.returncode == 0 and out.stdout.strip():
+            top = pathlib.Path(out.stdout.strip()).resolve()
+            try:
+                cand.relative_to(top)
+            except ValueError:
+                return None  # 候选不在仓库内 → 不可信，不扫项目根
+    except Exception:
+        pass
+    return cand
+
+LINE_DOCS = (ROOT / "docs").resolve()
+_PROJECT_ROOT = project_root()
+PROJ_DOCS = (_PROJECT_ROOT / "docs").resolve() if _PROJECT_ROOT else None
+
+def artifact_roots():
+    roots = []
+    for cand in (LINE_DOCS, PROJ_DOCS):
+        if cand is None:
+            continue
+        try:
+            cand = cand.resolve()
+        except OSError:
+            continue
+        if cand in roots:
+            continue
+        if any((cand / d).exists() for d in ("requirements", "design", "test-spec", "reviews")):
+            roots.append(cand)
+    return roots
+
 def story_gate():
-    req_dir = ROOT / "docs" / "requirements"
-    design_dir = ROOT / "docs" / "design"
+    art_roots = artifact_roots()
     errs, warns = [], []
+    def disp(p):
+        try:
+            rp = p.resolve()
+        except OSError:
+            rp = p
+        for art in (LINE_DOCS, PROJ_DOCS):
+            if art is None:
+                continue
+            try:
+                rel = str(rp.relative_to(art)).replace("\\", "/")
+            except ValueError:
+                continue
+            return f"[线根] docs/{rel}" if art == LINE_DOCS else f"docs/{rel}"
+        return str(p)
+    if _PROJECT_ROOT is None and (ROOT.parent.parent / "docs").exists():
+        warns.append("  [WARN] 项目根 docs 存在但被跳过——AI-Native/ 可能自带 .git（或位于仓库外）；请移除 AI-Native/.git 后重跑（见 README 快速开始），否则 story 门禁只看线根")
+    # 线根出现非 _golden 工件 → 提示迁移（不要求项目根 docs 已存在；排除 .gitkeep 脚手架）
+    if PROJ_DOCS and LINE_DOCS.exists() and PROJ_DOCS != LINE_DOCS:
+        for pat in ("requirements", "design", "test-spec", "qa", "api", "schema", "reviews"):
+            d = LINE_DOCS / pat
+            if not d.exists():
+                continue
+            n = sum(1 for f in d.rglob("*")
+                    if f.is_file() and f.name != ".gitkeep" and "_golden" not in str(f))
+            if n:
+                warns.append(f"  [WARN] [线根] docs/{pat}/ 有 {n} 个非样例工件；接入后工件应落项目根 docs/（布局唯一，见 rules/project-layout.md）")
+        for pat in ("blackbox", "data"):
+            d = ROOT / "tests" / pat
+            if not d.exists():
+                continue
+            n = sum(1 for f in d.rglob("*") if f.is_file() and f.name != ".gitkeep")
+            if n:
+                warns.append(f"  [WARN] [线根] tests/{pat}/ 有 {n} 个文件；接入后可执行测试应落项目根 tests/（布局唯一）")
     stories = {}  # 卡号基名 -> (path, status)
-    if req_dir.exists():
+    for art in art_roots:
+        req_dir = art / "requirements"
+        if not req_dir.exists():
+            continue
         for it in req_dir.rglob("STORY-*.md"):
             s = str(it)
             if "_golden" in s:
                 continue
+            if it.stem.startswith("STORY-FE-"):
+                continue  # 前端卡归前端线（前端线不设 Story 审查门禁），后端门禁不判
             m = re.search(r"\|\s*状态\s*\|\s*([^|]+)\|", it.read_text(encoding="utf-8", errors="replace"))
             status = m.group(1).strip() if m else ""
             stories[it.stem] = (it, status)
     reports = {}
-    rev_dir = ROOT / "docs" / "reviews"
-    if rev_dir.exists():
+    for art in art_roots:
+        rev_dir = art / "reviews"
+        if not rev_dir.exists():
+            continue
         for it in rev_dir.rglob("REVIEW-*.md"):
             s = str(it)
             if "_golden" in s:
@@ -131,18 +209,18 @@ def story_gate():
             continue
         rs = reports.get(stem, [])
         if not rs:
-            errs.append(f"  [FAIL] {path.relative_to(ROOT)} 状态=已确认 但无审查报告（docs/reviews/**/REVIEW-{stem}.md）")
+            errs.append(f"  [FAIL] {disp(path)} 状态=已确认 但无审查报告（docs/reviews/**/REVIEW-{stem}.md）")
             continue
         latest = max(rs, key=lambda x: x.stat().st_mtime)
         rtext = latest.read_text(encoding="utf-8", errors="replace")
         m = re.search(r"^-\s*结论[：:]\s*(通过|不通过)\s*$", rtext, re.M)
         mb = re.search(r"^-\s*Blocker[：:]\s*(\d+)\s*$", rtext, re.M)
         if not m:
-            errs.append(f"  [FAIL] {latest.relative_to(ROOT)} 缺结论行（应为「- 结论：通过」或「- 结论：不通过」，整词一行）")
+            errs.append(f"  [FAIL] {disp(latest)} 缺结论行（应为「- 结论：通过」或「- 结论：不通过」，整词一行）")
         elif m.group(1) != "通过":
-            errs.append(f"  [FAIL] {path.relative_to(ROOT)} 状态=已确认 但报告结论=不通过")
+            errs.append(f"  [FAIL] {disp(path)} 状态=已确认 但报告结论=不通过")
         elif mb and int(mb.group(1)) != 0:
-            errs.append(f"  [FAIL] {latest.relative_to(ROOT)} 结论=通过 但 Blocker≠0")
+            errs.append(f"  [FAIL] {disp(latest)} 结论=通过 但 Blocker≠0")
     # 下游工件（DD/TS）存在而 Story 未过审 → 流程跳跃提示；按去 slug 前缀匹配，容忍 slug 漂移
     def stem_prefix(stem):
         parts = stem.split("-")
@@ -150,31 +228,37 @@ def story_gate():
     prefix_map = {}
     for stem, val in stories.items():
         prefix_map.setdefault(stem_prefix(stem), []).append((stem, val))
-    for sub in (("design", "DD-"), ("test-spec", "TS-")):
-        sub_dir = ROOT / "docs" / sub[0]
-        if not sub_dir.exists():
-            continue
-        for it in sub_dir.rglob(sub[1] + "STORY-*.md"):
-            s = str(it)
-            if "_golden" in s:
+    for art in art_roots:
+        for sub in (("design", "DD-"), ("test-spec", "TS-")):
+            sub_dir = art / sub[0]
+            if not sub_dir.exists():
                 continue
-            stem = it.stem.replace(sub[1], "", 1)
-            cands = prefix_map.get(stem_prefix(stem), [])
-            if len(cands) == 1 and not cands[0][1][1].lstrip().startswith("已确认"):
-                kind = "详设" if sub[1] == "DD-" else "测试规格"
-                warns.append(f"  [WARN] {it.relative_to(ROOT)} 存在{kind}，但 {cands[0][1][0].name} 状态≠已确认（流程跳跃提示，见 rules/story-review.md）")
+            for it in sub_dir.rglob(sub[1] + "STORY-*.md"):
+                s = str(it)
+                if "_golden" in s:
+                    continue
+                stem = it.stem.replace(sub[1], "", 1)
+                cands = prefix_map.get(stem_prefix(stem), [])
+                if len(cands) == 1 and not cands[0][1][1].lstrip().startswith("已确认"):
+                    kind = "详设" if sub[1] == "DD-" else "测试规格"
+                    warns.append(f"  [WARN] {disp(it)} 存在{kind}，但 {cands[0][1][0].name} 状态≠已确认（流程跳跃提示，见 rules/story-review.md）")
     return errs, warns
 
 g_errs, g_warns = story_gate()
 errors.extend(g_errs)
 warnings.extend(g_warns)
 
+import os
 if errors:
     print("\n".join(errors))
+    if warnings:
+        if os.environ.get("QUIET_TICK") == "1":
+            print(f"  [WARN] 另有 {len(warnings)} 条提示（quiet 模式未逐条列出；修复 FAIL 后重跑查看）")
+        else:
+            print("\n".join(warnings))
     sys.exit(1)
-import os
 if warnings and os.environ.get("QUIET_TICK") == "1":
-    print(f"  [WARN] tick 提及共 {len(warnings)} 条（--quiet-tick 模式：仅计数；去掉参数查看逐条明细）")
+    print(f"  [WARN] 提示共 {len(warnings)} 条（--quiet-tick 模式：仅计数；去掉参数查看逐条明细）")
 else:
     for w in warnings:
         print(w)

@@ -143,7 +143,7 @@ booking-app（@SpringBootApplication）聚合全部 impl + 双 BFF
 
 迭代标识：`{年}-S{两位序号}`（如 `2026-S01`）。
 
-| 工件 | 路径模式 |
+| 工件 | 路径模式（相对项目根 `docs/`；模板内仅存 `_golden` 样例） |
 |------|----------|
 | Epic | `docs/requirements/epics/EPIC-{slug}.md` |
 | 旅程场景（JSD） | `docs/requirements/epics/JSD-EPIC-{slug}.md` |
@@ -164,7 +164,7 @@ booking-app（@SpringBootApplication）聚合全部 impl + 双 BFF
 - App：`/api/v1/booking/app/...`
 - Admin：`/api/v1/booking/admin/...`
 
-Golden（方法论范本）：
+Golden（方法论范本，相对线根 `AI-Native/backend/`；重写后归项目、不随模板覆盖）：
 
 - `docs/requirements/_golden/`
 - `docs/design/_golden/`

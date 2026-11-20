@@ -105,7 +105,7 @@ bash AI-Native/frontend/scripts/validate-skills.sh
 
 ### 4. 重写 Golden
 
-- 从画像与 handoff 契约选真实页面需求，保持文件名模式与结构，重写 `docs/**/_golden/` 的 STORY-FE / DD-FE 样例（源项目为 destination-search-allocate 一族）。
+- 从画像与 handoff 契约选真实页面需求，保持文件名模式与结构，重写线根（`AI-Native/frontend/`）`docs/**/_golden/` 的 STORY-FE / DD-FE 样例（源项目为 destination-search-allocate 一族；重写后视为项目资产，模板升级不覆盖）。
 - 提交时随附「3 处关键改动 + 建议抽查 1 份」。
 - 画像与契约不足、构造不出可信场景时，降级为人工指定。
 

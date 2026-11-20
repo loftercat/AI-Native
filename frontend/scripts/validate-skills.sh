@@ -101,10 +101,15 @@ for scan_root in SCAN_ROOTS:
         for raw, kind in candidates(text):
             check_path(raw, src, kind)
 
+import os
 if errors:
     print("\n".join(errors))
+    if warnings:
+        if os.environ.get("QUIET_TICK") == "1":
+            print(f"  [WARN] 另有 {len(warnings)} 条提示（quiet 模式未逐条列出；修复 FAIL 后重跑查看）")
+        else:
+            print("\n".join(warnings))
     sys.exit(1)
-import os
 if warnings and os.environ.get("QUIET_TICK") == "1":
     print(f"  [WARN] 提示共 {len(warnings)} 条（--quiet-tick 模式：仅计数；去掉参数查看逐条明细）")
 else:

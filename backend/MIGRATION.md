@@ -103,7 +103,7 @@
 ### 4. 重写 Golden
 
 - 从画像 §二 域清单与词表选取真实业务域，构造「查询-分配」同族用例（源项目为 query-allocate-space 一族）。
-- 保持文件名模式与结构，把 `docs/**/_golden/` 下 12 个样例用本项目业务重写一遍。
+- 保持文件名模式与结构，把线根（`AI-Native/backend/`）`docs/**/_golden/` 下 12 个样例用本项目业务重写一遍（重写后视为项目资产，模板升级不覆盖）。
 - 提交人验收时随附「3 处关键改动 + 建议抽查 1 份」。
 - 画像与词表仍为占位、构造不出可信场景时，降级为人工指定场景后再重写。
 
@@ -141,5 +141,5 @@
 ## 二、接入后验收
 
 1. 本线校验器 **PASSED**：`bash scripts/validate-skills.sh --quiet-tick`（前端线见 [frontend/MIGRATION.md](../frontend/MIGRATION.md)）。
-2. 用一张真实小需求走通 `story-splitting → detail-design → test-spec-alignment → feature-coding`；产出路径/命名符合 `docs/agile/card-naming-conventions.md`，工件落在 §一.1 设置的迭代目录，并至少有一份代码审查报告落盘。
+2. 用一张真实小需求走通 `story-splitting → detail-design → test-spec-alignment → feature-coding`；产出路径/命名符合线根 `docs/agile/card-naming-conventions.md`，工件落在**项目根** `docs/{requirements,design,...}/{迭代}/`，并至少有一份代码审查报告落盘。
 3. 在干净目录/新克隆中重跑接入，确认不依赖本机缓存、未提交文件或旧镜像。

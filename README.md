@@ -118,7 +118,7 @@ AI 会读取模板仓的接入引导，带你走完手动步骤；你只在画�
 
 ## 工件速查
 
-读到不懂的缩写查这张表：
+读到不懂的缩写查这张表（后端工件相对**项目根** `docs/`；前端工件相对**前端工程根** `docs/`）：
 
 | 缩写 | 全称 | 干什么用的 | 存在哪 | 谁产出 |
 |------|------|-----------|--------|--------|
@@ -132,7 +132,7 @@ AI 会读取模板仓的接入引导，带你走完手动步骤；你只在画�
 | DP | 数据画像 | 测试前环境里要准备哪些数据，附造数和清理脚本 | `docs/qa/data-profiles/` | test-data-design |
 | FIX | 修复报告 | 这个 bug 为什么出现、改了什么、影响哪些地方 | `docs/qa/{迭代}/` | bugfix |
 | REVIEW-* | 审查报告 | 独立审查人对需求卡、设计文档或代码的检查结论 | `docs/reviews/{迭代}/` | 独立审查人 |
-| STORY-FE / DD-FE | 前端需求卡 / 前端详设 | 页面要做什么、调用哪些后端接口；页面有哪些状态、组件怎么拆 | `frontend/docs/{requirements,design}/` | frontend-story-splitting / frontend-detail-design |
+| STORY-FE / DD-FE | 前端需求卡 / 前端详设 | 页面要做什么、调用哪些后端接口；页面有哪些状态、组件怎么拆 | 前端工程根 `docs/{requirements,design}/` | frontend-story-splitting / frontend-detail-design |
 
 > 每类工件的「标准长什么样」见各 `_golden/` 目录中的样例。
 
@@ -153,7 +153,7 @@ AI 会读取模板仓的接入引导，带你走完手动步骤；你只在画�
 | `frontend/docs/handoff/` | 前后端契约交接区（openapi 快照 + VERSION pin + stories-index） |
 | `{backend,frontend}/docs/methodology/` | 方法论与 Skill 设计说明（含测试线总设计） |
 | `backend/docs/training/` | 培训课件（黑盒选例、白盒分层、存量迁移） |
-| `backend/docs/{requirements,design,test-spec,qa,api,schema,reviews}/` | 后端流程工件落点（`reviews/` 为 Story 审查报告 + 代码审查报告；`_golden/` 为标准样例）；前端工件落点同理 |
+| `backend/docs/**/` | 模板内仅 `_golden/` 样例与方法论文档（`methodology/`、`agile/`、`training/`）；其余空目录为结构占位，**接入后工件落项目根 `docs/`**（requirements/design/test-spec/qa/api/schema/reviews），不要写进线根（`AI-Native/{线}/`）空目录；前端同理（前端工程根 `docs/`） |
 | `{backend,frontend}/templates/` | 流程模板（backend：Story 审查 + 代码审查；frontend：代码审查） |
 | `backend/hooks/` | 机制化强制 Hook（公共代码保护 / diff 超限 / 漏测提醒） |
 | `{backend,frontend}/scripts/validate-skills.sh` | 各线资产完整性校验（frontmatter + 引用可达 + 坏链检测） |

@@ -1,6 +1,6 @@
 # Golden 约定
 
-> 本文件约定 `_golden/` 的定位、路径与验收标准；样例目录见 `docs/**/_golden/`。
+> 本文件约定 `_golden/` 的定位、路径与验收标准；样例目录见线根（`AI-Native/backend/`）`docs/**/_golden/`。
 > 模板仓中的 Golden 是源项目样例，接入时必须用本项目真实工件重写（见 [MIGRATION.md](../../MIGRATION.md) §一.4）。
 
 Golden 是**格式与粒度范本**，不是可复用的业务资产。接入新项目时：
@@ -11,7 +11,9 @@ Golden 是**格式与粒度范本**，不是可复用的业务资产。接入新
 
 ## 路径
 
-| 工件 | 真实路径 | Golden 路径 |
+真实工件相对**项目根** `docs/`（接入后产出于此）；Golden 相对**线根** `docs/**/_golden`（模板内样例，按项目业务重写后归项目、不随模板覆盖）。
+
+| 工件 | 真实路径（项目根） | Golden 路径（线根） |
 |------|----------|-------------|
 | Story | `docs/requirements/{迭代}/STORY-...` | `docs/requirements/_golden/` |
 | HLD / DD | `docs/design/{迭代}/...` | `docs/design/_golden/` |
