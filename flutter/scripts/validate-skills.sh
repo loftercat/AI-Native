@@ -19,7 +19,8 @@ warnings = []
 skills = ("flutter-story-splitting", "flutter-detail-design", "flutter-feature-coding")
 required = ["AGENTS.md", "README.md", "USAGE.md", "MIGRATION.md", "architecture/system-landscape.md",
             "glossary/domain-glossary.md", "templates/code-review-report.md",
-            "docs/handoff/README.md", "docs/methodology/readme.md", "config/current-sprint"]
+            "docs/handoff/README.md", "docs/methodology/readme.md", "config/current-sprint",
+            "config/tech-stack.md"]
 rules = ("flutter-project", "flutter-performance", "api-client-conventions",
          "error-display-conventions", "code-review", "state-storage-events",
          "platform-bridge", "ui-design", "testing-release")

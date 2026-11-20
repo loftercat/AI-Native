@@ -1,6 +1,6 @@
 # Flutter Android / iOS 工作流模板
 
-与 frontend 共用阶段、工件和审查档位。**三段流水线 + 代码审查门禁**：需求拆解 → 客户端详设 → TDD 编码，消费后端 handoff 契约；编码后、联调/提测前做独立代码审查。
+面向采用 MVVM 的 Flutter Android / iOS 新项目，与 frontend 共用阶段、工件和审查档位。**三段流水线 + 代码审查门禁**：需求拆解 → 客户端详设 → TDD 编码，消费后端 handoff 契约；编码后、联调/提测前做独立代码审查。
 
 ## 快速导航
 
@@ -8,6 +8,7 @@
 |--------|----|
 | 日常使用 | [USAGE.md](USAGE.md) |
 | 接入新项目 / 升级模板 | [MIGRATION.md](MIGRATION.md) |
+| 配置新项目的默认技术栈 | [config/tech-stack.md](config/tech-stack.md) |
 | 看目录结构 | [目录职责](#目录职责) |
 | 看与后端关系 | [与 backend 线的关系](#与-backend-线的关系) |
 | 看整体流水线 | 根 [README.md](../README.md) |
@@ -18,7 +19,7 @@
 Epic/PRD/原型 + 适用的后端 OpenAPI handoff（docs/handoff/）
   → flutter-story-splitting   → STORY-Flutter-*.md（AC + 本卡 operationId 范围）
   → flutter-detail-design     → DD-Flutter-*.md（页面状态机、组件树、AC→operationId 映射）
-  → flutter-feature-coding    → Widget/Controller/Repository + 测试（TDD）
+  → flutter-feature-coding    → Widget/ViewModel/Repository + 测试（TDD）
   → 代码审查（rules/code-review.md）→ REVIEW-CODE-Flutter-*（联调/提测前）
 ```
 
@@ -36,9 +37,10 @@ Epic/PRD/原型 + 适用的后端 OpenAPI handoff（docs/handoff/）
 | `docs/reviews/` | 客户端代码审查报告落点（`REVIEW-CODE-Flutter-*`） |
 | `docs/{requirements,design}/_golden/` | STORY-Flutter / DD-Flutter 标准样例（destination-search-allocate 一族） |
 | `config/current-sprint` | 当前迭代号 |
+| `config/tech-stack.md` | 生成新项目画像时采用的默认技术栈 |
 | `scripts/validate-skills.sh` | 客户端资产完整性校验 |
 
-MVVM、列表刷新与分页等技术选型见[项目画像 §3.1](architecture/system-landscape.md)。编写组件、工具和接口时，可参考[中文业务注释写法](rules/flutter-project.md)。
+接入后，项目技术选型见[项目画像 §3.1](architecture/system-landscape.md#31-技术栈)。编写组件、工具和接口时，可参考[中文业务注释写法](rules/flutter-project.md)。
 
 ## 接入项目
 

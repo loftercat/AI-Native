@@ -6,12 +6,12 @@
 
 从 [handoff](../docs/handoff/README.md) 的 OpenAPI + VERSION 确定 operationId、方法、路径、字段、分页、空值、时间单位及错误语义。仅调用本卡列出的公开服务。示例里的业务成功码仅适用于该契约。
 
-Widget → Controller → Repository → Service → HTTP 客户端。每个信任域使用独立配置。统一 HTTPS、超时、请求关联 ID、取消和错误转换；业务 Token 仅向允许的主机发送，重定向也需校验目的地。生产构建验证证书。
+Widget → ViewModel → Repository → Service → HTTP 客户端。每个信任域使用独立配置。统一 HTTPS、超时、请求关联 ID、取消和错误转换；业务 Token 仅向允许的主机发送，重定向也需校验目的地。生产构建验证证书。
 
 ### 骨架示例
 
 ```text
-Controller → Repository → Service（operationId、DTO）
+ViewModel → Repository → Service（operationId、DTO）
                         → 统一客户端（baseUrl、认证、超时、取消）
                         → 解析响应或抛出类型化错误
 ```

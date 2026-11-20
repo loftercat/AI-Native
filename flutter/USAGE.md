@@ -29,7 +29,7 @@ flutter-story-splitting   →  STORY-Flutter-*.md（AC + 本卡 operationId 范�
         ↓
 flutter-detail-design      →  DD-Flutter-*.md（页面状态机、组件树、AC→operationId 映射）
         ↓
-flutter-feature-coding     →  Widget / Controller / Repository + 测试
+flutter-feature-coding     →  Widget / ViewModel / Repository + 测试
         ↓
 代码审查（rules/code-review.md）→ REVIEW-CODE-Flutter-*（联调/提测前）
 ```
@@ -281,8 +281,8 @@ Story：@AI-Native/flutter/docs/requirements/2026-S01/STORY-Flutter-2026-S01-007
 ```text
 1. 加载 STORY-Flutter + DD-Flutter + OpenAPI + Rule；按 Story「设计稿」节对照稿件（`UI: TBD` 项向用户要稿，不猜样式）
 2. 契约对齐：确认本卡 operationId，读 schema/examples
-3. TDD：先写 Controller/Repository 单测和 Widget 测试，再实现对应行为
-4. 实现：Widget 经 Controller、Repository 调用数据源。结合业务和后端契约，为含义容易误解的组件、工具或字段写中文说明。
+3. TDD：先写 ViewModel/Repository 单测和 Widget 测试，再实现对应行为
+4. 实现：Widget 将事件交给 ViewModel，由 ViewModel 经 Repository 访问业务数据。结合业务和后端契约，为含义容易误解的组件、工具或字段写中文说明。
 5. 性能自检：局部重建、dispose 与前台恢复
 6. 验证：格式检查、flutter analyze、flutter test 通过 + 本卡设备验证 + AC 逐条对照
 7. 代码审查：按 rules/code-review.md 审 diff + STORY-Flutter/DD-Flutter/OpenAPI（含设计稿还原）；报告 docs/reviews/{迭代}/REVIEW-CODE-Flutter-*；L0 跳过并说明
@@ -419,7 +419,7 @@ Story：@AI-Native/flutter/docs/requirements/2026-S01/STORY-Flutter-2026-S01-002
 |--------|----------|
 | 只丢整份 openapi.yaml、不点名 operationId | Story/提示词里明确本卡 operationId |
 | 客户端 AC 重新定义后端字段名 | 字段只认 OpenAPI schema |
-| Widget 直接发 HTTP | 经 Controller、Repository 和统一 HTTP 客户端 |
+| Widget 直接发 HTTP | 经 ViewModel、Repository 和统一 HTTP 客户端 |
 | 定时器按 tick 次数推算剩余时间 | 按截止时间计算，恢复前台时重新校准 |
 | 页面退出仍监听原生事件 | 由订阅所有者取消监听并释放资源 |
 | 跨段越界（编码时改 Story/OpenAPI） | 先回 story-splitting/detail-design |

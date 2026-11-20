@@ -2,7 +2,7 @@
 
 AI 原生开发工作流模板：**后端线（12 Skill）+ 前端线（3 Skill）+ Flutter 线（3 Skill）+ Rule + 项目画像 + Golden 样例 + 校验脚本**，把「需求 → 设计 → 代码 → 测试 → QA 验收」做成可重复、可审计的流程。
 
-> 新项目 / 存量项目均可接入；AI 负责执行，人只在画像拍板、映射确认、审查放行等固定介入点决策。
+> 后端线和小程序前端线支持新项目及存量项目。Flutter 线用于采用 MVVM 的新项目。AI 负责执行，人只在画像拍板、映射确认、审查放行等固定介入点决策。
 
 ---
 
@@ -35,7 +35,7 @@ AI 会读取模板仓的接入引导，带你走完手动步骤；你只在画�
 
 ### 方式二：手动接入
 
-新项目与存量项目同法：
+符合各线接入范围的项目按以下步骤操作。
 
 1. **引入**：把 AI-Native 工程放到项目的根目录下、**不带 `.git`**，放入后目录名保持为 `AI-Native/`。存量项目原有代码与目录不动，用 [templates/AGENTS.template.md](templates/AGENTS.template.md) 生成项目根 `AGENTS.md`（填完占位符，只保留接入的线）；存量项目已有 `AGENTS.md` 时进行整合。
 2. **接入**：后端按 [backend/MIGRATION.md](backend/MIGRATION.md) §一（填画像 → 替换锚点 → 重写 Golden → 分发到 Agent → 工作流裁剪，每步 AI 执行、人审定稿）；前端按 [frontend/MIGRATION.md](frontend/MIGRATION.md)，Flutter 按 [flutter/MIGRATION.md](flutter/MIGRATION.md)。组合接入先后端，再接客户端。
@@ -88,7 +88,7 @@ AI 会读取模板仓的接入引导，带你走完手动步骤；你只在画�
 Epic/PRD/原型 + 适用的后端 OpenAPI handoff
   → flutter-story-splitting   → STORY-Flutter-*.md（AC + 本卡 operationId 范围）
   → flutter-detail-design     → DD-Flutter-*.md（状态机、Widget 树、AC→operationId 映射）
-  → flutter-feature-coding    → Widget/Controller/Repository + 测试（TDD）
+  → flutter-feature-coding    → Widget/ViewModel/Repository + 测试（TDD）
   → 代码审查（rules/code-review.md）→ REVIEW-CODE-Flutter-*（联调/提测前）
 ```
 
@@ -171,6 +171,7 @@ Epic/PRD/原型 + 适用的后端 OpenAPI handoff
 | `backend/hooks/` | 机制化强制 Hook（公共代码保护 / diff 超限 / 漏测提醒） |
 | `{backend,frontend,flutter}/scripts/validate-skills.sh` | 各线资产完整性校验（frontmatter + 引用可达 + 坏链检测） |
 | `{backend,frontend,flutter}/config/current-sprint` | 各线当前迭代号（单一事实源） |
+| [flutter/config/tech-stack.md](flutter/config/tech-stack.md) | Flutter 新项目生成画像时的默认技术选型 |
 
 > 系统画像与词表模板不在 `templates/`：分别是 `backend/architecture/system-landscape.md`、`backend/glossary/domain-glossary.md`；Skill 直接读这两个路径，`templates/` 只放需要生成到目标项目根的文件。
 

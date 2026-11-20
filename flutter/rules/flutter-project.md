@@ -10,12 +10,12 @@
 
 ## 3. MVVM 分层约定
 
-按业务模块组织 View 和 ViewModel，Repository 和 Service 属于 Model 层。已有页面 Controller 承担相同职责时，可沿用其名称。
+按业务模块组织 View 和 ViewModel，Repository 和 Service 属于 Model 层。
 
 | 边界 | 工作内容 |
 |---|---|
 | View / Widget | 渲染不可变状态，将点击、输入交给 ViewModel。build 可以重复调用，把 I/O、导航、弹窗移出 build。 |
-| ViewModel（既有工程可命名为 Controller） | 协调用户操作、恢复和状态转换。构造函数或项目容器注入 Repository，保持可替换。 |
+| ViewModel | 协调用户操作、恢复和状态转换。构造函数或项目容器注入 Repository，保持可替换。 |
 | Repository | 合并服务端、本地和缓存，暴露领域模型。数据源负责 HTTP、SQL 或平台通信。DTO 在边界解析。 |
 | Service | 封装 HTTP、数据库或原生接口等单一数据源，供 Repository 调用。 |
 | 原生适配 | 通过类型化 Dart 接口调用 Android/iOS，测试可替换实现。业务 UI 不处理通道字符串。 |
@@ -26,7 +26,7 @@
 
 ## 5. 命名规范
 
-Dart 文件用 lower_snake_case，类型用 UpperCamelCase。页面、Widget 和 Controller 名称与项目词表一致。
+Dart 文件用 lower_snake_case，类型用 UpperCamelCase。页面、Widget 和 ViewModel 名称与项目词表一致。承载业务页面状态与操作的类统一命名为 `XxxViewModel`，对应文件命名为 `xxx_view_model.dart`，例如 `OrdersViewModel` 放在 `orders_view_model.dart`。`ScrollController`、`TextEditingController` 等框架控件类沿用 SDK 类型名。
 
 ### 工作流文档命名
 

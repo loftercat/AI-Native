@@ -143,7 +143,7 @@
 
 ### Flutter（仅接 flutter 时保留）
 
-`flutter-story-splitting` → STORY-Flutter → `flutter-detail-design` → DD-Flutter → `flutter-feature-coding` → Widget / Controller / Repository + 测试 → 独立代码审查。
+`flutter-story-splitting` → STORY-Flutter → `flutter-detail-design` → DD-Flutter → `flutter-feature-coding` → Widget / ViewModel / Repository + 测试 → 独立代码审查。
 
 生成文档的端标识统一使用完整名称 `Flutter`；文件名、标题、编号、正文和交叉引用遵循 `AI-Native/flutter/rules/flutter-project.md` 的文档命名约定。
 

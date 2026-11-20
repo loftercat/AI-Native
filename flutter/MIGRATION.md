@@ -2,7 +2,7 @@
 
 本线与前端线采用相同的六步接入流程和两个确认点：handoff → 画像 → 锚点替换 → Golden → 分发 → 裁剪。日常开发见 [USAGE.md](USAGE.md)。
 
-> 本线面向 Flutter Android / iOS。MVVM、状态管理、路由和存储基线见[画像 §3.1](architecture/system-landscape.md)；存量工程记录实际选型，接入工作流不自动迁移应用架构。
+> 本线面向采用 MVVM 的 Flutter Android / iOS 新项目。[技术栈配置](config/tech-stack.md)用于生成项目画像，接入后的技术基线以[项目画像 §3.1](architecture/system-landscape.md#31-技术栈)为准。
 > AI 按步骤执行，已有明确决策不重复询问；到人工介入点自报「第 X/2 个确认点」。
 
 ## 快速导航
@@ -20,7 +20,9 @@
 
 ## 一、接入步骤
 
-前置：按仓库根 [README.md](../README.md)「快速开始」把模板（不带 `.git`）放入项目根 `AI-Native/`，用 [AGENTS 模板](../templates/AGENTS.template.md)生成或整合项目入口，只保留接入的线。Flutter 开发路由到 `AI-Native/flutter/AGENTS.md`。已有项目说明、业务代码和文档保持各自归属。
+首次接入范围包括空目录、`flutter create` 脚手架，以及只有主题、环境配置或 CI 等基础搭建且尚未实现业务功能的 Flutter 新项目。
+
+前置：按仓库根 [README.md](../README.md)「快速开始」把模板（不带 `.git`）放入项目根 `AI-Native/`，用 [AGENTS 模板](../templates/AGENTS.template.md)生成或整合项目入口，只保留接入的线。Flutter 开发路由到 `AI-Native/flutter/AGENTS.md`。
 
 ### 1. 获取 handoff 包
 
@@ -39,12 +41,11 @@
 
 ### 2. 填写 Flutter 画像
 
-项目事实只维护在 [architecture/system-landscape.md](architecture/system-landscape.md)，[词表](glossary/domain-glossary.md)与后端领域术语对齐。
+以[技术栈配置](config/tech-stack.md)起草目标项目的[画像 §3.1](architecture/system-landscape.md#31-技术栈)。项目架构固定为 MVVM，管理业务页面状态与操作的 ViewModel 按[工程规则](rules/flutter-project.md#5-命名规范)统一命名。其余技术项采用模板默认值，项目明确指定的选型优先。扫描已存在的 SDK、`pubspec.yaml`、平台工程和 CI 配置，再通过访谈补齐应用根、目标平台、原生能力和验证环境等事实。[词表](glossary/domain-glossary.md)与后端领域术语对齐。
 
-| 项目形态 | AI 执行 |
-|----------|---------|
-| 已有 Flutter 工程 | 扫描 `pubspec.yaml` / `pubspec.lock`、SDK 配置、`lib/`、路由、请求层、Android/iOS 工程与 CI，起草实际选型、组件目录、鉴权及构建测试命令；不以模板默认值覆盖已有选型 |
-| 从 0 开始 | 按画像逐节访谈，确定应用根、目标平台、技术基线、组件/路由、原生能力和验证环境；每节已拍板内容直接纳入草案 |
+新项目 §3.1 分别记录「项目选型」和「落地状态」。例如，采用默认 Riverpod 的脚手架项目可登记「共享状态采用 Riverpod，待功能使用时引入」，并同时注明现有计数示例以 `setState` 运行。接入时无需逐项询问默认选型，在原有第 1 个确认点一起确认画像与映射。依赖安装和架构改动随对应实现任务进行，实际版本以项目 SDK 约束、`pubspec.yaml` 和 `pubspec.lock` 为准。
+
+项目接入后，可在 `AI-Native/flutter/architecture/system-landscape.md` §3.1 调整 MVVM 架构下的其他技术选型，并同步实施状态。跨项目默认值在模板仓的 `flutter/config/tech-stack.md` 维护，供以后接入的新项目采用。
 
 重点：§3.1 技术与版本、§3.2 含 `pubspec.yaml` 的应用根及现有组件、§3.3 环境与构建变体、§四契约与鉴权、§六协作机制。测试账号只登记取得方式，不写密钥。
 
@@ -110,6 +111,7 @@ AI 探测当前 Agent 的技能/规则目录并做格式适配。分发方式和
 2. 真实小卡走通 flutter-story-splitting → flutter-detail-design → flutter-feature-coding；按编码 Skill 完成自动检查和适用的独立代码审查。在画像 §3.2 的应用根执行格式检查、`flutter analyze`、`flutter test` 及所需设备验证，保存实际结果。
 3. 核对 Story / DD / 审查报告落在 `AI-Native/flutter/docs/{requirements,design,reviews}/{迭代}/`，代码和测试在应用根；网络三段引用同一真实快照、VERSION 和 operationId。
 4. handoff 待补时网络卡试跑延后，报告区分「模板接入通过」与「网络开发待补」；纯本地项目以本地卡验收。设备未验证项按[审查规则](rules/code-review.md)记录，不能写成通过。
+5. 核对画像 §3.1 采用 MVVM，其他选型来自模板默认值或项目明确的覆盖项，分别核实已落地和待引入的条目。试跑使用业务 ViewModel 时，按[工程规则](rules/flutter-project.md#5-命名规范)核对命名。
 
 汇总以上结果、源值残留和全部待补项后，到**第 2/2 个确认点**。
 
@@ -117,4 +119,4 @@ AI 探测当前 Agent 的技能/规则目录并做格式适配。分发方式和
 
 旧版若将工作流平铺工程根，先在项目副本盘点同名目录，把工作流资产按相对路径归入 `AI-Native/flutter/`。共用 `docs/`、`scripts/` 逐项判断归属，业务代码和测试留在应用根。更新项目入口、提示词、CI 和历史工件的旧路径，保持已有卡、报告和契约版本可追溯。
 
-升级时对比合并 `skills/`、`rules/`、`templates/`、`scripts/`、方法论和入口说明，保留项目对命令、迭代命名及校验项的适配。画像、词表、配置、真实 handoff、设计稿、项目 Golden 和迭代工件以项目版本为准，不用模板覆盖。重跑 §二适用验收。
+升级时对比合并 `skills/`、`rules/`、`templates/`、`scripts/`、方法论、入口说明及新增的模板配置文件，保留项目对命令、迭代命名及校验项的适配。画像、词表、已有项目配置、真实 handoff、设计稿、项目 Golden 和迭代工件以项目版本为准。项目技术选型以已有画像 §3.1 为准，模板默认技术栈的变化用于后续新项目接入。重跑 §二适用验收。

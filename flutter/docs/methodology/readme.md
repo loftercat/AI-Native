@@ -81,7 +81,7 @@
 | 层 | 职责 | 目录示例 |
 |---|---|---|
 | 页面与 Widget | 渲染状态并提交用户操作 | lib/features/{feature}/presentation |
-| Controller | 处理操作、异步状态及副作用 | presentation/controllers |
+| ViewModel | 处理操作、异步状态及副作用 | presentation/view_models |
 | Repository / Service | 组织数据，调用本地存储或远端契约 | lib/features/{feature}/data |
 | HTTP 客户端 | 鉴权、取消、错误转换 | lib/core/network |
 | 原生适配 | 将类型化 Dart 接口映射到 Android / iOS SDK | Android / iOS 插件或宿主目录 |

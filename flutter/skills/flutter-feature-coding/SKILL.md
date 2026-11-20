@@ -54,7 +54,7 @@ description: >-
 
 ### 步骤 3：TDD（先测试）
 
-- 先写可复现当前 AC 的失败测试。Repository/Controller 用 fake 或可控时钟覆盖失败、取消和乱序。
+- 先写可复现当前 AC 的失败测试。ViewModel/Repository 用 fake 或可控时钟覆盖失败、取消和乱序。
 - Widget 测试覆盖可见状态、点击与导航。测试存入 `test/`，以 `_test.dart` 结尾。真实 SDK 回调在步骤 6 通过设备验证。
 
 ### 步骤 4：实现
@@ -62,20 +62,20 @@ description: >-
 按 DD 和[工程规则](../../rules/flutter-project.md)落文件。以下是典型目录，具体以画像为准。
 
 ```text
-lib/features/{feature}/presentation/   页面、Widget、Controller
+lib/features/{feature}/presentation/   页面、Widget、ViewModel
 lib/features/{feature}/data/           Repository、服务与模型
 lib/core/network/                      HTTP、鉴权、错误转换
 android/、ios/                         本卡涉及的原生适配
 test/、integration_test/               单元、Widget、集成用例
 ```
 
-View 绑定状态，Repository 协调数据源；按[状态与事件规则](../../rules/state-storage-events.md)实现共享、存储与订阅。视觉实现引用 Story 登记的稿件与 DD 中的组件映射。
+View 绑定 ViewModel 状态并转发事件，Repository 协调数据源。按[状态与事件规则](../../rules/state-storage-events.md)实现共享、存储与订阅。视觉实现引用 Story 登记的稿件与 DD 中的组件映射。
 
 实现 UI 组件、工具、接口和模型时，结合业务场景及后端文档为难以从命名判断的行为和字段补充中文说明。示例见[工程规范](../../rules/flutter-project.md)。
 
 ### 步骤 5：性能自检（`rules/flutter-performance.md`）
 
-- 检查重建范围、长列表与图片解码尺寸。退出页面时释放 Controller、Timer、订阅与原生视图，丢弃过期的异步结果。
+- 检查重建范围、长列表与图片解码尺寸。页面退出时，由持有者释放控件控制器、Timer、订阅和原生视图，并丢弃过期的异步结果。
 - 验证倒计时在后台恢复后仍按截止时间计算，原生监听重连后只保留一个订阅。
 
 ### 步骤 6：验证

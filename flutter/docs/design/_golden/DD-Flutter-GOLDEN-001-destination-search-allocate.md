@@ -40,8 +40,8 @@ BookingPreparePage
 
 | 页面 | Widget、输入和回调 | 状态归属 |
 |---|---|---|
-| DestinationSearchPage | SearchField 调用 onQueryChanged / onVoice；LotList 按 lotId 选择 | 搜索 Controller 拥有 keyword、请求序号、结果 |
-| LotDetailPage | FeePanel 展示费用，TimeRangePicker 回传时段，AllocateButton 显示提交中 | Controller 通过 Repository 读取详情与可售量 |
+| DestinationSearchPage | SearchField 调用 onQueryChanged / onVoice；LotList 按 lotId 选择 | `DestinationSearchViewModel` 持有 keyword、请求序号和结果 |
+| LotDetailPage | FeePanel 展示费用，TimeRangePicker 回传时段，AllocateButton 显示提交中 | `LotDetailViewModel` 通过 Repository 读取详情与可售量 |
 | BookingPreparePage | AllocationCard 展示分配结果，PlateSelector 回传选择 | 会话内 BookingDraft 存 spaceId 和 plateNo，离开流程或换号释放 |
 
 ## 4. 页面状态机
