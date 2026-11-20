@@ -15,6 +15,7 @@
 | [§一.4](#4-重写-golden) | 重写 Golden |
 | [§一.5](#5-分发到-agent) | 分发到 Agent |
 | [§一.6](#6-工作流裁剪) | 工作流裁剪 |
+| [§一.7](#7-接入审查ai-自动) | 接入审查（AI 自动） |
 | [§二](#二接入后验收) | 接入后验收 |
 
 ---
@@ -119,7 +120,7 @@
 
 **AI 任务**：
 
-1. **分发资产（按线）**：后端线 = `skills/` + `rules/` + `templates/`（至少含 `code-review-report.md`、`stage-review-report.md`）+ 可选 `hooks/`；前端线 = `skills/` + `rules/` + `templates/`，不依赖 `backend/` 路径。
+1. **分发资产（按线）**：后端线 = `skills/` + `rules/` + `templates/`（至少含 `code-review-report.md`、`stage-review-report.md`、`artifact-review-report.md`）+ 可选 `hooks/`；前端线 = `skills/` + `rules/` + `templates/`，不依赖 `backend/` 路径。
 2. **格式适配（按所用 Agent 的约定）**：技能放技能目录、规则放规则目录；Agent 对规则有格式要求时适配——如 Cursor 需转 `.mdc` 并加回 frontmatter（description + globs/alwaysApply），纯 markdown 可直接读的 Agent 原样落位。拿不准该 Agent 的目录约定时问人，不猜。
 3. **不变约束**：
    - 不用 symlink 做多 Agent 镜像——Windows 无特权检出时 symlink 物化成路径文本文件，镜像静默失效（源项目实测教训）；多 Agent 用 CI 拷贝同步。
@@ -136,10 +137,29 @@
 - **legacy-test-migration**：仅当存量项目有历史用例时保留，否则删除。
 - 裁剪后跑对应线 `bash scripts/validate-skills.sh`，清掉对被裁 skill 的引用。
 
+### 7. 接入审查（AI 自动）
+
+自验（校验器 + §3 残留 grep）通过后，**自动**派独立审查人（subagent / 新会话），无需人发起。审查只做脚本查不出的**显性一致性**：
+
+1. **画像残留与自洽**：模块清单无源项目模块名残留；`-api`/`-impl` 配对完整；外部系统表与依据材料一致（存量项目=扫码产出，新项目=访谈/PRD 结论；无法取证时标「依据材料待确认」，不臆断）
+2. **锚点语义**：替换结果自洽——无 `{项目}-app` 重复、子模块映射不断裂（`order-api` 类遗漏）、URL 与模块对应
+3. **Golden 抽样**：抽 2 份（不审全部），业务场景来自本项目画像而非源项目搬运
+
+**闭环**（审查人只读，不修文件；每条 finding 由审查人打标签）：
+
+- **`[机械]`**（残留、命名、配对断裂等可确定性修复）：P0/P1 由**主流程 AI** 修复 → 审查人确认 finding 已消除（P0/P1 必须确认）→ 重跑校验器与 §3 残留 grep。
+- **`[映射]`**（涉及模块映射或画像事实的语义决策）：**不自动修**——模块映射回 §3a 介入点 1，画像事实回 §一.2 人审定稿；改后重跑 §3a 验收，再回本节复审。
+- P2 记录；P3 不报（与 artifact-review 一致）。
+- 报告格式复用 [templates/artifact-review-report.md](templates/artifact-review-report.md)（审查对象 / 依据材料 / findings ≤5 / 结论 + Blocker 数），由**主流程（实现者）落盘**（审查人只读），落 `docs/reviews/{迭代}/REVIEW-ONBOARD-{日期}.md`；交人一行结论 + 「修了什么」摘要（3–5 行），无需逐项核对。
+- 复审：`[机械]` 修复后由审查人确认即可（不重跑全审）；连续 2 轮不通过 → 交人裁定（与 artifact-review 一致）。
+
+> **能力边界**：审查人捕捉显性不一致（残留、命名、搬运）；业务合理性（模块该不该这么切、画像是否符合实际业务）由 §一.2 人审定稿与 §3a 介入点 1 拍板，AI 不做业务判断。
+
 ---
 
 ## 二、接入后验收
 
 1. 本线校验器 **PASSED**：`bash scripts/validate-skills.sh --quiet-tick`（前端线见 [frontend/MIGRATION.md](../frontend/MIGRATION.md)）。
-2. 用一张真实小需求走通 `story-splitting → detail-design → test-spec-alignment → feature-coding`；产出路径/命名符合线根 `docs/agile/card-naming-conventions.md`，工件落在**项目根** `docs/{requirements,design,...}/{迭代}/`，并至少有一份代码审查报告落盘。
-3. 在干净目录/新克隆中重跑接入，确认不依赖本机缓存、未提交文件或旧镜像。
+2. 接入审查报告存在且结论为通过：`docs/reviews/{迭代}/REVIEW-ONBOARD-*.md`（§一.7）。
+3. 用一张真实小需求走通 `story-splitting → detail-design → test-spec-alignment → feature-coding`；产出路径/命名符合线根 `docs/agile/card-naming-conventions.md`，工件落在**项目根** `docs/{requirements,design,...}/{迭代}/`，并至少有一份代码审查报告落盘。
+4. 在干净目录/新克隆中重跑接入，确认不依赖本机缓存、未提交文件或旧镜像。

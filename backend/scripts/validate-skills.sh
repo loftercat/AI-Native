@@ -101,6 +101,69 @@ for scan_root in SCAN_ROOTS:
         for raw, kind in candidates(text):
             check_path(raw, src, kind)
 
+# ── 2b) 画像小节编号交叉引用（FAIL）────────────────────────
+# Skill/Rule 按编号引用画像（§3.7 / §4.3.4 / §4.7）或链接 fragment（#434-…）；编号被改名后
+# 链接仍可解析、但 Skill 的锚点就断了。这里比对「画像/system-landscape 紧邻引用的 §N.N」
+# 与链接 fragment 前导编号，要求存在于画像实际标题编号（含 4.4 ~ 4.6 区间展开）。
+# 编号是硬约束（AGENTS.md / rules/system-landscape-change.md），假阳性为零 → FAIL。
+def landscape_numbers(arch):
+    nums = set()
+    for line in arch.read_text(encoding="utf-8", errors="replace").splitlines():
+        m = re.match(r"^#{2,5}\s+(\d+(?:\.\d+)*)", line)
+        if m:
+            nums.add(m.group(1))
+        mr = re.match(r"^#{2,5}\s+(\d+)\.(\d+)\s*(?:~|～|-|–|—|至)\s*(\d+)\.(\d+)", line)
+        if mr:
+            a, b, c, d = map(int, mr.groups())
+            if a == c and b <= d:
+                for i in range(b, d + 1):
+                    nums.add(f"{a}.{i}")
+    return nums
+
+def check_landscape_refs():
+    arch = ROOT / "architecture" / "system-landscape.md"
+    if not arch.exists():
+        return []
+    nums = landscape_numbers(arch)
+    anchors = {n.replace(".", "") for n in nums}
+    bad = []
+    frag_re = re.compile(r"system-landscape(?:\.[a-z]{2,4})?#(\d+)")
+    # 定向解析：先剥掉 markdown 链接路径（路径里的 / 会切断语义），再只匹配
+    # 「关键词 + 紧邻连接字符 + §N.N」的引用；一串连写（§3.7 / §4.3.4）逐个提取。
+    # 非紧邻引用（中间夹「见」「与 HLD」等中文）不校验——宁可漏，不误报他文档编号。
+    link_strip = re.compile(r"\]\([^)]*\)")
+    kw_ref = re.compile(r"(?:system-landscape(?:\.md)?|画像)[\s`\[\]()（）.,，、:：/|]*§(\d+(?:\.\d+)*)")
+    next_ref = re.compile(r"[\s`\[\]()（）.,，、:：/|]*§(\d+(?:\.\d+)*)")
+    sources = []
+    for scan_root in SCAN_ROOTS:
+        if scan_root.exists():
+            sources.extend(scan_root.rglob("*.md"))
+    sources.extend(sorted(ROOT.glob("*.md")))  # 根级 MIGRATION/USAGE/README 也按编号引用画像
+    for src in sources:
+        text = src.read_text(encoding="utf-8", errors="replace")
+        for line in text.splitlines():
+            if "system-landscape" not in line and "画像" not in line:
+                continue
+            stripped = link_strip.sub("]", line)
+            for m in kw_ref.finditer(stripped):
+                if m.group(1) not in nums:
+                    bad.append(f"  [FAIL] {src.relative_to(ROOT)} -> 画像 §{m.group(1)} 在画像标题中不存在（编号漂移）")
+                pos = m.end()
+                while True:
+                    m2 = next_ref.match(stripped[pos:])
+                    if not m2:
+                        break
+                    if m2.group(1) not in nums:
+                        bad.append(f"  [FAIL] {src.relative_to(ROOT)} -> 画像 §{m2.group(1)} 在画像标题中不存在（编号漂移）")
+                    pos += m2.end()
+            if "system-landscape" in line:
+                for m in frag_re.finditer(line):
+                    if m.group(1) not in anchors:
+                        bad.append(f"  [FAIL] {src.relative_to(ROOT)} -> system-landscape.md#{m.group(1)}… 锚点前导编号不在画像标题中")
+    return bad
+
+errors.extend(check_landscape_refs())
+
 # ── 3) Story 审查门禁（rules/story-review.md §五）─────────────
 # FAIL：状态=已确认 但无报告 / 报告结论行缺失或不通过 / Blocker≠0 而通过
 # WARN：存在 DD/TS 而 Story 状态≠已确认（流程跳跃提示）；线根出现非样例工件（应迁项目根）

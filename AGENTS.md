@@ -18,7 +18,7 @@
 1. **探测优先，能不问就不问**：探测**目标项目根**（用户已给路径时用该路径；会话开在模板仓时先取得目标根再探测）——空目录 → 新项目；有代码 → 已有代码项目；已有 `AI-Native/` → 阻断确认是否重复接入；已有 `AGENTS.md` → 走整合。仅探测有歧义或用户主动说明时才问形态与路径。
 2. **引入**：按根 [README.md](README.md)「快速开始」步骤 1 执行（复制模板、命名 `AI-Native/`、建/整合项目根 AGENTS.md、链接加前缀）；目标目录非 git 仓库时提议 `git init`（接入完成即首提交）。
 3. **接入**：问接哪条线（后端 / 前端 / 都接，都接时先后端、再前端——契约单向流）。后端读 [backend/MIGRATION.md](backend/MIGRATION.md) 按任务书执行——画像步骤新项目走访谈、存量走扫码起草（§一.2 表）；介入点停下等人；前端读 [frontend/MIGRATION.md](frontend/MIGRATION.md)——handoff 包缺失时向用户提问（去后端拿 / 先后补），同样在介入点停下。分发方式与裁剪选项打包为一次收尾提问，不逐项问。分支细节住在各指南，本节只做路由，不复制。
-4. **验收**：跑对应线校验器（tick 类 WARN 用 `--quiet-tick` 只看计数）与指南内验收命令，交报告给人确认。
+4. **自验与接入审查**：跑对应线校验器（tick 类 WARN 用 `--quiet-tick` 只看计数）与指南内验收命令；自验通过后**自动**派独立审查人——机械问题由主流程修（审查人确认消除），涉及映射/画像事实的问题转问人；交人一行结论 + 修复摘要（3–5 行），不要求逐项核对。指南：后端 [backend/MIGRATION.md](backend/MIGRATION.md) §一.7、前端 [frontend/MIGRATION.md](frontend/MIGRATION.md) §一.7。
 
 ## Skill 与 Rule 的分工
 
@@ -33,6 +33,7 @@
 | 代码：`feature-coding` / `bugfix` / `frontend-feature-coding` / IT / 黑盒 / 造数脚本 | [backend/rules/code-review.md](backend/rules/code-review.md) | `docs/reviews/{迭代}/REVIEW-CODE-{阶段}-*`（IMPL/IT/FIX/FE/BB/SEED） |
 | Story：拆卡后、进详设前 | [backend/rules/story-review.md](backend/rules/story-review.md) | `docs/reviews/{迭代}/REVIEW-STORY-{迭代}-{序号}-{slug}.md`；「已确认」须有通过报告 |
 | 阶段工件：JSD / HLD / DD / TS | [backend/rules/artifact-review.md](backend/rules/artifact-review.md) | `docs/reviews/{迭代}/REVIEW-{JSD\|HLD\|DD\|TS}-{slug}.md` |
+| 接入审查：接入完成、§二 验收前 | [backend/MIGRATION.md](backend/MIGRATION.md) §一.7（前端见 [frontend/MIGRATION.md](frontend/MIGRATION.md) §一.7） | `docs/reviews/{迭代}/REVIEW-ONBOARD-{日期}.md`；结论=通过 |
 
 - 先跑自动门禁（`mvn test` / 前端测试 / 校验器 / 链接检查），不过不送审。
 - 档位 L0–L3、P0–P3 闭环、审查时限与复审策略以 `code-review.md` 为准；L0 文档/路径/机械改动不派 agent，在回复或提交说明写自动门禁结果。
