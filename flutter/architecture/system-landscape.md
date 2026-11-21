@@ -4,7 +4,7 @@
 
 ## 一、产品全景
 
-填写产品、用户、从入口到完成的旅程、客户端负责的校验与服务端负责的授权和业务判断。本线当前交付 Android、iOS；鸿蒙列为后续规划，按独立 Story 确定基线。
+填写产品、用户、从入口到完成的旅程、客户端负责的校验与服务端负责的授权和业务判断。首期交付 Android 和 iOS，鸿蒙安排见[适配待办](../config/tech-stack.md#鸿蒙适配待办)。
 
 ## 二、系统边界
 
@@ -14,7 +14,7 @@
 
 ### 3.1 技术栈
 
-接入时按[画像接入规则](../MIGRATION.md#2-填写-flutter-画像)填写本项目的技术选型、实现约定和落地状态。项目统一采用 MVVM 和[技术栈配置](../config/tech-stack.md)中的鸿蒙兼容 SDK 基线。其余选型沿用配置中的默认值，并合入项目明确指定的选型。
+接入时按[画像接入规则](../MIGRATION.md#2-填写-flutter-画像)填写本项目的技术选型、实现约定和落地状态。项目统一采用 MVVM、Riverpod 和[技术栈配置](../config/tech-stack.md)中的鸿蒙兼容 SDK 基线。其余选型沿用配置中的默认值，并合入项目明确指定的选型。
 
 接入时记录 Flutter/Dart 版本、Android 的 JDK/Gradle/Kotlin 与 minSdk/targetSdk、iOS 的 Xcode/Swift 与 deployment target，以及设备矩阵、推送供应商、性能预算、构建命令和发布负责人。
 
