@@ -20,6 +20,7 @@ description: >-
 
 - **做什么**：Story 范围内 `*-api`/`*-impl`/BFF + 测试一体化 TDD；URL 整改时同步**当前 Story** 详设/OpenAPI
 - **不做**：需求拆解（`story-splitting`）、详设/OpenAPI 从零编写（`detail-design`）
+- **不做**：发布前端 handoff 包（归 `api-handoff`）；本 Skill 只保证代码与契约一致
 - **不做**：全库存量测试审计（本仓库无 `test-quality-audit` Skill）、禅道 Bug 单（走 `bugfix` Skill，见下文区分）
 - **不做**：`booking-app` 关键链路集成/场景测试（`*IT`/`*ScenarioIT`，归 `integration-test-design` Skill）；本 Skill 仅写单元 / BFF API / Mapper 测试
 - **不做**：独立「需求变更」Skill；默认不改 Story 卡

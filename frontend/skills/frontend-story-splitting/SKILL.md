@@ -43,7 +43,7 @@ description: >-
 3. 读每个 operation 的 examples → 把分支写成可验收 AC（Given/When/Then）
 4. 视觉项在「设计稿」节登记稿件位置与状态（§6）；无稿的项标 `UI: TBD`；不调 API 的 Story 可不绑 operationId
 5. 产出 STORY-FE-*.md，每条 API 相关 AC 附追溯（§4.1 格式）
-6. 更新 docs/handoff/stories-index.md（Story ↔ operationId，可选）
+6. 读 docs/handoff/stories-index.md 定位本页 operationId（**只读**；索引由后端 `api-handoff` 生成，手工增删会在下次重发时被整文件覆盖）
 ```
 
 ## 5. 与后端 Story 的分工

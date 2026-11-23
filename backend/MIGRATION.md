@@ -32,7 +32,7 @@
 
 ### 2. 填写项目画像
 
-`architecture/system-landscape.md` 是模板中唯一必须逐节填写的文件——12 个 Skill 的项目层判断（模块归属、号段路由、测试账号、外部系统 Mock 边界）全部读它。两条路径均以人审定稿收口——画像是项目层事实唯一定义处，错了全链路漂；且须保留被 Skill 引用的小节编号（§3.7 / §4.3.4 / §4.7）。
+`architecture/system-landscape.md` 是模板中唯一必须逐节填写的文件——13 个 Skill 的项目层判断（模块归属、号段路由、测试账号、外部系统 Mock 边界、handoff 目标目录）全部读它。两条路径均以人审定稿收口——画像是项目层事实唯一定义处，错了全链路漂；且须保留被 Skill 引用的小节编号（§3.7 / §4.3.4 / §4.7）。
 
 项目根 `AGENTS.md` 用 [templates/AGENTS.template.md](../templates/AGENTS.template.md) 生成（见根 [README.md](../README.md) 快速开始）；本线画像只写 `architecture/system-landscape.md`，不在 AGENTS.md 复制项目事实。
 

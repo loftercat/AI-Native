@@ -24,6 +24,10 @@ Java 类/方法骨架、关键时序图，汇总为 `DD-STORY-*.md`。
 - **不做**：改 Story 卡、Rule、`_golden/`、system-landscape
 - **不做**：同步 Jira/看板；产出仅落本地 Markdown/YAML
 
+> **契约变更的下游影响**：改了 operation 的路径/字段/错误码语义 → 前端 handoff 必须重新发布
+> （见 [api-handoff](../api-handoff/SKILL.md)），否则前端会对着旧快照开发。只改描述/示例时前端语义不变，
+> 但快照仍需重发——门禁是整文件比对，不区分改了哪一段。
+
 ## 输入方式
 
 - **必备**：Story 需求卡（用户 `@` 或按编号查找），重点消费 **AC / BR**

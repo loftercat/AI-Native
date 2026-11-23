@@ -60,7 +60,7 @@ Epic/PRD/原型 + 后端 OpenAPI handoff（docs/handoff/）
 
 ## 与 backend 线的关系
 
-- backend 线产出 OpenAPI 契约（`detail-design` 定稿），经 handoff 交接给本线消费。
+- backend 线产出 OpenAPI 契约（`detail-design` 定稿），再由后端 `api-handoff`  Skill 冻结成 handoff 包（快照 + VERSION + Story↔operationId 索引）交给本线消费。
 - **前端不定义契约**。
-- 两线可独立接入；只用前端线时，handoff 包直接从后端团队拿。
+- 两线可独立接入；只用前端线时，handoff 包直接向你的后端团队索取（同样要求三件套齐全）。
 - 本线**未含 e2e 与 frontend-test-spec-alignment**（规划中，定型后补抽）。
