@@ -75,7 +75,7 @@
 |------|------|------|
 | 执行层 | `skills/frontend-*/SKILL.md` | Agent 运行时步骤 |
 | 横切层 | `rules/*.md` | 编码与文档规范 |
-| 样例层 | `docs/**/_golden/` | Few-shot 标准样例 |
+| 样例层 | 线根（`AI-Native/frontend/`）`docs/**/_golden/` | Few-shot 标准样例 |
 | 配置 | `config/current-sprint` | 当前迭代 |
 | 词表 | `glossary/domain-glossary.md` | 术语一致 |
 
