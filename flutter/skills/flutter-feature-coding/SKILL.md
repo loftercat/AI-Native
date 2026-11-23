@@ -81,6 +81,8 @@ test/、integration_test/               单元、Widget、集成用例
 
 View 绑定 ViewModel 状态并转发事件，Repository 协调数据源。按[状态与事件规则](../../rules/state-storage-events.md)实现共享、存储与订阅。视觉实现引用 Story 登记的稿件与 DD 中的组件映射。
 
+涉及图片或静态文案时，按[设计交付规则](../../rules/ui-design.md)从 DD 对应的 Figma 节点导出所需素材，登记资源并通过逻辑路径加载；页面使用全局文案键。验证时运行文案生成并检查目标页面，对宿主资源检查对应平台构建。
+
 实现 UI 组件、工具、接口和模型时，结合业务场景及后端文档为难以从命名判断的行为和字段补充中文说明。示例见[工程规范](../../rules/flutter-project.md)。
 
 ### 步骤 5：性能自检（`rules/flutter-performance.md`）

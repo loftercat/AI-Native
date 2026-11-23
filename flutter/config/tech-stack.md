@@ -13,6 +13,8 @@
 | 应用日志 | [Talker](https://pub.dev/packages/talker_flutter)（`talker_flutter: 5.2.0`），测试包网络日志使用 `talker_dio_logger: 5.2.0` | 在应用入口创建共享实例，供请求层、推送和 SDK 适配层记录事件。按[分环境日志规则](../rules/testing-release.md#分环境日志)输出日志：测试包全量打印原文并提供 TalkerScreen，正式包只记录关键事件。阿里云远程日志 SDK 为后续接入项。 |
 | 状态共享（固定） | Riverpod（`flutter_riverpod: 3.3.2`） | Widget 用 `ref.watch` 订阅共享状态。页面和会话状态按生命周期提供，切换账号时隔离状态。 |
 | 页面局部状态 | setState、ValueNotifier | 展开、显隐和输入交互由 Widget 就近管理。创建 ValueNotifier 的对象负责释放它。 |
+| 图片资源 | AI 从 Figma 节点导出，业务位图默认保留一份最高有效倍率，统一放在 `assets/image/` | 导入与命名按[图片导出规则](../rules/ui-design.md#figma-图片导出)。桌面图标和启动图按[宿主原生图片](../rules/ui-design.md#宿主原生图片)配置。 |
+| 静态文案 | Flutter gen-l10n，全局中文源 `lib/l10n/app_zh.arb` | 页面统一通过 AppLocalizations 引用，配置及示例见[全局静态文案](../rules/ui-design.md#全局静态文案)。 |
 | UI 主题 | Flutter SDK 的 `ThemeData`、`ColorScheme`、`TextTheme` | 在应用入口统一加载主题。品牌色、字体和明暗主题范围按项目设计稿确定，参照 [UI 设计规则](../rules/ui-design.md)。 |
 | 基础 UI 组件 | 优先复用项目公共组件，以 Flutter SDK 控件为基础 | 按实际场景沉淀按钮、表单输入、加载态、空态、错误重试和确认弹窗。通用组件接收状态与回调，业务页面状态和操作由 ViewModel 管理。已实现的组件登记到[项目画像 §3.2](../architecture/system-landscape.md#32-目录结构)。 |
 | 分页列表（下拉刷新 + 上拉加载更多） | 复用项目的分页列表组件，或用 Flutter SDK 组合实现 | 页面通过同一个列表组件绑定刷新和加载下一页，触发条件、底部状态及请求处理见[列表刷新与分页](../rules/flutter-project.md#81-列表刷新与分页)。 |
