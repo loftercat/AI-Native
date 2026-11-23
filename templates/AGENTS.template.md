@@ -22,7 +22,7 @@
 | 前端 | `AI-Native/frontend/USAGE.md` | `AI-Native/frontend/architecture/system-landscape.md` |
 | Flutter | 先读 `AI-Native/flutter/AGENTS.md`，再按 `AI-Native/flutter/USAGE.md` 选择 Skill | `AI-Native/flutter/architecture/system-landscape.md` |
 
-工作流文档的 `docs/`、`skills/`、`rules/`、`templates/`、`config/` 等路径以对应 `AI-Native/{线}/` 为基准；Markdown 链接按所在文件解析。业务代码和测试使用各线画像登记的工程根，Flutter 应用根见画像 §3.2。
+迭代 Story、详设和审查报告的 `docs/` 相对所属工程根（后端用项目根，前端用前端工程根，Flutter 用画像 §3.2 的应用根）。Golden、方法论、handoff 和 `skills/`、`rules/`、`templates/`、`config/` 等路径以对应 `AI-Native/{线}/` 为基准；Markdown 链接按所在文件解析。业务代码和测试使用各线画像登记的工程根，Flutter 应用根见画像 §3.2。
 
 ## 一句话
 
@@ -151,6 +151,8 @@
 
 ## 审查与门禁
 
+接入验收前按各已接入线的 MIGRATION.md §一.7 完成独立接入审查。报告落对应工程根 `docs/reviews/{迭代}/REVIEW-ONBOARD-{日期}.md`；共用路径时分线记录。
+
 ### 后端（仅接 backend 时保留）
 
 - **代码审查**：`AI-Native/backend/rules/code-review.md`（L0–L3；P0–P3 按档位闭环；审查通过前禁止 commit/push）。
@@ -162,13 +164,13 @@
 
 ### 前端（仅接 frontend 时保留）
 
-- 代码审查：`AI-Native/frontend/rules/code-review.md`；报告模板：`AI-Native/frontend/templates/code-review-report.md`；报告落 `AI-Native/frontend/docs/reviews/{迭代}/REVIEW-CODE-FE-*`。
+- 代码审查：`AI-Native/frontend/rules/code-review.md`；报告模板：`AI-Native/frontend/templates/code-review-report.md`；报告落前端工程根 `docs/reviews/{迭代}/REVIEW-CODE-FE-*`。
 - 自动门禁：项目画像约定的前端测试、`bash AI-Native/frontend/scripts/validate-skills.sh --quiet-tick`；测试通过后、联调/提测前独立审查，不套用后端 Story/DD 审查。
 - L0 自动门禁即可；L1–L3 按规则闭环，审查通过前禁止 commit/push。
 
 ### Flutter（仅接 flutter 时保留）
 
-- 代码审查：`AI-Native/flutter/rules/code-review.md`；报告模板：`AI-Native/flutter/templates/code-review-report.md`；报告落 `AI-Native/flutter/docs/reviews/{迭代}/REVIEW-CODE-Flutter-*`。
+- 代码审查：`AI-Native/flutter/rules/code-review.md`；报告模板：`AI-Native/flutter/templates/code-review-report.md`；报告落 Flutter 应用根 `docs/reviews/{迭代}/REVIEW-CODE-Flutter-*`。
 - 自动门禁：在画像登记的应用根运行格式检查、`flutter analyze`、`flutter test` 及适用的集成测试；项目根运行 `bash AI-Native/flutter/scripts/validate-skills.sh --quiet-tick`。设备证据与未验证项如实记录。
 - 编码验证后、联调/提测前独立审查，不套用后端 Story/DD 审查。L0 自动门禁即可；L1–L3 按规则闭环，审查通过前禁止 commit/push。
 

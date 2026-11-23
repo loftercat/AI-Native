@@ -2,7 +2,7 @@
 
 首次接入或升级读 [接入指南](MIGRATION.md)。日常开发从 [使用手册](USAGE.md) 选择拆卡、详设或编码。模板只维护流程和 Golden 样例，业务工件在接入项目后按迭代落盘。项目事实统一维护在[系统画像](architecture/system-landscape.md)，后端协议由 [handoff](docs/handoff/README.md) 锁定版本。
 
-从项目根启动时，读取项目根 AGENTS.md 和本入口。本线文档中的 `skills/`、`rules/`、`templates/`、`docs/`、`config/`、`architecture/`、`glossary/` 相对 `AI-Native/flutter/`；应用代码、测试及 Flutter 命令使用画像 §3.2 登记的应用根。
+从项目根启动时，读取项目根 AGENTS.md 和本入口。本线文档中的 `skills/`、`rules/`、`templates/`、Golden、handoff、方法论和原型资料、`config/`、`architecture/`、`glossary/` 相对 `AI-Native/flutter/`；迭代 Story、DD 和审查报告写入应用根的 `docs/{requirements,design,reviews}/{迭代}/`。应用代码、测试及 Flutter 命令使用画像 §3.2 登记的应用根。
 
 本线用于新项目，统一采用 MVVM。接入时按[接入指南](MIGRATION.md#2-填写-flutter-画像)将[技术栈配置](config/tech-stack.md)写入项目画像。开发时以项目的[画像 §3.1](architecture/system-landscape.md#31-技术栈)为技术基线，业务 ViewModel 命名遵循[工程规则](rules/flutter-project.md#5-命名规范)。
 

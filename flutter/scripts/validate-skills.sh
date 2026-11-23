@@ -74,13 +74,22 @@ for item in sorted(documents):
         bases = [path.parent] + ([] if raw.startswith("../") else [Path(".")])
         if not any((base / raw.split("#", 1)[0]).exists() for base in bases):
             warnings.append(f"[WARN] {path}: {raw} (tick)")
+# 旧布局可能把真实迭代卡写进了模板。此提示需要在 quiet 模式下仍可见。
+for folder, pattern in (("requirements", "STORY-Flutter-*.md"),
+                        ("design", "DD-Flutter-*.md"), ("reviews", "REVIEW-*.md")):
+    base = Path("docs") / folder
+    for artifact in sorted(base.rglob(pattern)):
+        if "_golden" not in artifact.relative_to(base).parts:
+            print(f"[WARN] {artifact}: 迭代工件应放在画像 §3.2 应用根的 docs/{folder}/")
 if errors:
-    sys.exit("\n".join(errors))
+    print("\n".join(errors), file=sys.stderr)
 if args.quiet_tick:
     if warnings:
         print(f"[WARN] 描述性路径提示共 {len(warnings)} 条（--quiet-tick：仅计数）")
 else:
     for warning in warnings:
         print(warning)
+if errors:
+    sys.exit(1)
 print(f"PASSED: {len(skills)} skills, {len(rules)} rules, {len(required)} assets and local links")
 PY

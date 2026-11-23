@@ -121,6 +121,6 @@
 ```text
 ## 代码审查
 Flutter 端代码改动（flutter-feature-coding 测试通过后、联调/提测前）必须走独立代码审查。
-规则：AI-Native/flutter/rules/code-review.md；模板：AI-Native/flutter/templates/code-review-report.md；报告：AI-Native/flutter/docs/reviews/{迭代}/REVIEW-CODE-Flutter-*。
+规则：AI-Native/flutter/rules/code-review.md；模板：AI-Native/flutter/templates/code-review-report.md；报告：在画像 §3.2 的应用根写 docs/reviews/{迭代}/REVIEW-CODE-Flutter-*。
 审查通过前禁止 commit/push；L0 不送审；P0–P3 按 L1/L2/L3 闭环。
 ```

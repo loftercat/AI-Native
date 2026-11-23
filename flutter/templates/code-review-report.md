@@ -1,6 +1,6 @@
 # REVIEW-CODE-Flutter-{Story编号}-{slug}
 
-> 复制到 `docs/reviews/{迭代}/` 后填写；L0 不落报告。规则见 [rules/code-review.md](../rules/code-review.md)。
+> L1–L3 由实现者复制到应用根 `docs/reviews/{迭代}/` 后填写。落盘时按报告位置更新[审查规则](../rules/code-review.md)的相对链接。
 
 | 字段 | 值 |
 |------|-----|

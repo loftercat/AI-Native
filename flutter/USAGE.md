@@ -72,10 +72,10 @@ flutter-feature-coding     →  Widget / ViewModel / Repository + 测试
 
 | 文档中的路径 | 接入后的基准目录 |
 |---|---|
-| `docs/`（含 handoff、Story、DD 和审查报告）、`skills/`、`rules/`、`templates/`、`config/`、`architecture/`、`glossary/` | 工作流线根 `AI-Native/flutter/` |
-| `lib/`、`test/`、`integration_test/`、`android/`、`ios/`、Dart 和 Flutter 命令 | 画像 §3.2 的应用根，单应用通常就是项目根 |
+| `docs/handoff/`、Golden、方法论、原型资料、`skills/`、`rules/`、`templates/`、`config/`、`architecture/`、`glossary/` | 工作流线根 `AI-Native/flutter/` |
+| 迭代 Story、DD、审查报告（`docs/{requirements,design,reviews}/{迭代}/`）、`lib/`、`test/`、`integration_test/`、`android/`、`ios/`、Dart 和 Flutter 命令 | 画像 §3.2 的应用根，单应用通常就是项目根 |
 
-后续调用示例从项目根发起，文件名和版本替换为本卡实际值。文档内的 Markdown 链接按所在文件解析。
+后续调用示例按应用就在项目根编写；多包仓从项目根调用时，给应用工件加上画像 §3.2 的应用根前缀。示例中，文件名和版本替换为本卡实际值。文档内的 Markdown 链接按所在文件解析。
 
 ---
 
@@ -200,7 +200,7 @@ flutter-feature-coding     →  Widget / ViewModel / Repository + 测试
 
 **输入获取方式**：
 
-- Story：`@AI-Native/flutter/docs/requirements/{迭代}/STORY-Flutter-*.md`
+- Story：`@docs/requirements/{迭代}/STORY-Flutter-*.md`
 - OpenAPI：`@AI-Native/flutter/docs/handoff/openapi/booking-bff-app.yaml`
 - 设计稿：按 STORY-Flutter「设计稿」节登记的位置 `@` 对应稿件；位置或状态冲突时确认采用的稿件；卡未登记且有稿时在 DD 注明「详设补登」
 
@@ -221,7 +221,7 @@ flutter-feature-coding     →  Widget / ViewModel / Repository + 测试
 ```text
 /flutter-detail-design
 
-Story：@AI-Native/flutter/docs/requirements/2026-S01/STORY-Flutter-2026-S01-002-active-booking-home.md
+Story：@docs/requirements/2026-S01/STORY-Flutter-2026-S01-002-active-booking-home.md
 契约：AI-Native/flutter/docs/handoff/openapi/booking-bff-app.yaml @ 9f3673b
 设计稿：@AI-Native/flutter/docs/prototype/源项目原型 demo/存在进行中的预约单.html（按 STORY-Flutter「设计稿」节登记）
 
@@ -238,7 +238,7 @@ Story：@AI-Native/flutter/docs/requirements/2026-S01/STORY-Flutter-2026-S01-002
 ```text
 /flutter-detail-design
 
-Story：@AI-Native/flutter/docs/requirements/2026-S01/STORY-Flutter-2026-S01-007-payment-countdown.md
+Story：@docs/requirements/2026-S01/STORY-Flutter-2026-S01-007-payment-countdown.md
 契约：AI-Native/flutter/docs/handoff/openapi/booking-bff-app.yaml @ 9f3673b
 
 待支付页有 5 分钟倒计时。请重点说明：
@@ -272,7 +272,7 @@ Story：@AI-Native/flutter/docs/requirements/2026-S01/STORY-Flutter-2026-S01-007
 
 **输入获取方式**：
 
-- Story + 详设：`@AI-Native/flutter/docs/requirements/...` + `@AI-Native/flutter/docs/design/...`
+- Story + 详设：`@docs/requirements/...` + `@docs/design/...`
 - OpenAPI：`@AI-Native/flutter/docs/handoff/openapi/booking-bff-app.yaml`
 - 变更场景：先确认 `docs/handoff/VERSION` 已更新到新 tag/commit
 
@@ -295,8 +295,8 @@ Story：@AI-Native/flutter/docs/requirements/2026-S01/STORY-Flutter-2026-S01-007
 ```text
 /flutter-feature-coding 实现 STORY-Flutter-2026-S01-002
 
-@AI-Native/flutter/docs/requirements/2026-S01/STORY-Flutter-2026-S01-002-active-booking-home.md
-@AI-Native/flutter/docs/design/2026-S01/DD-Flutter-2026-S01-002-active-booking-home.md
+@docs/requirements/2026-S01/STORY-Flutter-2026-S01-002-active-booking-home.md
+@docs/design/2026-S01/DD-Flutter-2026-S01-002-active-booking-home.md
 契约：AI-Native/flutter/docs/handoff/openapi/booking-bff-app.yaml @ 9f3673b
 
 本卡仅使用 operationId：getActiveReservation
@@ -312,8 +312,8 @@ Story：@AI-Native/flutter/docs/requirements/2026-S01/STORY-Flutter-2026-S01-007
 ```text
 /flutter-feature-coding 实现 STORY-Flutter-2026-S01-002
 范围：仅预约模块的 reservation_repository.dart 和单测
-详设：@AI-Native/flutter/docs/design/2026-S01/DD-Flutter-2026-S01-002-active-booking-home.md
-@AI-Native/flutter/docs/requirements/2026-S01/STORY-Flutter-2026-S01-002-active-booking-home.md
+详设：@docs/design/2026-S01/DD-Flutter-2026-S01-002-active-booking-home.md
+@docs/requirements/2026-S01/STORY-Flutter-2026-S01-002-active-booking-home.md
 ```
 
 #### Demo 8：需求变更后同步
@@ -331,8 +331,8 @@ Story：@AI-Native/flutter/docs/requirements/2026-S01/STORY-Flutter-2026-S01-007
 ```text
 /flutter-feature-coding 实现 STORY-Flutter-2026-S01-007-payment-countdown
 
-@AI-Native/flutter/docs/requirements/2026-S01/STORY-Flutter-2026-S01-007-payment-countdown.md
-@AI-Native/flutter/docs/design/2026-S01/DD-Flutter-2026-S01-007-payment-countdown.md
+@docs/requirements/2026-S01/STORY-Flutter-2026-S01-007-payment-countdown.md
+@docs/design/2026-S01/DD-Flutter-2026-S01-007-payment-countdown.md
 
 重点遵守 AI-Native/flutter/rules/flutter-performance.md：
 - 倒计时按截止时间计算，恢复前台时重算
@@ -363,7 +363,7 @@ operationId：getActiveReservation（GET /reservations/active）
 ```text
 /flutter-detail-design
 
-Story：@AI-Native/flutter/docs/requirements/2026-S01/STORY-Flutter-2026-S01-002-active-booking-home.md
+Story：@docs/requirements/2026-S01/STORY-Flutter-2026-S01-002-active-booking-home.md
 契约：AI-Native/flutter/docs/handoff/openapi/booking-bff-app.yaml @ 9f3673b
 设计稿：@AI-Native/flutter/docs/prototype/源项目原型 demo/存在进行中的预约单.html（按 STORY-Flutter「设计稿」节登记）
 
@@ -375,8 +375,8 @@ Story：@AI-Native/flutter/docs/requirements/2026-S01/STORY-Flutter-2026-S01-002
 ```text
 /flutter-feature-coding 实现 STORY-Flutter-2026-S01-002
 
-@AI-Native/flutter/docs/requirements/2026-S01/STORY-Flutter-2026-S01-002-active-booking-home.md
-@AI-Native/flutter/docs/design/2026-S01/DD-Flutter-2026-S01-002-active-booking-home.md
+@docs/requirements/2026-S01/STORY-Flutter-2026-S01-002-active-booking-home.md
+@docs/design/2026-S01/DD-Flutter-2026-S01-002-active-booking-home.md
 契约：AI-Native/flutter/docs/handoff/openapi/booking-bff-app.yaml @ 9f3673b
 
 仅用 getActiveReservation。401 由会话层处理。不引入其它 operationId。

@@ -31,10 +31,12 @@ description: >-
 
 ### 触发示例
 
+以下路径相对 Flutter 应用根。
+
 ```text
 /flutter-feature-coding 实现 STORY-Flutter-2026-S01-002
-@AI-Native/flutter/docs/requirements/2026-S01/STORY-Flutter-2026-S01-002-*.md
-@AI-Native/flutter/docs/design/2026-S01/DD-Flutter-2026-S01-002-*.md
+@docs/requirements/2026-S01/STORY-Flutter-2026-S01-002-*.md
+@docs/design/2026-S01/DD-Flutter-2026-S01-002-*.md
 ```
 
 ## 3. 流程

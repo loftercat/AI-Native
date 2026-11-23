@@ -251,8 +251,8 @@ def story_gate():
             s = str(it)
             if "_golden" in s:
                 continue
-            if it.stem.startswith("STORY-FE-"):
-                continue  # 前端卡归前端线（前端线不设 Story 审查门禁），后端门禁不判
+            if it.stem.startswith(("STORY-FE-", "STORY-Flutter-")):
+                continue  # 两条客户端线各自走三阶段，只有后端卡需要 Story 审查报告
             m = re.search(r"\|\s*状态\s*\|\s*([^|]+)\|", it.read_text(encoding="utf-8", errors="replace"))
             status = m.group(1).strip() if m else ""
             stories[it.stem] = (it, status)

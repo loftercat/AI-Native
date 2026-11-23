@@ -92,10 +92,11 @@
 
 迭代标识：`{年}-S{两位序号}`（如 `2026-S01`）。
 
-| 工件 | 路径模式 |
+| 工件 | 路径模式（Story、详设与审查报告相对应用根，其余相对线根） |
 |------|----------|
 | 客户端 Story | `docs/requirements/{迭代}/STORY-Flutter-{迭代}-{序号}-{slug}.md` |
 | 客户端详设 | `docs/design/{迭代}/DD-Flutter-{迭代}-{序号}-{slug}.md` |
+| 审查报告 | `docs/reviews/{迭代}/` |
 | 后端 OpenAPI（handoff 副本） | `docs/handoff/openapi/booking-bff-app.yaml` |
 | 契约版本 | `docs/handoff/VERSION` |
 | 词表 | `glossary/domain-glossary.md` |

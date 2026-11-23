@@ -129,7 +129,7 @@ Epic/PRD/原型 + 适用的后端 OpenAPI handoff
 
 ## 工件速查
 
-读到不懂的缩写查这张表（后端工件相对**项目根** `docs/`；前端工件相对**前端工程根** `docs/`）：
+下表中的迭代工件写入各自的 `docs/`。后端以项目根为准，小程序以前端工程根为准，Flutter 以画像 §3.2 登记的应用根为准。
 
 | 缩写 | 全称 | 干什么用的 | 存在哪 | 谁产出 |
 |------|------|-----------|--------|--------|
@@ -142,11 +142,10 @@ Epic/PRD/原型 + 适用的后端 OpenAPI handoff
 | AC-STORY | 验收用例 | 给人照着操作的清单：点哪里、应该看到什么 | `docs/qa/{迭代}/` | qa-acceptance-case-design |
 | DP | 数据画像 | 测试前环境里要准备哪些数据，附造数和清理脚本 | `docs/qa/data-profiles/` | test-data-design |
 | FIX | 修复报告 | 这个 bug 为什么出现、改了什么、影响哪些地方 | `docs/qa/{迭代}/` | bugfix |
-| REVIEW-* | 审查报告 | 独立审查人对需求卡、设计文档或代码的检查结论 | `docs/reviews/{迭代}/` | 独立审查人 |
-| STORY-FE / DD-FE | 前端需求卡 / 前端详设 | 页面要做什么、调用哪些后端接口；页面有哪些状态、组件怎么拆 | `frontend/docs/{requirements,design}/` | frontend-story-splitting / frontend-detail-design |
-| STORY-Flutter / DD-Flutter | Flutter 需求卡 / Flutter 详设 | 页面与本地/原生行为、Widget 状态及适用的后端接口 | `flutter/docs/{requirements,design}/` | flutter-story-splitting / flutter-detail-design |
+| REVIEW-* | 审查报告 | 独立审查人对需求卡、设计文档或代码的检查结论 | `docs/reviews/{迭代}/` | 独立审查人给出结论，按所属线规则落盘 |
 | ARCHIVE | 迭代归档摘要 | 这个迭代交付了什么、关键决策、遗留项 | `docs/archive/ARCHIVE-{迭代}-summary.md` | 迭代收尾（AI 聚合，人确认） |
 | STORY-FE / DD-FE | 前端需求卡 / 前端详设 | 页面要做什么、调用哪些后端接口；页面有哪些状态、组件怎么拆 | 前端工程根 `docs/{requirements,design}/` | frontend-story-splitting / frontend-detail-design |
+| STORY-Flutter / DD-Flutter | Flutter 需求卡 / Flutter 详设 | 页面与本地/原生行为、Widget 状态及适用的后端接口 | Flutter 应用根 `docs/{requirements,design}/` | flutter-story-splitting / flutter-detail-design |
 
 > 每类工件的「标准长什么样」见各 `_golden/` 目录中的样例。
 
@@ -168,10 +167,8 @@ Epic/PRD/原型 + 适用的后端 OpenAPI handoff
 | `{frontend,flutter}/docs/handoff/` | 客户端与后端契约交接区（openapi 快照 + VERSION pin + stories-index） |
 | `{backend,frontend,flutter}/docs/methodology/` | 方法论与 Skill 设计说明（含测试线总设计） |
 | `backend/docs/training/` | 培训课件（黑盒选例、白盒分层、存量迁移） |
-| `backend/docs/{requirements,design,test-spec,qa,api,schema,reviews}/` | 后端流程工件落点（`reviews/` 为 Story 审查报告 + 代码审查报告；`_golden/` 为标准样例）；前端与 Flutter 工件落点同理 |
 | `{backend,frontend,flutter}/templates/` | 流程模板（backend：Story 审查 + 代码审查；frontend/flutter：代码审查） |
-| `backend/docs/**/` | 模板内仅 `_golden/` 样例与方法论文档（`methodology/`、`agile/`、`training/`）；其余空目录为结构占位，**接入后工件落项目根 `docs/`**（requirements/design/test-spec/qa/api/schema/reviews/archive），不要写进线根（`AI-Native/{线}/`）空目录；前端同理（前端工程根 `docs/`） |
-| `{backend,frontend}/templates/` | 流程模板（backend：Story 审查 + 代码审查；frontend：代码审查） |
+| `backend/docs/**/` | 模板内仅 `_golden/` 样例与方法论文档（`methodology/`、`agile/`、`training/`）；其余空目录为结构占位，**接入后工件落项目根 `docs/`**（requirements/design/test-spec/qa/api/schema/reviews/archive），不要写进线根（`AI-Native/{线}/`）空目录；客户端工件分别落前端工程根、Flutter 应用根的 `docs/` |
 | `backend/hooks/` | 机制化强制 Hook（公共代码保护 / diff 超限 / 漏测提醒） |
 | `{backend,frontend,flutter}/scripts/validate-skills.sh` | 各线资产完整性校验（frontmatter + 引用可达 + 坏链检测） |
 | `{backend,frontend,flutter}/config/current-sprint` | 各线当前迭代号（单一事实源） |

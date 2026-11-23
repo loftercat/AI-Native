@@ -34,7 +34,7 @@ Epic/PRD/原型 + 适用的后端 OpenAPI handoff（docs/handoff/）
 | `docs/handoff/` | 前后端契约交接区（openapi 快照 + VERSION pin + stories-index） |
 | `docs/methodology/` | 客户端方法论（与后端方法论的差异、两条主线） |
 | `templates/` | 代码审查报告模板（`code-review-report.md`） |
-| `docs/reviews/` | 客户端代码审查报告落点（`REVIEW-CODE-Flutter-*`） |
+| 应用根 `docs/{requirements,design,reviews}/{迭代}/` | 真实 Story、DD、代码审查和接入审查报告 |
 | `docs/{requirements,design}/_golden/` | STORY-Flutter / DD-Flutter 标准样例（destination-search-allocate 一族） |
 | `config/current-sprint` | 当前迭代号 |
 | `config/tech-stack.md` | 生成新项目画像时采用的默认技术栈 |
@@ -44,7 +44,7 @@ Epic/PRD/原型 + 适用的后端 OpenAPI handoff（docs/handoff/）
 
 ## 接入项目
 
-模板引入方式见根 [README.md](../README.md)「快速开始」。完整接入按 [MIGRATION.md](MIGRATION.md)：handoff → 画像 → 锚点替换 → Golden 重写 → 分发 → 裁剪。AI 执行，人在画像与映射、最终验收两处确认；旧布局迁移和模板升级也在该指南维护。
+模板引入方式见根 [README.md](../README.md)「快速开始」。完整接入按 [MIGRATION.md](MIGRATION.md)：handoff → 画像 → 锚点替换 → Golden 重写 → 分发 → 裁剪 → 自验与独立接入审查。AI 执行，人在画像与映射、最终验收两处确认；旧布局迁移和模板升级也在该指南维护。
 
 ## 使用
 
