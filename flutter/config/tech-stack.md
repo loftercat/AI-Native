@@ -8,6 +8,7 @@
 |---|---|---|
 | Flutter / Dart SDK | [CPF-Flutter 鸿蒙适配版](https://gitcode.com/CPF-Flutter/flutter_flutter)，Flutter `3.41.10-ohos-1.0.1`，Dart `3.11.5` | Flutter tag 为 `3.41.10-ohos-1.0.1`，框架修订为 `adaf911c35c9136a7d18fc424d714c9ec7724e60`。创建脚手架、本地开发和 CI 使用项目锁定的同一 SDK，Dart 随 SDK。升级时选择经过验证的鸿蒙适配版本，同步更新项目画像与工具链配置。 |
 | 项目架构（固定） | 按业务模块组织的 MVVM（Model–View–ViewModel） | 职责划分和业务 ViewModel 命名见[Flutter 工程规则](../rules/flutter-project.md)。 |
+| 业务模块与分包 | 默认在同一 App 的 `lib/features/{feature}/` 下按业务建目录，例如登录用 `login`，支付用 `pay` | 每个模块就近维护自己的页面、ViewModel 和数据层。跨应用复用时可提取独立 Dart/Flutter package。目录示例和跨模块调用见[工程规则 §4](../rules/flutter-project.md#4-目录归属)，项目实际模块登记在[画像 §3.2](../architecture/system-landscape.md#32-目录结构)。 |
 | 网络请求 | Dio（`dio: 5.11.1`） | 按信任域配置客户端，统一超时、鉴权、取消、错误转换。 |
 | 应用日志 | [Talker](https://pub.dev/packages/talker_flutter)（`talker_flutter: 5.2.0`），测试包网络日志使用 `talker_dio_logger: 5.2.0` | 在应用入口创建共享实例，供请求层、推送和 SDK 适配层记录事件。按[分环境日志规则](../rules/testing-release.md#分环境日志)输出日志：测试包全量打印原文并提供 TalkerScreen，正式包只记录关键事件。阿里云远程日志 SDK 为后续接入项。 |
 | 状态共享（固定） | Riverpod（`flutter_riverpod: 3.3.2`） | Widget 用 `ref.watch` 订阅共享状态。页面和会话状态按生命周期提供，切换账号时隔离状态。 |
