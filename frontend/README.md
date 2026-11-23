@@ -37,7 +37,7 @@ Epic/PRD/原型 + 后端 OpenAPI handoff（docs/handoff/）
 | `docs/handoff/` | 前后端契约交接区（openapi 快照 + VERSION pin + stories-index） |
 | `docs/methodology/` | 前端方法论（与后端方法论的差异、两条主线） |
 | `templates/` | 代码审查报告模板（`code-review-report.md`） |
-| `docs/reviews/` | 前端代码审查报告落点（`REVIEW-CODE-FE-*`） |
+| `docs/reviews/` | 前端代码审查报告落点（`REVIEW-CODE-FE-*`）；接入后在前端工程根 `docs/reviews/` |
 | `docs/{requirements,design}/_golden/` | STORY-FE / DD-FE 标准样例（destination-search-allocate 一族） |
 | `config/current-sprint` | 当前迭代号 |
 | `scripts/validate-skills.sh` | 前端资产完整性校验 |

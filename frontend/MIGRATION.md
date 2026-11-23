@@ -15,6 +15,7 @@
 | [§一.4](#4-重写-golden) | 重写 Golden |
 | [§一.5](#5-分发到-agent) | 分发到 Agent |
 | [§一.6](#6-工作流裁剪) | 工作流裁剪 |
+| [§一.7](#7-接入审查ai-自动) | 接入审查（AI 自动） |
 | [§二](#二接入后验收) | 接入后验收 |
 
 ---
@@ -34,7 +35,7 @@
 - **① 现在去后端团队拿**（推荐——画像 §四 才能填准）。
 - **② 先后补**：继续接入，画像 §四 标注「handoff 待补」；**契约相关替换组**（契约文件 + URL 前缀 + 公共库/错误码号段）整体列入**待补项**，跳过替换。使用期 `frontend-story-splitting` 会阻断直到补齐（**纯 UI 卡豁免**：无集成层时无需契约，见该 SKILL 前置表）；`docs/handoff/VERSION` 写 `TBD` 作为待补标记。
 
-**handoff 到达后**：按本节 1–2 步放入文件 → 填画像 §四（公共库与号段引用后端画像 §3.7）→ 补执行契约相关替换组 → 重跑 §3 验收命令与 §二 第 2 条。
+**handoff 到达后**：按本节 1–2 步放入文件 → 填画像 §四（公共库与号段引用后端画像 §3.7）→ 补执行契约相关替换组 → 重跑 §3 验收命令与 §二 第 3 条（三段走通）。
 
 > AI 不猜契约内容——缺失时不编造路径、字段或错误码。
 
@@ -105,7 +106,7 @@ bash AI-Native/frontend/scripts/validate-skills.sh
 
 ### 4. 重写 Golden
 
-- 从画像与 handoff 契约选真实页面需求，保持文件名模式与结构，重写 `docs/**/_golden/` 的 STORY-FE / DD-FE 样例（源项目为 destination-search-allocate 一族）。
+- 从画像与 handoff 契约选真实页面需求，保持文件名模式与结构，重写线根（`AI-Native/frontend/`）`docs/**/_golden/` 的 STORY-FE / DD-FE 样例（源项目为 destination-search-allocate 一族；重写后视为项目资产，模板升级不覆盖）。
 - 提交时随附「3 处关键改动 + 建议抽查 1 份」。
 - 画像与契约不足、构造不出可信场景时，降级为人工指定。
 
@@ -127,9 +128,28 @@ bash AI-Native/frontend/scripts/validate-skills.sh
 - 如需精简：按项目实际用到的 Skill 删除，跑 `bash AI-Native/frontend/scripts/validate-skills.sh` 并清掉对被裁资产的引用。
 - 换 Vue / React / uni-app 不在本流程内——需自行重写 `rules/`（含 error-display 的 `wx.showToast/showModal`）与 Skill 正文的栈相关步骤（pages/ 四同名文件、setData、`wx.on*`、微信开发者工具）。
 
+### 7. 接入审查（AI 自动）
+
+自验（校验器 + §一.3 残留 grep）通过后，**自动**派独立审查人（subagent / 新会话），无需人发起。审查只做脚本查不出的**显性一致性**：
+
+1. **画像残留与自洽**：页面结构 / 分包 / 技术栈无源项目残留；契约文件路径与 handoff 包一致；外部系统（后端服务）与 handoff 实际一致（依据=handoff 包，缺失时标「依据材料待确认」）
+2. **锚点语义**：契约路径、页面名、迭代号与画像一致；无 `{项目}-app` 类重复
+3. **Golden 抽样**：抽 2 份（STORY-FE / DD-FE），页面场景来自本项目画像而非源项目搬运
+
+**闭环**（审查人只读，不修文件；finding 打标签）：
+
+- **`[机械]`**（残留、命名、路径断裂）：P0/P1 由主流程 AI 修复 → 审查人确认消除 → 重跑校验器与残留 grep
+- **`[映射]`**（页面结构 / 契约对齐的语义决策）：**不自动修**——回 §一.2 画像人审定稿 或 §一.1 handoff；改后重跑 §一.3 验收，再回本节复审
+- P2 记录；P3 不报
+- 报告格式（审查对象 / 依据材料 / findings ≤5 / 结论 + Blocker 数）由**主流程（实现者）落盘**（审查人只读），落 `docs/reviews/{迭代}/REVIEW-ONBOARD-{日期}.md`；交人一行结论 + 「修了什么」摘要（3–5 行）
+- 复审：`[机械]` 修复后由审查人确认即可（不重跑全审）；连续 2 轮不通过 → 交人裁定
+
+> 前端线无 Story 门禁；画像小节编号检查（§N.N）仅在**后端线**校验器执行——前端文档常引用后端画像编号（如 §3.7 号段），跨线不校验。
+
 ---
 
 ## 二、接入后验收
 
 1. 本线校验器 **PASSED**：`bash AI-Native/frontend/scripts/validate-skills.sh --quiet-tick`。
-2. 拿到真实 handoff 包走通三段：frontend-story-splitting → frontend-detail-design → frontend-feature-coding（handoff 待补时本条延后至补齐后执行）。
+2. 接入审查报告存在且结论为通过：`docs/reviews/{迭代}/REVIEW-ONBOARD-*.md`（§一.7）。
+3. 拿到真实 handoff 包走通三段：frontend-story-splitting → frontend-detail-design → frontend-feature-coding（handoff 待补时本条延后至补齐后执行）。

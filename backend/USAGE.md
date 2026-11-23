@@ -28,6 +28,7 @@
 
 - **首次迭代号**：接入时已在 [MIGRATION.md](MIGRATION.md) §一.1 设置，无需重复。
 - **后续切换**：每个新迭代开始，把 `config/current-sprint` 改为当前迭代（一行文本，如 `2026-S03`）。所有 Skill 落盘路径从这里取迭代号——忘改会把工件写进上个迭代目录。
+- **登记迭代行**：同一动作里，在 `docs/agile/sprint-registry.yaml` 追加本迭代行（`id` / `name` / `start` / `end` / `status: active`）——收尾时才有行可标记 closed。
 
 ### 环境与凭据
 
@@ -65,7 +66,7 @@ QA 专员另有一条专线（同源 Story，非上下游）：Story + OpenAPI �
 
 ### 迭代开始
 
-1. 人：确认/更新 `config/current-sprint`（首次接入已由 [MIGRATION.md](MIGRATION.md) §一.1 设置；新迭代时更新）；准备 Epic 输入。
+1. 人：确认/更新 `config/current-sprint`（首次接入已由 [MIGRATION.md](MIGRATION.md) §一.1 设置），并在 `docs/agile/sprint-registry.yaml` 追加本迭代行（`id` / `name` / `start` / `end` / `status: active`）；准备 Epic 输入。
 2. 手上是**原始需求**（PRD 草稿 / 口头 / 原型）→ 对 Agent 说：*「用 journey-scenario-design 把 <需求线索> 展开成 JSD」*；**Epic §4 旅程已详尽**（主路径完整且异常/备选场景已列）→ 跳过 JSD，直接下一步；仅有轻量文字描述 → 先跑 journey-scenario-design。
 3. 对 Agent 说：*「用 high-level-design 基于 EPIC-xxx 出 HLD」*。
 4. 对 Agent 说：*「用 story-splitting 按 HLD-EPIC-xxx 拆本迭代卡」* → **人工确认 Story 列表后**落盘，同时产出迭代交付计划（依赖拓扑决定开发顺序，W0 基础卡最先）。
@@ -86,6 +87,14 @@ QA 专员另有一条专线（同源 Story，非上下游）：Story + OpenAPI �
 - **存量用例迁移**：*「用 legacy-test-migration 迁移 <用例导出文件>，目标模块 <module>」*。
 
 > **触发格式**：*「用 <skill 名> <动作> <卡号或路径>」*——点名 skill 最稳，描述场景也能自动匹配（「给 STORY-xxx 写详设」）。关键是给出**卡号或路径**，Skill 会自己按「前置加载」清单去读上游工件；各 Skill 的触发示例见其 `SKILL.md` 文件头。
+
+**迭代收尾**（迭代结束、下个迭代开始前，一个人做一次）：
+
+1. 对 Agent 说：*「做 {迭代} 迭代收尾，生成归档摘要」* → AI 从 `docs/{requirements,design,test-spec,qa,reviews}/{迭代}/`、`docs/api/` 与画像「变更记录」（`architecture/system-landscape.md`，按本迭代起止日期过滤）聚合生成 `docs/archive/ARCHIVE-{迭代}-summary.md`（模板见 `templates/sprint-archive-template.md`），你确认后落盘；文件已存在时 AI 会先问是否覆盖，不静默重写。
+2. 更新 `docs/agile/sprint-registry.yaml`：本迭代 `status: closed` + `closed_at: YYYY-MM-DD`（只改自己迭代那一行；表中无本迭代行则先补行——迭代开始时漏登记）。
+3. 切换 `config/current-sprint` 到新迭代。
+
+> **多人协作**：迭代收尾是单点动作，不在多人分支上并行收尾同一迭代；归档目录即索引（每个迭代一份 `docs/archive/ARCHIVE-{迭代}-summary.md`），没有共享清单文件要维护。
 
 ---
 

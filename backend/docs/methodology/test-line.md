@@ -204,7 +204,7 @@ coding    test-design                │
 
 **输入从哪来（跨仓消费）**：
 
-| 前端 Skill 的输入 | 后端仓哪里产 | 怎么拿 |
+| 前端 Skill 的输入 | 后端仓哪里产（项目根 `docs/`） | 怎么拿 |
 |-------------------|--------------|--------|
 | Story / AC | `docs/requirements/{迭代}/STORY-*.md` | 拉后端仓 tag/commit（或 monorepo/子模块） |
 | OpenAPI 契约 | `docs/api/**/openapi.yaml` | 同上；前端据此生成 API client / 手写请求；契约测试据此校验响应形状 |
