@@ -24,7 +24,7 @@
 
 ### 1. 获取 handoff 包
 
-前端不定义契约——画像 §四（契约文件 / 鉴权 / 错误码对齐）与锚点替换的契约路径都依赖后端发布的 handoff 包：
+前端不定义契约——画像 §四（契约文件 / 鉴权 / 错误码对齐）与锚点替换的契约路径都依赖后端发布的 handoff 包（由后端 `api-handoff` Skill 打包，三件套见下）：
 
 1. 向后端团队索取 OpenAPI 快照 + 版本 pin（tag 或 commit SHA）。
 2. 放入 `docs/=/openapi/{后端服务标识}.yaml` 与 `docs/handoff/VERSION`（机制见 [docs/handoff/README.md](docs/handoff/README.md)）。

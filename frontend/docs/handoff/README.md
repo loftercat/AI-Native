@@ -15,7 +15,7 @@
 
 ## 工作方式（源自源项目的实践）
 
-1. 后端 OpenAPI 定稿并打 tag → 后端发布 handoff 包（openapi + VERSION + stories-index）。
+1. 后端 OpenAPI 定稿并打 tag → 用后端 `api-handoff` Skill 发布 handoff 包（openapi + VERSION + stories-index）；三件套一致性由后端 `validate-skills.sh` 第 5 段守住。
 2. 前端把包同步进本目录（整文件替换，不改内容）。
 3. `frontend-story-splitting` 拆卡时读本目录：契约与版本以这里的快照为准，不直接读后端仓。
 4. 联调时前后端对齐同一 VERSION 指向的环境。

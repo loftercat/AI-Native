@@ -51,6 +51,7 @@
               integration-test-design ──► *IT / *ScenarioIT
                          │
                          ├── QA 专线：qa-acceptance-case-design → api-blackbox-test / test-data-design
+                         ├── 交接：api-handoff → 前端 3 环（前后端分离时）
                          └── 旁路：bugfix / legacy-test-migration
 ```
 
@@ -78,7 +79,7 @@
 
 ## 3. 主线 7 环职责与边界
 
-> 完整 12 个后端 Skill（含 QA 专线 3 环与旁路 2 环）的触发时机、输入/产出、栈依赖见 [Skill清单与栈依赖.md](../../Skill清单与栈依赖.md)；本节只保留主线前 7 环的边界。
+> 完整 13 个后端 Skill（含 QA 专线 3 环、交接 1 环与旁路 2 环）的触发时机、输入/产出、栈依赖见 [Skill清单与栈依赖.md](../../Skill清单与栈依赖.md)；本节只保留主线前 7 环的边界。
 
 | Skill | 输入 | 产出 | 不做 |
 |-------|------|------|------|
@@ -90,7 +91,7 @@
 | **integration-test-design** | 已实现业务 Story + 详设（+ 可选 TS） | `booking-app/src/test/java/` 下 `*IT`/`*ScenarioIT`（继承 `AbstractIntegrationTest`） | 单元/BFF API 测试（归 feature-coding）、改业务实现、改 Story/详设正文 |
 | **feature-coding** | Story + 详设（+ TS） | `*-api`/`*-impl`/BFF Java、`mvn test` | 无变更记录时偷偷改 AC |
 
-> QA 专线（`qa-acceptance-case-design` → `api-blackbox-test` / `test-data-design`）与旁路（`bugfix` / `legacy-test-migration`）不占主线；触发与产出见清单表。
+> QA 专线（`qa-acceptance-case-design` → `api-blackbox-test` / `test-data-design`）、交接（`api-handoff` → 前端 3 环）与旁路（`bugfix` / `legacy-test-migration`）不占主线；触发与产出见清单表。
 
 ### 3.1 需求变更
 

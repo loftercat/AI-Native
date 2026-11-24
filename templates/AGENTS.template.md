@@ -119,6 +119,8 @@
                                           代码审查 → integration-test-design（*IT）
                                                         ↓
                               QA：AC-STORY → api-blackbox-test / test-data-design
+                                                        ↓
+                     交付：api-handoff（前端 handoff 包）→ frontend 3 环（若接前端）
 ```
 
 | Skill | 用途 |
@@ -131,6 +133,7 @@
 | `feature-coding` | TDD 实现 |
 | `integration-test-design` | 白盒集成/场景测试 |
 | `qa-acceptance-case-design` / `api-blackbox-test` / `test-data-design` | QA 专线（可选） |
+| `api-handoff` | OpenAPI 契约 → 前端 handoff 包（快照 + VERSION + 索引；前端开工前、operation 语义变更后） |
 | `legacy-test-migration` / `bugfix` | 按需触发 |
 
 > 完整 Skill 清单与栈依赖见 `AI-Native/backend/Skill清单与栈依赖.md`；本表只做入口摘要，不维护完整清单。

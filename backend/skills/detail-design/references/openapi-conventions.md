@@ -34,8 +34,10 @@ OpenAPI 须体现：
 - [ ] `openapi` 3.0.3、`info.title`、`info.version`、`info.description`（含 Result 语义）
 - [ ] `servers`：含 `http://localhost:8080/api/v1/booking/{app|admin}` **和** 相对路径
 - [ ] `paths.*.operationId` 唯一、camelCase（供代码生成）
+- [ ] 每个 operation 有 `x-stories: [STORY-{迭代}-{序号}]`（**行内数组**，不要写成 `- STORY-...` 块状；handoff 索引由它生成，别只写在 description 里）
 - [ ] `tags` 按资源分组
 - [ ] 每个 operation：`summary`、`description` 标注 **Story AC 编号**
+- [ ] `info.description` 含全局约定：Result 语义、对外 ID 字符串、幂等键、额度头、错误码分段（前端只读快照时靠这段理解跨接口约定）
 - [ ] `components/securitySchemes.bearerAuth`（BFF 需鉴权接口）
 - [ ] 需登录的 operation 声明 `security: [bearerAuth: []]`
 - [ ] `components/schemas`：请求/响应 DTO + `BusinessErrorBody`
