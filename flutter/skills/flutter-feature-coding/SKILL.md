@@ -58,7 +58,7 @@ description: >-
 ### 步骤 2：契约对齐
 
 - 确认本卡 `operationId` 范围（来自 Story §本卡 API 范围）
-- 对网络 AC 核对 Story、DD、快照与 `docs/handoff/VERSION` 一致；版本缺失、为空、`TBD` 或所需 operationId 缺失时阻断相关实现，回上游补齐。纯本地/仅原生且无后端调用的卡沿用 `N/A`。
+- 对网络 AC 核对 Story、DD、快照与 `docs/handoff/VERSION` 一致；交接包索引缺失、版本缺失、为空、`TBD` 或所需 operationId 缺失时阻断相关实现，回上游补齐。纯本地/仅原生且无后端调用的卡沿用 `N/A`。
 - 对网络 AC 读 OpenAPI schema / examples，确认字段名、错误码
 - 核对 DTO 和项目的 HTTP 客户端。纯本地 AC 核对数据与交互约定；涉及原生能力时核对两个目标平台的[桥接契约](../../rules/platform-bridge.md)。
 
@@ -116,7 +116,7 @@ View 绑定 ViewModel 状态并转发事件，Repository 协调数据源。按[�
 
 ## 5. 需求变更
 
-1. 后端 OpenAPI 变更 → 同步 `docs/handoff/` + `VERSION`
+1. 后端 OpenAPI 变更 → 同步后端重新发布的整包（快照、VERSION、索引）
 2. 先由拆卡/详设阶段同步受影响的 Story 和 DD，再读变更记录 → 改测试 → 改实现
 3. 接口/字段变更 **必须先确认 OpenAPI 已更新**
 

@@ -53,7 +53,7 @@ flutter-feature-coding     →  Widget / ViewModel / Repository + 测试
 
 | Skill | 关键输入 | 产出 |
 |-------|----------|------|
-| story-splitting | 适用的后端契约及版本 + Epic/PRD/原型 + **后端 Story 摘要** | STORY-Flutter-*.md（含「设计稿」节） |
+| story-splitting | 适用的后端交接包 + Epic/PRD/原型 + **后端 Story 摘要** | STORY-Flutter-*.md（含「设计稿」节） |
 | detail-design | Flutter Story + 适用的后端 OpenAPI + 设计稿（按卡登记） + Rule | DD-Flutter-*.md |
 | feature-coding | Flutter Story + Flutter 详设 + 适用的后端 OpenAPI + Rule | Flutter 页面、Widget 和数据层 + 测试 |
 
@@ -67,7 +67,7 @@ flutter-feature-coding     →  Widget / ViewModel / Repository + 测试
 
 首次接入按 [MIGRATION.md](MIGRATION.md) 完成 handoff、画像、锚点、Golden、分发与裁剪；旧布局迁移和模板升级也由该指南维护。
 
-开工前读取 `config/current-sprint` 和画像。网络卡必须具备真实 OpenAPI、`docs/handoff/VERSION` 及本卡 operationId；VERSION 缺失、为空或 `TBD` 时阻断相关网络卡，按接入指南补齐。纯 UI、本地或仅原生 SDK 且无后端调用的卡填 `N/A`，仍需明确交互、数据或 SDK 验收依据。
+开工前读取 `config/current-sprint` 和画像。网络卡须取得同版交接包（OpenAPI、VERSION、stories-index.md），并核对本卡 operationId；VERSION 缺失、为空或 `TBD` 时阻断相关网络卡，按接入指南补齐。纯 UI、本地或仅原生 SDK 且无后端调用的卡填 `N/A`，仍需明确交互、数据或 SDK 验收依据。
 
 **路径怎么读**
 
@@ -94,6 +94,7 @@ flutter-feature-coding     →  Widget / ViewModel / Repository + 测试
 | **后端 OpenAPI** | 网络 AC 必备 | `docs/handoff/openapi/booking-bff-app.yaml` | 接口字段/错误码/examples 唯一真相；拆卡时检索本页 `operationId` |
 | **契约版本** | 网络 AC 必备 | `docs/handoff/VERSION` | tag 或 commit SHA；联调对齐 |
 | **Epic / PRD / 原型** | ✅ 必须有（至少其一） | 后端仓 `docs/requirements/epics/`、`docs/prototype/` | 用户价值与页面范围 |
+| **后端 Story 索引** | 网络 AC 必备 | `docs/handoff/stories-index.md` | 按服务和后端 Story 定位 operationId，只读 |
 | **后端 Story 摘要** | ⭐ 强烈推荐 | 后端 `STORY-*` 的 §1 用户故事 + §2.3 客户端职责 + 相关 AC/BR | 范围、职责边界、业务规则；**默认只读摘要，整卡作链接** |
 | **完整后端详设（DD）** | ◯ 可选 | 后端 `DD-STORY-*` §5 摘录 | OpenAPI 不足时只发 §5；**不必默认发整卡** |
 | **领域词表** | ◯ 降级 | `glossary/domain-glossary.md` | 术语一致 |

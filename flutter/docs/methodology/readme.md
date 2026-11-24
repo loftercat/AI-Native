@@ -57,13 +57,13 @@
 
 | Skill | 输入 | 产出 | 不做 |
 |-------|------|------|------|
-| **flutter-story-splitting** | Epic/PRD/原型 + 后端 OpenAPI + 后端 Story 摘要 | `STORY-Flutter-*.md`（AC/BR + 本卡 operationId 范围） | 改 OpenAPI、写后端代码 |
+| **flutter-story-splitting** | Epic/PRD/原型 + 适用的后端交接包 + 可选 Story 摘要 | `STORY-Flutter-*.md`（AC/BR + 本卡 operationId 范围） | 改 OpenAPI、写后端代码 |
 | **flutter-detail-design** | STORY-Flutter + OpenAPI + 设计稿 | `DD-Flutter-*.md`（页面状态机、组件树、AC→operationId 映射） | 重新定义 API 契约 |
 | **flutter-feature-coding** | STORY-Flutter + 详设 | 页面/组件 + 测试 | 直连 order/inventory 域、改 OpenAPI |
 
 ### 3.1 需求变更
 
-1. **后端 OpenAPI 变更** → 同步 `docs/handoff/` → 更新 `VERSION`
+1. **后端 OpenAPI 变更** → 后端重新发布 → Flutter 整包同步到 `docs/handoff/`
 2. **客户端 Story**：更新正文 + 「变更记录」
 3. **flutter-detail-design**：增量详设，更新 AC→operationId 映射
 4. **flutter-feature-coding**：读变更记录 → 改失败测试 → 改页面/组件 → 验证与独立代码审查

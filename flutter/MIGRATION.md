@@ -27,9 +27,9 @@
 
 ### 1. 获取 handoff 包
 
-1. 向后端取得 OpenAPI 快照及版本 pin（tag 或 commit SHA）。
-2. 放入 `docs/handoff/openapi/{后端服务标识}.yaml` 与 `docs/handoff/VERSION`；可附 Story 摘要和 `stories-index.md`。详见 [handoff 约定](docs/handoff/README.md)。
-3. Flutter 只消费契约；接口变更先由后端更新 OpenAPI，再同步快照，不在本线改协议。
+1. 向后端团队索取 `api-handoff` 发布的三件套，即 OpenAPI 快照、版本 pin（tag 或 commit SHA）和 Story ↔ operationId 索引。
+2. 整包同步到本线 `docs/handoff/`；如需业务上下文，可另附后端 Story 摘要。详见 [handoff 约定](docs/handoff/README.md)。
+3. Flutter 只消费契约；接口变更先由后端更新 OpenAPI，再发布并同步整包，不在本线改协议。
 
 **涉及后端但 handoff 缺失时向用户提问**，沿用前端的两个选择：
 
@@ -38,7 +38,7 @@
 
 **纯 UI、本地或仅原生 SDK 功能**：确认不调用业务后端后，卡上的契约、版本和 API 范围填 `N/A`，可继续三阶段；不为此伪造 OpenAPI 或创建 VERSION。原生 SDK 仍需真实能力、权限和回调约定。支付等含服务端下单/查单的功能不属于此豁免。项目同时有网络功能时，保留项目级待补项，仅无后端依赖的卡豁免。
 
-**handoff 到达后**：同步快照和真实 VERSION → 填画像 §四 → 补执行契约替换组 → 重跑 §一.3 的残留检查和 §二的网络卡验收。不能只把 `TBD` 改成版本号而不核对快照。
+**handoff 到达后**：同步同一版快照、真实 VERSION 和索引 → 填画像 §四 → 补执行契约替换组 → 重跑 §一.3 的残留检查和 §二的网络卡验收。不能只把 `TBD` 改成版本号而不核对快照。
 
 ### 2. 填写 Flutter 画像
 
@@ -122,7 +122,7 @@ AI 探测当前 Agent 的技能/规则目录并做格式适配。分发方式和
 
 1. 本线校验器 **PASSED**：`bash AI-Native/flutter/scripts/validate-skills.sh --quiet-tick`，相对链接可达，§一.7 报告存在且 Flutter 线结论为通过。
 2. 真实小卡走通 flutter-story-splitting → flutter-detail-design → flutter-feature-coding；按编码 Skill 完成自动检查和适用的独立代码审查。在画像 §3.2 的应用根执行格式检查、`flutter analyze`、`flutter test` 及所需设备验证，保存实际结果。
-3. 核对 Story / DD / 审查报告落在画像 §3.2 应用根的 `docs/{requirements,design,reviews}/{迭代}/`，代码和测试在应用根；网络三段引用同一真实快照、VERSION 和 operationId。
+3. 核对 Story / DD / 审查报告落在画像 §3.2 应用根的 `docs/{requirements,design,reviews}/{迭代}/`，代码和测试在应用根；网络卡从本线交接包的索引定位 operationId，三段引用同一真实快照、VERSION 和 operationId。
 4. handoff 待补时网络卡试跑延后，报告区分「模板接入通过」与「网络开发待补」；纯本地项目以本地卡验收。设备未验证项按[审查规则](rules/code-review.md)记录，不能写成通过。
 5. 核对画像 §3.1 采用 MVVM、Riverpod 和鸿蒙兼容的 Flutter SDK，实际 Flutter、Dart 版本与项目锁定版本一致。确认其他选型的来源，分别核实已落地和待引入的条目。试跑使用业务 ViewModel 时，按[工程规则](rules/flutter-project.md#5-命名规范)核对命名。
 

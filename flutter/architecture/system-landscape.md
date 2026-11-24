@@ -80,13 +80,13 @@
 ## 六、与后端流水线的协作
 
 ```text
-后端：story-splitting → detail-design → OpenAPI 定稿 → tag
+后端：story-splitting → detail-design → OpenAPI 定稿
               ↓
-        发布 handoff 包（OpenAPI + VERSION + Story 摘要/stories-index）
+        api-handoff 发布 handoff 包（OpenAPI + VERSION + stories-index）
               ↓
 客户端：同步 docs/handoff/ → flutter-story-splitting → flutter-detail-design → flutter-feature-coding
               ↓
-        联调（同一 OpenAPI tag 与后端环境一致）
+        联调（以 VERSION 中的 tag 或 commit SHA 对齐后端环境）
 ```
 
 **原则**：涉及后端调用的卡先定稿 OpenAPI，再跑相关详设；接口/字段/错误码变更**必须先改后端 OpenAPI**，再同步本仓——客户端仓永远不直接改契约。

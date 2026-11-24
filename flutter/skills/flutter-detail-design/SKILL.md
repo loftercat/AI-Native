@@ -33,7 +33,7 @@ description: >-
 | 4 | 设计稿 | 按 STORY-Flutter「设计稿」节登记的位置（`docs/prototype/`）或 handoff |
 | 5 | Rule | `rules/flutter-project.md`、`rules/api-client-conventions.md`、`rules/error-display-conventions.md`、`rules/flutter-performance.md` |
 
-网络 AC 核对快照与 `docs/handoff/VERSION`，版本必须与 Story 一致；缺失、空值、`TBD` 或版本不一致时先补齐/对齐上游。无后端调用的卡沿用 Story 的 `N/A`，依据本地交互、存储或 SDK 约定设计。
+网络 AC 从交接包的 stories-index.md 核对本卡 operationId，再核对快照与 `docs/handoff/VERSION`，版本必须与 Story 一致；缺失、空值、`TBD` 或版本不一致时先补齐/对齐上游。无后端调用的卡沿用 Story 的 `N/A`，依据本地交互、存储或 SDK 约定设计。
 
 ## 4. 详设必含
 

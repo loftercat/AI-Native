@@ -10,4 +10,4 @@
 
 Skill 定义阶段顺序与交付物，Rule 定义实现和验收要求。在线根运行 `bash scripts/validate-skills.sh --quiet-tick` 校验模板。编码阶段完成自动检查后按[审查规则](rules/code-review.md)定档，独立审查人只读，实现者记录结论。L0 记录门禁结果，L1–L3 使用[报告模板](templates/code-review-report.md)。
 
-本线沿用前端三阶段，不设独立 Story/DD 审查门禁。涉及后端的卡必须先有真实快照与 VERSION；`TBD` 仅表示接入待补，不能作为开发依据。纯 UI、本地或仅原生 SDK 且无后端调用的卡填 `N/A`。
+本线沿用前端三阶段，不设独立 Story/DD 审查门禁。涉及后端的卡必须先取得包含快照、VERSION 和索引的同版交接包；`TBD` 仅表示接入待补，不能作为开发依据。纯 UI、本地或仅原生 SDK 且无后端调用的卡填 `N/A`。

@@ -36,17 +36,16 @@ description: >-
 | 8 | 词表 | `glossary/domain-glossary.md` | 降级 |
 | 9 | Rule | `rules/flutter-project.md`、`rules/api-client-conventions.md` | 必须读 |
 
-网络卡缺少快照、有效版本或所需 operationId 时，按[接入指南](../../MIGRATION.md)补齐后再拆卡，不以模板示例代替契约。无后端调用的卡将契约、版本和 API 范围填 `N/A`，写明本地或原生验收依据；含服务端下单/查单的支付卡仍需契约。
+网络卡缺少快照、有效版本、`docs/handoff/stories-index.md` 或所需 operationId 时，按[接入指南](../../MIGRATION.md)补齐后再拆卡，不以模板示例代替契约。无后端调用的卡将契约、版本和 API 范围填 `N/A`，写明本地或原生验收依据；含服务端下单/查单的支付卡仍需契约。
 
 ## 4. 拆卡步骤
 
 ```text
 1. 读 Epic/PRD/原型 → 划定 Android/iOS 验收范围、页面和用户价值 → 候选 STORY-Flutter
-2. 对网络 AC，在 openapi.yaml 检索本页 paths → 列出 operationId 清单
+2. 对网络 AC，只读 stories-index.md，按服务与后端 Story 定位相关 operationId → 在对应 OpenAPI 快照核对 paths，选出本页清单
 3. 读每个 operation 的 examples → 把分支写成可验收 AC（Given/When/Then）
 4. 视觉项在「设计稿」节登记稿件位置与状态（§6）；无稿的项标 `UI: TBD`；不调 API 的 Story 可不绑 operationId
 5. 产出 STORY-Flutter-*.md，每条 API 相关 AC 附追溯（§7 格式）
-6. 更新 docs/handoff/stories-index.md（Story ↔ operationId，可选）
 ```
 
 进入详设前，逐条确认 AC 的验收依据：网络行为关联契约版本及 operationId，视觉行为关联稿件或已确认的交互要求，本地和原生行为说明数据来源、目标平台及可观察结果。尚待确认的项注明影响范围。

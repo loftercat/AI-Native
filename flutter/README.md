@@ -58,7 +58,7 @@ Epic/PRD/原型 + 适用的后端 OpenAPI handoff（docs/handoff/）
 
 ## 与 backend 线的关系
 
-同源不同层：backend 线产出 OpenAPI 契约（`detail-design` 定稿），经 handoff 交接给本线消费；**客户端不定义契约**。两线可独立接入（只用客户端线时，handoff 包直接从你的后端团队拿）。
+后端用 `detail-design` 定稿 OpenAPI，再用 `api-handoff` 发布快照、VERSION 和 Story ↔ operationId 索引。只接入 Flutter 时，向后端团队索取同版三件套。发布目标与同步方式见 [handoff 约定](docs/handoff/README.md)。
 
 本线不增设单独的 test-spec-alignment 或 Story/DD 审查阶段；Flutter 单元、Widget、集成测试和设备验证纳入编码步骤。
 
