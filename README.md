@@ -73,7 +73,7 @@ AI 会读取模板仓的接入引导，带你走完手动步骤；你只在画�
   QA 专线：qa-acceptance-case-design → api-blackbox-test → test-data-design
   旁路：bugfix（七步闭环） / legacy-test-migration（存量用例改造）
 
-        │  detail-design 定稿 OpenAPI → 发布 handoff 包
+        │  detail-design 定稿 OpenAPI → api-handoff 发布 handoff 包
         ▼
 ── frontend/（前端线，消费后端契约）────────────────────────
 后端 OpenAPI handoff（docs/handoff/）
@@ -102,6 +102,7 @@ AI 会读取模板仓的接入引导，带你走完手动步骤；你只在画�
 |------|-------|-----------|
 | 主线 7 环 | JSD → HLD → Story → DD → TS → feature-coding → IT | 新需求、改需求 |
 | QA 专线 3 环 | qa-acceptance-case-design → api-blackbox-test → test-data-design | 提测 / 发版验收 |
+| 交接 1 环 | api-handoff | 前端要开工 / operation 语义变更后 |
 | 旁路 2 环 | bugfix / legacy-test-migration | 缺陷 / 存量用例 |
 | 前端 3 环 | frontend-story-splitting → frontend-detail-design → frontend-feature-coding | 前端页面 |
 
@@ -109,7 +110,7 @@ AI 会读取模板仓的接入引导，带你走完手动步骤；你只在画�
 
 ### 完整清单
 
-- **后端线（12 个）**：见 [backend/Skill清单与栈依赖.md](backend/Skill清单与栈依赖.md)（触发时机、输入/产出、栈依赖、裁剪建议）。
+- **后端线（13 个）**：见 [backend/Skill清单与栈依赖.md](backend/Skill清单与栈依赖.md)（触发时机、输入/产出、栈依赖、裁剪建议）。
 - **前端线（3 个）**：见 [frontend/README.md](frontend/README.md)（三段流水线）。
 
 > Golden 约定见 [backend/docs/methodology/golden.md](backend/docs/methodology/golden.md)。

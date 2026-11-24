@@ -10,6 +10,9 @@
 # 与源项目的差异：无 symlink 镜像检查、无 docs/skills 历史残留检查（模板无迁移历史）。
 set -uo pipefail
 cd "$(dirname "$0")/.."
+SCRIPTS_DIR="$(cd scripts && pwd)"
+export SCRIPTS_DIR
+export PYTHONDONTWRITEBYTECODE=1
 
 FAIL=0
 QUIET_TICK=0
@@ -31,7 +34,10 @@ echo "== 2) 引用路径解析检查 =="
 PY=python3
 python3 -c pass 2>/dev/null || PY=python
 $PY - <<'PYEOF'
-import pathlib, re, sys
+import os, pathlib, re, sys
+
+sys.path.insert(0, os.environ["SCRIPTS_DIR"])
+from openapi_ops import extract_operations
 
 ROOT = pathlib.Path(".").resolve()
 SCAN_ROOTS = [ROOT / d for d in
@@ -347,6 +353,93 @@ def sprint_gate():
                 warns.append(f"  [WARN] {tag}迭代 {sid} 已过期未收尾（end: {end}），请执行迭代收尾（见 USAGE「迭代收尾」）")
     return warns
 
+# ── 5) handoff 包一致性（存在才校验）─────────────
+# 前端 handoff 是冻结快照：后端改了契约却不重发，前端会对着旧版开发。
+# 没有 VERSION 且没有快照 = 未发布，跳过（模板仓的空目录不算失败）。
+# FAIL：快照与 docs/api 不一致 / VERSION 含 TBD / 索引缺 operationId。
+def normalized_text(path):
+    """忽略换行符差异：跨仓 checkout（core.autocrlf）会把 LF 变 CRLF，不是契约变更。"""
+    return path.read_text(encoding="utf-8", errors="replace").replace("\r\n", "\n")
+
+
+def handoff_gate():
+    errs, warns = [], []
+    # 跨仓/多前端线：用 HANDOFF_DIR 显式指定；否则按标准布局自动找
+    override = os.environ.get("HANDOFF_DIR")
+    if override:
+        handoff = pathlib.Path(override)
+        if not handoff.is_dir():
+            return [f"  [FAIL] HANDOFF_DIR={override} 不存在"], []
+    else:
+        candidates = [ROOT.parent / "frontend", ROOT.parent / "AI-Native" / "frontend"]
+        handoff = None
+        for cand in candidates:
+            if (cand / "docs" / "handoff").is_dir():
+                handoff = cand / "docs" / "handoff"
+                break
+        if handoff is None:
+            return errs, warns
+
+    openapi_dir = handoff / "openapi"
+    snapshots = sorted(openapi_dir.glob("*.yaml")) if openapi_dir.is_dir() else []
+    version_file = handoff / "VERSION"
+    index_file = handoff / "stories-index.md"
+    if not snapshots and not version_file.exists():
+        return errs, warns  # 未发布
+
+    if not version_file.exists():
+        errs.append("  [FAIL] handoff 缺 VERSION（前端无法确认契约版本）")
+    if not index_file.exists():
+        errs.append("  [FAIL] handoff 缺 stories-index.md")
+    if not snapshots:
+        errs.append("  [FAIL] handoff/openapi 下没有契约快照")
+
+    operation_ids = set()
+    for snap in snapshots:
+        service = snap.stem
+        sources = [ROOT / "docs" / "api" / service / "openapi.yaml"]
+        if PROJ_DOCS is not None:
+            sources.append(PROJ_DOCS / "api" / service / "openapi.yaml")
+        source = next((p for p in sources if p.exists()), None)
+        if source is None:
+            errs.append(f"  [FAIL] {snap.name} 找不到权威源 docs/api/{service}/openapi.yaml")
+            continue
+        if normalized_text(snap) != normalized_text(source):
+            errs.append(f"  [FAIL] {snap.name} 与 {source} 不一致（契约已变更但 handoff 未重发）")
+        parsed, parse_errors = extract_operations(snap)
+        for item in parse_errors:
+            errs.append("  [FAIL] " + item)
+        ops = [operation["operation_id"] for operation in parsed]
+        if not ops and not parse_errors:
+            errs.append(f"  [FAIL] {snap.name} 无 operationId（契约不完整，回 detail-design 补）")
+        operation_ids.update(ops)
+
+    if version_file.exists():
+        version_text = version_file.read_text(encoding="utf-8", errors="replace")
+        if "TBD" in version_text.upper():
+            errs.append("  [FAIL] handoff/VERSION 含 TBD")
+        if not re.search(r"@\s*\S+", version_text):
+            errs.append("  [FAIL] handoff/VERSION 缺「{服务} @ tag/SHA」行")
+        for snap in snapshots:
+            service = snap.stem
+            if not re.search(rf"^\s*{re.escape(service)}\s*@", version_text, re.M):
+                errs.append(f"  [FAIL] handoff/VERSION 缺 {service} 的版本行（多服务每个一行）")
+        if "未打 tag" in version_text:
+            warns.append("  [WARN] handoff/VERSION 是临时版本（未打 tag）；正式交付前请打 tag 重发")
+
+    if index_file.exists() and operation_ids:
+        index_text = index_file.read_text(encoding="utf-8", errors="replace")
+        # 精确匹配表格首列：裸子串会让 listObservations 被 listObservationsV2 顶包
+        missing = sorted(op for op in operation_ids
+                         if not re.search(rf"^\|\s*{re.escape(op)}\s*\|", index_text, re.M))
+        if missing:
+            errs.append("  [FAIL] stories-index.md 未覆盖: " + ", ".join(missing))
+    return errs, warns
+
+h_errs, h_warns = handoff_gate()
+errors.extend(h_errs)
+warnings.extend(h_warns)
+
 g_errs, g_warns = story_gate()
 errors.extend(g_errs)
 warnings.extend(g_warns)
@@ -366,7 +459,7 @@ if warnings and os.environ.get("QUIET_TICK") == "1":
 else:
     for w in warnings:
         print(w)
-print("  all hard links resolved + story review + sprint gate checked"
+print("  all hard links resolved + story review + sprint gate + handoff checked"
       + (f"（{len(warnings)} 个提示）" if warnings else ""))
 PYEOF
 if [ $? -ne 0 ]; then FAIL=1; fi

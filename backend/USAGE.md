@@ -37,6 +37,7 @@
 | 集成测试（integration-test-design） | 本地 Docker（Testcontainers 拉起真实数据库） |
 | API 黑盒（api-blackbox-test） | 已部署测试环境；`BLACKBOX_BASE_URL`；管理员/用户 Token（变量清单见画像 §4.3.4，由运维/CI 注入，**不进 Git**）；Python + pytest/requests |
 | 环境造数（test-data-design） | `SEED_DB_URL`（由运维/CI 注入） |
+| 前端交接（api-handoff） | 在 git 仓内且契约已提交；跨仓/多前端线时设 `HANDOFF_DIR`（默认按标准布局自动找） |
 
 > 详设、编码、验收用例的前置由各自 `SKILL.md` 的「前置加载」检查；缺 TS、§9 或 Story/OpenAPI 时 Skill 会阻断，不再在 USAGE 重复。
 
@@ -55,10 +56,13 @@
 | DD（含 §9 测试策略） | `test-spec-alignment` |
 | Story + DD + TS | `feature-coding` |
 | 代码完成且跨模块/外部链路 | `integration-test-design` |
+| 契约定稿、前端要开工（或 operation 语义变了） | `api-handoff`（交接，前后端分离时） |
 | 线上/联调缺陷 | `bugfix`（旁路，不走主线） |
 | 存量项目无 Story 的老用例 | `legacy-test-migration`（旁路） |
 
 QA 专员另有一条专线（同源 Story，非上下游）：Story + OpenAPI 齐备后 → `qa-acceptance-case-design` 产验收用例，其中 `execution=blackbox` 的行 → 部署后 `api-blackbox-test` 跑黑盒，需要环境数据时 → `test-data-design` 造数。无 QA 团队可整线裁掉（黑盒冒烟由集成测试承担）。
+
+前后端分离时另有一条**交接线**：前端要开工、或 operation 语义变了（新增端点/改字段/改错误码）→ `api-handoff` 把契约冻结成 handoff 包（快照 + VERSION + Story↔operationId 索引），前端只读快照、不读后端仓。纯后端项目可整线裁掉。
 
 ---
 
@@ -80,6 +84,7 @@ QA 专员另有一条专线（同源 Story，非上下游）：Story + OpenAPI �
 8. **代码审查**：独立审查人按 [rules/code-review.md](rules/code-review.md) 审本次 diff（各实现 Skill 验证通过后会提示触发；档位与闭环见规则）。
 9. 跨模块/含外部链路的卡，追加：*「用 integration-test-design 给这张卡补集成测试」*；IT 合入前的审查由该 Skill 按 [rules/code-review.md](rules/code-review.md) 提示触发。
 10. 单卡完成后，提测前 QA 线三件（均以 Story 编号为入口）：*「用 qa-acceptance-case-design 为 STORY-2026-S03-001 出验收用例」* → 部署后 *「用 api-blackbox-test 为 STORY-2026-S03-001 生成黑盒脚本」* → 需要环境数据时 *「用 test-data-design 为 STORY-2026-S03-001 造数」*。
+11. 前后端分离时，前端开工前（或 operation 语义变更后）：*「用 api-handoff 把 love-app 的契约发一版给前端，tag 用 2026-S01-rc1」*。发布前契约必须已提交——有未提交改动会阻断；无 tag 时 VERSION 标「未打 tag」，自检会给 WARN。
 
 ### 随时
 
