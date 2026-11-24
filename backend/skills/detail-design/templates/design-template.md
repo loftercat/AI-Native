@@ -17,9 +17,9 @@
 
 ### 1.2 架构上下文
 
-- **服务/模块**：`booking-bff-app` / `booking-bff-admin` / `order-api` + `order-impl` / `inventory` / `adapter` / `common`
-- **集成**：V1 同 JVM `XxxApi`；外部：支付系统、iam-server、封闭式车场（见 system-landscape）
-- **分层**：BFF（Controller）→ `*-api`（XxxApi + DTO）→ `*-impl`（Provider → Facade → Service → infrastructure）
+- **服务/模块**：`booking-gateway` / `booking-bff-app` / `booking-bff-admin` / `order-api` + `order-impl` / `inventory` / `adapter` / `common`
+- **集成与协议**：服务间同步调用按画像 §5.4 P-2；异步/一致性按 E-2/E-3；外部系统见画像 §四
+- **分层**：网关 → BFF（对外 Controller）→ `*-api`（远程契约 + DTO）→ `*-impl`（内部远程入口 → Facade → Service → infrastructure + 独立库）
 - **校验职责落点**（Story §2.3）：见 [bff-domain-boundary-guide.md](../references/bff-domain-boundary-guide.md)
 
 | Story §2.3 | 守卫 / 领域 | §8 落点 |
@@ -151,19 +151,21 @@ classDiagram
 - 表 / 索引：
 - **DDL**：每张表须 `CREATE TABLE`（新表）或 `ALTER TABLE`（增量）；见 [schema-conventions.md](../references/schema-conventions.md)
 
-### 6.2 数据访问（ORM 约定）
+### 6.2 数据访问（按画像 §5.4 P-3 ORM 选型填写）
 
-| 场景 | 落点 | 说明 |
+> **选型说明**：下方表格以画像 §5.4 **P-3** 选定 **MyBatis** 为例；若选用 JPA / jOOQ 等其他 ORM，按对应持久化 Rule 填写 Repository/Query 方法与主键策略。无论何种 ORM，严禁跨服务 SQL JOIN 与外键。
+
+| 场景 | 落点（MyBatis 示例） | 说明 |
 |------|------|------|
-| 新建写入 | `*CommandService` 注入 `SnowflakeIdGenerator` | `INSERT` 前 `do.setId(idGenerator.nextId())`；依赖 `com.hema:common-core`（`${hema-common.version}`，与 hema-common 根 POM 对齐） |
+| 新建写入 | `*CommandService` 按 P-3 主键策略生成 ID | 示例：注入 `SnowflakeIdGenerator`，`INSERT` 前 `do.setId(...)` |
 | 主键查询 | Mapper 继承 `BaseMapper<DO>` | 允许 `selectById` 等；排除已删行须在本表或 XML 写明 |
 | 业务删除 | Mapper XML（如 `softDeleteById`） | `UPDATE ... SET deleted=1, deleted_at=NOW()`；**禁止**业务路径 `deleteById` 物理删 |
-| 条件查询、联表、分页、批量更新 | `resources/mapper/**/*.xml` | Mapper 接口只声明方法签名，SQL **仅** 写 XML；默认 `AND deleted = 0` |
-| 禁止 | `@Select` 等注解 SQL、`QueryWrapper` 条件查询 | 见 `rules/mybatis-conventions.md` |
+| 条件查询、分页、批量更新 | `resources/mapper/**/*.xml` | Mapper 接口只声明方法签名，SQL **仅** 写 XML；默认 `AND deleted = 0`（严禁跨服务表 JOIN） |
+| 禁止 | `@Select` 等注解 SQL、`QueryWrapper` 条件查询 | 见 `rules/mybatis-conventions.md`（MyBatis 条件规则） |
 
-**标准列 / 主键**：见 [schema-conventions.md](../references/schema-conventions.md) §1.2（雪花 ID、软删除）。
+**标准列 / 主键**：见 [schema-conventions.md](../references/schema-conventions.md) §1.2。
 
-**§8 追溯**：每条涉及持久化的 AC 须列出 Mapper 方法名与 XML `id` 对应关系；写操作须体现 `SnowflakeIdGenerator`。
+**§8 追溯**：每条涉及持久化的 AC 须列出持久化方法（选用 MyBatis 时含 XML `id`）与写路径主键策略。
 
 ---
 
@@ -214,10 +216,11 @@ booking-bff-app / booking-bff-admin  →  *-api
 
 | 测试层 | 测试类 / 关注点 | 覆盖 AC | Mock 边界 | 备注 |
 |--------|----------------|---------|-----------|------|
-| 单元 | `XxxServiceTest` | AC-01, AC-02 | 依赖的 Mapper / 外部 `XxxApi` | |
-| BFF API | `XxxControllerTest`（`@WebMvcTest`） | AC-01 | 下游域 `XxxApi` | 断言 `Result.code` 与 AC 文案 |
-| Mapper | `XxxMapperTest` | AC-03 | 无 | Testcontainers MySQL + 种子数据 |
-| 集成（可选） | `XxxIT` | AC-04 | 外部系统（支付/车场/iam） | 归 `integration-test-design` 消费 |
+| 单元 | `XxxServiceTest` | AC-01, AC-02 | 持久化层 / 下游远程客户端 / 外部 Client | 无 DB |
+| 入口 API | `XxxControllerTest`（`@WebMvcTest`） | AC-01 | 下游远程客户端或 Service | 按画像 §3.7 断言响应与 AC 文案 |
+| 持久化（按需） | `XxxMapperTest` / `XxxRepositoryTest` | AC-03 | 无 | 按画像 P-3 ORM + 本服务 Testcontainers MySQL |
+| 单服务集成 | `XxxIT` | AC-04 | **进程外下游微服务（按 P-2 用 WireMock/Stub）** + 外部系统（支付/车场/iam） | 归 `integration-test-design`；本服务真实 DB |
+| 跨服务主链路 | 部署后黑盒用例（按需） | AC-01~04 | 仅外部环境沙箱 | 归 `api-blackbox-test`（及可选 E-5 契约测试） |
 
 > 填写规则：
 > - 只到**测试类/关注点**粒度，**不写测试方法名**；方法级展开由 `test-spec-alignment` 的 TS 负责。

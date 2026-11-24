@@ -63,14 +63,14 @@ AI 会读取模板仓的接入引导，带你走完手动步骤；你只在画�
 业务原始需求 / PRD
   → journey-scenario-design   → JSD（用户旅程 + 场景矩阵，AC 完备性源头）
   → EPIC 卡                   → 来源：PRD 提炼，或由 JSD 起草（人确认）；两条入口见下
-  → high-level-design         → HLD（模块边界/集成矩阵/建议 Story）
-  → story-splitting           → STORY 卡（AC/BR + 依赖拓扑 + 迭代计划）
-  → detail-design             → DD + OpenAPI + schema/DDL + 代码骨架 + 测试策略
+  → high-level-design         → HLD（微服务边界/通信矩阵/数据归属/建议 Story）
+  → story-splitting           → STORY 卡（AC/BR + 跨服务依赖拓扑 + 迭代计划）
+  → detail-design             → DD + 对外/内部接口契约 + schema/DDL + 代码骨架 + 测试策略
   → test-spec-alignment       → TS（用例级测试规格，编码前）
-  → feature-coding            → 代码 + 测试（TDD，全绿）
+  → feature-coding            → 目标微服务代码 + 测试（TDD，全绿）
   → 代码审查（rules/code-review.md）→ REVIEW-CODE-IMPL-*（commit/IT 前）
-  → integration-test-design   → *IT / *ScenarioIT（跨模块/外部链路）
-  QA 专线：qa-acceptance-case-design → api-blackbox-test → test-data-design
+  → integration-test-design   → 单服务 *IT / *ScenarioIT（独立容器 DB，下游微服务模拟隔离）
+  QA / 跨服务验证专线：qa-acceptance-case-design → api-blackbox-test（跨服务主链路） → test-data-design
   旁路：bugfix（七步闭环） / legacy-test-migration（存量用例改造）
 
         │  detail-design 定稿 OpenAPI → 发布 handoff 包

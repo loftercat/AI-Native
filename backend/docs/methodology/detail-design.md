@@ -10,7 +10,7 @@
 
 **把 Story 里的 AC/BR 转成可编码、可测的技术契约：领域模型、OpenAPI、schema、Java 类骨架、时序图，并汇总为详设文档。**
 
-本 Skill 继承公司级 **十一步流程**（加载 → 解析 → 架构 → 缺口 → 接口 → 专项 → schema → 时序 → 骨架 → 落盘 → 汇总），按 **Java 21 + Spring Boot 3.2 单体（V1）+ 双 BFF + `*-api`/`*-impl`** 特化。
+本 Skill 继承公司级 **十一步流程**（加载 → 解析 → 架构 → 缺口 → 接口 → 专项 → schema → 时序 → 骨架 → 落盘 → 汇总），按 **Java 21 + Spring Boot / Spring Cloud 微服务架构**（仓库模式、调用协议、ORM、响应格式与内部鉴权由画像 §5.4 驱动）特化。
 
 ---
 
@@ -31,14 +31,14 @@
 | 时序图 | 详设 §7 |
 | Java 骨架 | 详设 §8（签名 + 修改清单，无方法体） |
 
-### 2.3 双层 API（本仓库固定）
+### 2.3 微服务契约分层
 
-| 层 | 模块 | HTTP |
-|----|------|------|
-| 对外 | `booking-bff-app` / `booking-bff-admin` | `/api/v1/booking/app|admin/...` |
-| 域边界 | `*-api` 的 `XxxApi` | 无 HTTP（V1 同 JVM 注入） |
+| 层 | 服务 | 契约形态 |
+|----|------|----------|
+| 对外入口 | API 网关 → `booking-bff-app` / `booking-bff-admin` | 对外 HTTP：`/api/v1/booking/app\|admin/...` + BFF OpenAPI |
+| 领域微服务 | `booking-order` / `booking-inventory` 等（`*-api` + `*-impl`） | 按画像 §5.4 P-2：内部 HTTP OpenAPI 或 RPC 契约（`*-api`/`.proto`）；防外泄按 P-5 |
 
-含 HTTP 的 Story：**OpenAPI 写 BFF**；域能力写 `XxxApi` + Service 骨架。跨 BFF→order→inventory 的 AC **须画时序图**。
+跨服务（BFF→order→inventory）的 AC **须画时序图**，并标注各服务本地事务边界与跨服务一致性方案（按画像 E-3，严禁跨域本地 `@Transactional`）。
 
 ### 2.4 AC→API 五步推导
 

@@ -15,13 +15,13 @@
 | [code-review-report.md](../../templates/code-review-report.md) | 代码审查报告模板 | 步骤 8 前必读 |
 | [docs/design/summaries/](../../docs/design/summaries/) | 实现汇总可选落盘目录 | — |
 
-## 本仓库要点
+## 本仓库要点（微服务架构）
 
-- **V1 单体**：`booking-app` 启动；对外 HTTP **仅** `booking-bff-app` / `booking-bff-admin`
-- **域逻辑**：`*-api` 契约 + `*-impl`（Provider → Facade → Service → Mapper）；默认 **贫血 + 条件 UPDATE**，见 [layer-guides.md](references/layer-guides.md) 与 [domain-model-guide.md](../detail-design/references/domain-model-guide.md)
-- **跨域 V1**：`app/client` 注入 `XxxApi`，不用 OpenFeign
-- **验证**：`mvn test -pl {module} -am` 或根目录 `mvn test`
-- **响应/异常**：`hema-common` `Result` + `BizException`（见 `rules/exception-and-result.md`）
+- **服务独立**：API 网关 + 独立 BFF（对外 HTTP）+ 独立领域微服务（每服务独立启动与独立数据库）
+- **契约与实现分离**：`*-api` 远程契约 + `*-impl`（内部远程入口 → Facade → Service → 持久化）；默认 **贫血 + 条件 UPDATE**，见 [layer-guides.md](references/layer-guides.md) 与 [domain-model-guide.md](../detail-design/references/domain-model-guide.md)
+- **跨服务调用与技术选型**：同步调用协议（P-2）、ORM（P-3）、响应/错误码（P-4）、内部防护（P-5）等一律读 `architecture/system-landscape.md` §5.4，未拍板则阻断
+- **验证**：单仓库多服务用 `mvn test -pl {service-module} -am`；独立仓库直接 `mvn test`
+- **异常与响应**：通用异常纪律见 `rules/exception-and-result.md`，具体封装以画像 §3.7（P-4）为准
 
 ## 前置加载（按序）
 

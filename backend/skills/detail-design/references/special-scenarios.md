@@ -12,9 +12,10 @@
 | **车场南向** | 开闸、核销、厂商、新伯乐、德立云 | `ParkingLotGateway` + `adapter-impl`；超时/重试策略 | system-landscape §4.3 |
 | **车主鉴权** | 车主、登录、Token | `booking-bff-app` Filter；依赖基础设施 Story 或 Mock | system-landscape §4.2 |
 | **运营鉴权** | 运营、后台、权限 | `booking-bff-admin` + `iam-server` Token 校验 | 不实现登录页 |
-| **进程内事件** | 事件、异步通知（同 JVM） | V1 Spring Event：`order-impl/app/event` | MVP 无 MQ |
-| **定时任务** | 定时、调度、批处理、超时取消、对账、清理、扫描 | `*-impl/app/scheduler/` + `SchedulerTaskRunner`；跨域调 `XxxApi` | [scheduled-task-guide.md](../../../reference/scheduled-task-guide.md) |
-| **MQ / 分布式事务** | MQ、最终一致、Saga | V1 **非目标**；记 §1.1 非目标或 V2+ ADR | — |
+| **异步消息 / 事件** | 事件、异步通知、MQ、延迟消息、削峰 | 按画像 §5.4 **E-2（MQ）** 与 **E-4（事件契约）** 设计（若为 `[TBD]` 则步骤 4 阻断）；含消费侧幂等与失败重试 | [idempotency-guide.md](../../../reference/idempotency-guide.md)；[system-landscape.md](../../../architecture/system-landscape.md) §5.4 |
+| **定时任务** | 定时、调度、批处理、超时取消、对账、清理、扫描 | 各微服务独立调度；多实例默认必防重，方案按画像 §5.4 **E-6**（若为 `[TBD]` 则阻断） | [scheduled-task-guide.md](../../../reference/scheduled-task-guide.md) |
+| **跨服务写一致性** | 跨服务写、分布式事务、最终一致、Outbox、Saga、补偿、对账 | 单操作涉及 ≥2 个微服务写库 → 按画像 §5.4 **E-3** 设计（若为 `[TBD]` 则阻断）；严禁本地 `@Transactional` 跨服务 | [system-landscape.md](../../../architecture/system-landscape.md) §5.4 |
+| **调用链追踪 / 日志** | 链路追踪、traceId、跨服务排障、审计日志 | 按画像 §5.4 **E-7** 约定透传追踪头与日志关联字段（若为 `[TBD]` 则阻断） | [system-landscape.md](../../../architecture/system-landscape.md) §5.4 |
 | **大文件 IO** | 导入、导出、ZIP、附件、上传、下载、报表 | BFF 流式上传/下载；`*-impl` 分批查询 + 写文件；异步任务（大数据量） | [memory-safe-io-guide.md](../../../reference/memory-safe-io-guide.md)；`rules/memory-safe-io.md` |
 
 ## 多场景同时命中

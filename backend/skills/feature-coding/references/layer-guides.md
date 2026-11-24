@@ -4,26 +4,28 @@
 
 ## 总原则
 
-- 编码权威：**详设 §8** + OpenAPI（BFF HTTP）
-- 依赖方向见 `rules/java-project.md`：BFF → `XxxApi`；`*-impl` 不暴露 HTTP
-- **领域厚度**：按详设 §4.4 / §8 标注；默认 **贫血 + SQL 条件更新**，见 [domain-model-guide.md](../../detail-design/references/domain-model-guide.md)
-- 每层完成后跑 `mvn test -pl {module} -am` 子集
+- 编码权威：**详设 §8** + 对外/对内接口契约（按画像 §5.4 **P-2**）
+- 依赖方向见 `rules/java-project.md`：对外 HTTP 仅在 BFF；领域微服务按画像 **P-2** 暴露内部远程入口（HTTP 内部 Controller 或 RPC Provider），严禁跨服务依赖对方 `*-impl`
+- **领域厚度**：按详设 §4.4 / §8 标注；默认 **贫血 + 条件更新**，见 [domain-model-guide.md](../../detail-design/references/domain-model-guide.md)
+- 每层完成后跑单服务测试子集（单仓库多服务用 `mvn test -pl {service-module} -am`，一服务一仓用 `mvn test`）
 
 ---
 
-## 1. 持久化（Repository / Mapper）
+## 1. 持久化（Repository / Mapper，按画像 §5.4 P-3 ORM 选型）
 
-| 项 | 约定 |
+> **选型说明**：下方表格以项目在画像 §5.4 **P-3** 选定 **MyBatis / MyBatis-Plus** 为例（须遵守 `rules/mybatis-conventions.md`）；若选用 JPA / jOOQ 等其他 ORM，按接入时替换的持久化 Rule 执行。无论何种 ORM，均须守住 **每服务独立库、禁止跨服务 SQL JOIN 与外键**。
+
+| 项 | 约定（MyBatis 示例） |
 |----|------|
 | DO | `*-impl/infrastructure/dataobject/*DO.java`（含 `deleted` / `deletedAt`） |
 | Mapper | 接口在 `infrastructure/mapper/`；XML 在 `resources/mapper/` |
-| 主键 | `BIGINT` 雪花；**无** `AUTO_INCREMENT`；写前 `SnowflakeIdGenerator.nextId()`（`common-core`） |
+| 主键 | 按画像 §5.4 **P-3** 主键策略（示例：`BIGINT` 雪花，无 `AUTO_INCREMENT`，写前赋值） |
 | 主键查询 | 允许 `BaseMapper<DO>`；排除已删行按详设 §6.2 |
 | 其它 SQL | **仅 XML**；禁止 `@Select` 复杂查询；条件查询默认 `AND deleted = 0` |
 | 业务删除 | XML 软删 `UPDATE deleted=1`；禁止业务路径 `deleteById` |
-| **状态迁移写库** | **条件 `UPDATE`**：`WHERE id=? AND status=?`（及 `deleted=0`）；`affected_rows=0` 抛 `BizException` |
-| **禁止默认** | 查整行 → 改 DO 字段 → `updateById` 全量覆盖（除非详设明确） |
-| 测试 | Service 层 Mock Mapper；复杂 SQL 可选 `@MybatisTest` |
+| **状态迁移写库** | **条件 `UPDATE`**：`WHERE id=? AND status=?`（及 `deleted=0`）；`affected_rows=0` 抛业务异常 |
+| **禁止默认** | 查整行 → 改 DO 字段 → 全量覆盖（除非详设明确） |
+| 测试 | Service 层 Mock 持久化层；复杂 SQL 可选容器持久化单测（Testcontainers MySQL） |
 
 详见 `rules/mybatis-conventions.md`、详设 §6.2、[schema-conventions.md](../../detail-design/references/schema-conventions.md) §1.2、[domain-model-guide.md](../../detail-design/references/domain-model-guide.md)。
 
@@ -34,56 +36,56 @@
 | 项 | 约定 |
 |----|------|
 | 位置 | `app/service/`（默认）；复杂可选 `domain/model/` + `domain/service/` |
-| 简单 Story | `{实体}QueryService` / `{实体}CommandService`：`Mapper → DO → Converter → DTO`；**只读推荐归 Query** |
-| **复杂 Story** | 可选贫血 `domain/model/*` 做 `canXxx()` / 状态判断；**落库仍走 Mapper XML** |
-| 职责 | 业务规则、抛 `BizException`；跨域用 `XxxApi` / Client |
+| 简单 Story | `{实体}QueryService` / `{实体}CommandService`：`持久化 → DO → Converter → DTO`；**只读推荐归 Query** |
+| **复杂 Story** | 可选贫血 `domain/model/*` 做 `canXxx()` / 状态判断；落库仍走条件更新 |
+| 职责 | 业务规则、抛业务异常；跨服务调用走 `app/client` 远程封装（按 P-2）；本地 `@Transactional` 仅限本服务单库 |
 | **对象转换** | DO↔DTO（及可选 domain）放 `infrastructure/converter/`，**优先 MapStruct `@Mapper(componentModel = "spring")`**；条件字段用 `@Mapping` / `@AfterMapping` |
-| 禁止 | 直接写 HTTP；在 Service 调厂商 HTTP（走 Client/Gateway）；在 Service 内大段字段拷贝（应进 Converter） |
-| **单点** | 匹配/normalize/推荐等算法**仅**在域内一处；BFF 不得重复同名工具类 |
+| 禁止 | 在 Service 直接散落原生 HTTP/RPC 调用代码；直连外部厂商；大段手写字段拷贝（应进 Converter） |
+| **单点** | 匹配/normalize/推荐等算法**仅**在归属领域微服务一处；BFF 不得重复同名工具类 |
 | 测试 | `*ServiceTest`；JUnit 5 + `@ExtendWith(MockitoExtension.class)` |
-| Mock | `@Mock` Mapper、`*Client`、其它 `XxxApi` |
-| 断言 | `assertThrows(BizException.class)` + `getCode()` / message 对齐 AC |
+| Mock | `@Mock` 持久化层、下游远程 `*Client`、外部 Client |
+| 断言 | 断言业务异常 `code` / `message` 对齐 AC（响应/异常规则见画像 §3.7） |
 
-**快捷路径**：Mapper 未就绪时先 Mock Mapper 写 Service 测试，不得直连 DB。
+**快捷路径**：持久化层未就绪时先 Mock 持久化层写 Service 测试，不得直连 DB。
 
 ---
 
-## 3. Facade / Provider（XxxApiImpl）
+## 3. Facade 与领域服务内部远程入口（内部 Controller / RPC Provider）
 
 | 项 | 约定 |
 |----|------|
-| Provider | `app/provider/XxxApiImpl.java` — 薄委托 Facade |
-| Facade | `app/facade/` — 多 Service 编排 |
-| 测试 | 简单委托由 Service 测试覆盖；复杂编排可 `*FacadeTest` |
+| 内部远程入口 | 按画像 §5.4 **P-2** 落地：HTTP 协议为 `interfaces/*InternalController`（路径前缀与防外泄按 **P-5**，严禁暴露到公网网关）；RPC 协议为 `app/provider/*ProviderImpl`——均薄委托 Facade |
+| Facade | `app/facade/` — 本服务多 Service 编排；跨服务写按画像 **E-3** 落实一致性（严禁本地 `@Transactional` 跨服务） |
+| 测试 | HTTP 内部入口可用 `@WebMvcTest` Mock Facade/Service；复杂编排单测 `*FacadeTest` |
 
 ---
 
-## 4. 域契约（*-api）
+## 4. 服务远程契约（`*-api`）
 
 | 项 | 约定 |
 |----|------|
-| 接口 | `XxxApi` + DTO/枚举 |
-| 错误码 | 域：`*-api` 的 `*ErrorCode`；BFF 守卫：`booking-common` 的 `BookingErrorCode`；系统：`hema-common` `ErrorCode` |
-| 禁止 | Spring 业务注解、实现类 |
+| 契约接口 | 远程客户端/接口（按画像 §5.4 **P-2**）+ DTO/枚举（及按 **E-4** 的事件对象） |
+| 错误码 | 领域服务：`*-api` 的 `*ErrorCode`（号段对齐画像 §3.7）；入口守卫与系统错误码对齐 `rules/exception-and-result.md` |
+| 禁止 | 放入业务实现类或违反画像 **P-6** 公共库边界的内部实体 |
 
 ---
 
-## 5. BFF API（Controller）
+## 5. BFF API（对外 Controller）
 
 | 项 | 约定 |
 |----|------|
 | 位置 | `booking-bff-app` / `booking-bff-admin` `controller/` |
-| URL | `/api/v1/booking/app/` 或 `/admin/` + OpenAPI path |
-| 响应 | `Result<T>`；成功 `code === 200` |
-| 依赖 | `@Autowired XxxApi`；**禁止** 注入 impl 内部 Service/Mapper |
-| **守卫** | 鉴权、空参/`isBlank`、简单格式（如 `endTime > startTime`）；**禁止** normalize/匹配/状态机 |
-| **守卫异常** | `throw new BizException(BookingErrorCode.…)`（`booking-common`）；**禁止** Controller 内 magic number / 硬编码文案 |
-| **系统异常** | Filter/框架层用 `com.hema.common.core.exception.ErrorCode`（如 `UNAUTHORIZED`） |
+| URL | 对外前缀对齐画像 §六（示例：`/api/v1/booking/app/` 或 `/admin/` + OpenAPI path） |
+| 响应 | 严格遵循画像 §3.7（**P-4**）与 `rules/exception-and-result.md`（源项目示例：`Result<T>`，`code === 200` 判成功） |
+| 依赖 | 经 `client/` 注入下游服务的 `*-api` 远程客户端（按画像 **P-2**）；**严禁**依赖任何领域服务的 `*-impl` |
+| **守卫** | 鉴权、空参/`isBlank`、简单格式（如 `endTime > startTime`）；**禁止** normalize/匹配/状态机/跨服务复杂写编排 |
+| **守卫异常** | 抛入口守卫错误码枚举（示例：`BookingErrorCode`）；**禁止** Controller 内 magic number / 硬编码文案 |
+| **系统异常** | 鉴权/框架层用公共系统错误码枚举（示例：`ErrorCode.UNAUTHORIZED`） |
 | **对象转换** | DTO↔VO 放 `bff.app.converter`（或 `bff.admin.converter`），**优先 MapStruct**；**禁止**在 Controller 内手写字段 builder 映射 |
 | **中文说明** | 类与公开方法须有中文 JavaDoc；`summary` 对齐 OpenAPI |
 | **Swagger** | 见下方「文档注解」；依赖 `swagger-annotations-jakarta` |
-| 测试 | `@WebMvcTest` + `@MockBean XxxApi` + MockMvc |
-| 断言 | `jsonPath("$.code")`、`$.message`、`$.data.*` |
+| 测试 | `@WebMvcTest` + `@MockBean` 下游远程客户端 + MockMvc |
+| 断言 | 按画像 §3.7 响应格式断言状态码、业务码、提示文案与关键字段 |
 
 路径与 OpenAPI、详设 §5.1 三者一致。守卫 vs 领域规则见 `rules/bff-domain-boundary.md` 与 [bff-domain-boundary-guide.md](../../detail-design/references/bff-domain-boundary-guide.md)。
 
@@ -128,7 +130,7 @@ public interface ActiveReservationBffConverter {
   <artifactId>swagger-annotations-jakarta</artifactId>
 </dependency>
 
-<!-- booking-app：运行时 Swagger UI（可选，实现启动模块时引入） -->
+<!-- 独立启动 HTTP 服务（BFF 或需要暴露 Swagger UI 的服务）：运行时 Swagger UI（按需引入） -->
 <dependency>
   <groupId>org.springdoc</groupId>
   <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
@@ -158,21 +160,21 @@ public class AppReservationController {
 }
 ```
 
-**禁止**：无中文说明的空 `@Operation`；注解文案与 OpenAPI YAML 明显冲突；在 `*-impl` 写 Swagger 注解（域无 HTTP）。
+**禁止**：无中文说明的空 `@Operation`；注解文案与 OpenAPI YAML 明显冲突；将领域服务内部 HTTP Controller 暴露到对外网网关。
 
 ---
 
-## 6. 集成 Client（外部 HTTP）
+## 6. 跨服务与外部集成 Client
 
 | 场景 | 落点 |
 |------|------|
-| 支付 | `order-impl/app/client/PaymentClient` |
-| 跨域 | `*-impl/app/client/*Client` → 注入其它 `XxxApi` |
-| 车场南向 | `adapter-api` `ParkingLotGateway`；实现在 `adapter-impl` |
+| 跨服务同步调用 | `*-impl/app/client/*Client`（或 BFF `client/`）→ 封装下游 `*-api` 远程契约（协议见画像 §5.4 **P-2**，如 OpenFeign / Dubbo / gRPC），并落实请求头透传（**P-5**）与错误解包（**P-4**） |
+| 外部支付 | `order-impl/app/client/PaymentClient` |
+| 车场南向 | 专属适配微服务 `adapter-api` `ParkingLotGateway`；实现在 `adapter-impl` |
 
-Service **调 Client**，不直接 `RestTemplate` 散落。测试 Mock Client。
+Service **调 Client**，不直接把原生 HTTP/RPC 调用代码散落在业务逻辑里。单元测试 Mock Client；单服务集成测试按 `rules/integration-test-conventions.md` 对下游微服务做模拟隔离。
 
-**写操作幂等**：见 [idempotency-guide.md](../../../reference/idempotency-guide.md)；状态迁移优先 **方案 D** 条件更新。
+**写操作幂等与消息防重**：见 [idempotency-guide.md](../../../reference/idempotency-guide.md)；状态迁移优先 **方案 D** 条件更新。
 
 ---
 
@@ -180,22 +182,22 @@ Service **调 Client**，不直接 `RestTemplate` 散落。测试 Mock Client。
 
 | 项 | 约定 |
 |----|------|
-| 落点 | 业务在 `*-impl`；**禁止** BFF 写定时/批处理入口 |
-| 触发方式 | 由详设 §1.3 选定，**不绑定**具体框架：`@Scheduled`、XXL-Job、Quartz、Admin 手动触发、MQ 延迟等均可 |
+| 落点 | 业务在归属领域微服务 `*-impl`；**禁止** BFF 写定时/批处理入口 |
+| 触发与防重 | 微服务多副本下**默认必须防重叠执行**，具体调度/分布式锁框架按画像 §5.4 **E-6**（未定则阻断） |
 | 入口层 | `*-impl/app/scheduler/`（或等价包）— **薄入口**：触发、加锁、执行记录、委托 Job |
 | 编排层 | `*Job` / `*TaskRunner` — 防重叠、重试、批处理游标 |
-| 业务层 | `*Service` — 状态机、幂等；跨域调 `XxxApi` |
+| 业务层 | `*Service` — 状态机、幂等；跨服务调用走 `app/client` 远程客户端 |
 | 设计 | [scheduled-task-guide.md](../../../reference/scheduled-task-guide.md) |
 
-**禁止**：BFF 写定时触发；入口类内大段状态机/业务逻辑（无论用何种调度写法）。
+**禁止**：BFF 写定时触发；入口类内大段状态机/业务逻辑；多副本微服务省略防重设计。
 
 ---
 
-## 9. 启动与配置（booking-app）
+## 9. 服务独立启动与网关配置
 
-- 仅 Story 明确要求时改 `{项目}/pom.xml` 聚合、全局配置
-- 不新增第二个 `@SpringBootApplication`
-- 集成测试 Mock 外部支付/车场
+- 每个 BFF 与每个领域服务 `*-impl` 各自维护独立启动类与配置（`application.yml` / `application-test.yml`）
+- 测试配置须关闭外部服务注册与远程配置拉取（按画像 §5.4 E-1），确保离线可测
+- 涉及对外路由调整时，确认 API 网关不转发领域服务内部路径并清理外部伪造请求头（按画像 P-5）
 
 ---
 

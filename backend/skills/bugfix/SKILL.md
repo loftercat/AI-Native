@@ -66,44 +66,44 @@ description: >-
 > 用户反馈常是"下单失败报 xxx"这种端到端视角，但 bugfix Skill 在某个域仓内执行（如 `order-impl`）。
 > 本节规定如何把**用户视角**下沉到**本域可复现的契约**，避免 AI 硬在本域改而引入新 bug。
 
-### 责任域定位（前置判断补充）
+### 责任服务定位（前置判断补充）
 
-五要素澄清后，多一步**定位责任域**，判断根因是否在本域：
+五要素澄清后，多一步**定位责任服务**（优先结合画像 §5.4 **E-7** 链路追踪号与 §3.7 错误码号段），判断根因是否在本服务：
 
-| 判定依据 | 责任域 | 处理 |
-|----------|--------|------|
-| 失败接口路径 `/api/v1/booking/app/...` + 错误码归属 `OrderErrorCode`（1500-1599） | 订单域 | 在 `order-impl` 跑 bugfix |
-| 错误码归属 `InventoryErrorCode`（1600-1699） | 库存域 | 提示到 `inventory-impl` 跑 bugfix |
-| 错误码归属 `BookingErrorCode`（400 段，BFF 守卫） | BFF 层 | 在 `booking-bff-app`/`booking-bff-admin` 跑 bugfix |
-| HTTP 401/403（系统级，鉴权） | C 端车主鉴权 Filter 在本仓 `booking-bff-app`；B 端经 iam auth Gateway（另仓） | 先看接口路径：`/api/v1/booking/app/*` → 在 `booking-bff-app` 跑 bugfix；`/api/v1/booking/admin/*` → 怀疑 iam，停下来跟人确认 |
-| HTTP 500 + 堆栈指向某域 | 堆栈所在域 | 按堆栈定位 |
-| 在本域尝试复现后，单域内复现不出来（按域入口测仍 GREEN/无法触发） | 怀疑跨域编排 | 停下来，提示走 `integration-test-design` 或 `api-blackbox-test`，不在本域硬改 |
+| 判定依据 | 责任服务 | 处理 |
+|----------|----------|------|
+| 调用链追踪号（`X-Trace-Id` 等，见画像 E-7）明确报错落在某微服务 | 报错所在微服务 | 直接切到该微服务跑 bugfix |
+| 错误码归属 `OrderErrorCode`（1500-1599） | 订单微服务 | 在 `order-impl` 跑 bugfix |
+| 错误码归属 `InventoryErrorCode`（1600-1699） | 库存微服务 | 提示到 `inventory-impl` 跑 bugfix |
+| 错误码归属 `BookingErrorCode`（400 段，BFF 守卫） | BFF 服务 | 在 `booking-bff-app`/`booking-bff-admin` 跑 bugfix |
+| HTTP 401/403（鉴权/路由拦截） | API 网关 / BFF 鉴权层 / 外部认证服务 | 按接口路径与网关日志区分：网关路由/头清理问题查 `booking-gateway`，BFF 鉴权查 `booking-bff-*`，外部 iam 停下来跟人确认 |
+| HTTP 500 + 堆栈指向某微服务 | 堆栈所在服务 | 按堆栈定位 |
+| 在本服务尝试复现后，单服务内复现不出来（按本服务入口测仍 GREEN/无法触发） | 怀疑跨服务编排 / 契约不一致 | 停下来，提示走 `api-blackbox-test` 或核对服务间接口契约，不在本服务硬改 |
 
-**根因不在本域** → 停下来用 AskQuestion 跟人确认换仓，**禁止**硬在本域改代码（BR-15）
+**根因不在本服务** → 停下来用 AskQuestion 跟人确认换服务/换仓，**禁止**硬在本服务改代码（BR-15）
 
 ### 复现层级选择（Step 1 补充）
 
-在本域跑 Step 1 时，复现测试测**域入口**，不测内部分支：
+在本服务跑 Step 1 时，复现测试测**本服务入口**，不测内部分支：
 
-| 域 | 域入口（复现测试测这里） | 不测 |
-|----|------------------------|------|
-| order | `OrderApi`（ApiImpl）/ `*Facade` | 内部 `*Service` 私有分支（靠已有单测覆盖） |
-| inventory | `InventoryApi` / `*Facade` | 同上 |
-| BFF | `@WebMvcTest` + MockMvc 打 Controller | Service 内部 |
+| 服务类型 | 入口（复现测试测这里） | 不测 |
+|----------|------------------------|------|
+| 领域微服务（order / inventory 等） | 本服务内部远程入口（内部 Controller 或 RPC Provider，按画像 P-2）/ `*Facade` | 内部 `*Service` 私有分支（靠已有单测覆盖） |
+| BFF | `@WebMvcTest` + MockMvc 打对外 Controller | 下游微服务内部 |
 
-> 复现测试测域入口 = 用与"BFF 会传下来的 DTO + 域内状态"等价的输入，在域入口触发与用户一致的失败。
+> 复现测试测服务入口 = 用与「上游网关/BFF/服务会传下来的入参、透传头 + 本服务内状态」等价的输入，在入口触发与用户一致的失败。
 
-### 跨服务依赖处理（Step 1 补充）
+### 跨服务下游依赖处理（Step 1 补充）
 
-复现测试里其他域 `XxxApi` 的处理方式（与现有 `*ServiceTest`/`*FacadeTest` 风格一致）：
+复现测试里其他微服务的处理方式（按画像 §5.4 **P-2** 协议与 `rules/integration-test-conventions.md` 对齐）：
 
 | 依赖 | 处理 | 理由 |
 |------|------|------|
-| 其他域 `XxxApi`（inventory/payment/push 等） | **Mock**（Mockito `@Mock`） | V1 同 JVM，单测层不连真依赖；跨域编排归 IT |
-| 外部系统（支付/车场/IoT） | **Mock Client** | 不连外网 |
-| DB | **@Sql fixture 或 Mock Mapper** | 与 `integration-test-design` 一致 |
+| 进程外下游微服务（如 order 调 inventory） | 单测层用 Mockito `@Mock` 远程客户端；需复现 HTTP 序列化/错误码解包/超时问题时用 **WireMock**（RPC 协议用对应 Stub） | 微服务隔离，不连真实下游服务 |
+| 外部系统（支付/车场/IoT） | Mock Client 或 WireMock | 不连外网 |
+| 本服务 DB | `@Sql` fixture（本服务容器库）或 Mock 持久化层 | 与 `integration-test-design` 一致 |
 
-> 真要全链路真依赖 → 不在 Step 1，走 Step 6 切 `integration-test-design` 或 `api-blackbox-test`。
+> 真要多微服务真实联调验证 → 不在 Step 1，走 Step 6 切 `api-blackbox-test`（部署态）。
 
 ### 用户可见现象 ↔ 域内断言映射（Step 1 补充）
 
@@ -138,7 +138,7 @@ Step 6 默认跑 `mvn -pl` 单测；以下情况**必须**额外切 `api-blackbo
 | 1 | 受影响测试范围指引 | `references/impact-scope-guide.md` | **阻断** |
 | 2 | 修复报告模板 | `templates/fix-report-template.md` | **阻断** |
 | 3 | 系统画像 | `architecture/system-landscape.md` | 降级 |
-| 4 | 工程骨架 | `booking-app` 模块结构 | 降级 |
+| 4 | 工程骨架 | 目标微服务工程结构（按画像 §二 与 §5.4 P-1） | 降级 |
 | 5 | 迭代 | `config/current-sprint` | — |
 
 > **缺失阻断提示**：「缺受影响测试范围指引/修复报告模板，无法执行七步闭环」
@@ -290,14 +290,13 @@ Step 6 默认跑 `mvn -pl` 单测；以下情况**必须**额外切 `api-blackbo
 
 **动作**：按改动位置决定跑哪些测试（详见 `impact-scope-guide.md` 决策树）
 
-**分级规则摘要**（分级看**改动符号**——改的是方法签名还是方法体内部逻辑，不是被测方法本身的可见性）：
-- 改 private/本类内部符号 → 跑该模块 `mvn -pl <module>/<impl> -am test`
-- 改 public 方法**体内部逻辑**（非签名，契约没变） → 跑该 impl 模块（跨模块方通过 api mock 调用，不受 impl 内部变化影响）
-- 改 public 方法**签名** 或 *-api 接口/DTO（契约变） → 跑所有依赖该 api 的模块
-- 改 booking-common → 跑全量 `mvn test`
-- 改 hema-common → 停下来，不归本仓库，交还人工
-- 改 MyBatis XML → 跑该模块 + 该 Mapper 所有测试方法
-- 改 OpenAPI 文档 → 跑 `tests/blackbox` 相关黑盒脚本
+**分级规则摘要**（分级看**改动符号与服务契约边界**，构建命令按画像 §5.4 P-1 单仓/多仓适配）：
+- 改本服务 `*-impl` 内部逻辑或内部签名（未改 `*-api` / 内部接口契约）→ 仅跑本服务测试（单仓 `mvn -pl <service>/<impl> -am test`，多仓 `mvn test`）
+- 改 `*-api` 远程契约接口 / DTO / 内部 OpenAPI 或 `.proto`（跨服务契约变）→ 跑本服务 + 所有消费服务（单仓 `mvn -pl ... -am test`；多仓须发布契约制品/同步契约后在受影响服务仓验证）
+- 改 `booking-common`（公共横切库）→ 单仓跑全量 `mvn test`，多仓触发消费服务回归
+- 改外部公司级公共基础库（如 `hema-common`）→ 停下来，不归当前项目仓，交还人工
+- 改持久化查询（如 MyBatis XML / JPA Query）→ 跑本服务 + 对应持久化测试类
+- 改对外/对内接口契约（`docs/api/`）→ 额外跑 `tests/blackbox` 相关黑盒脚本
 
 **失败回退**：
 - 测试失败 → 修代码（不是修测试），**计数器 +1**

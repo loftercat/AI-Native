@@ -6,22 +6,23 @@
 
 回答三个问题，产出 TS §2~§6：
 
-1. **每条 AC 测不测、在哪层测**（单元 / BFF API / Mapper / 集成）
-2. **失败 AC 断言写什么**（具体 `code` / `message`，禁止「提示错误」）
-3. **Fixture 给什么**（输入、Mock 返回、边界值）
+1. **每条 AC 测不测、在哪层测**（单元 / 入口 API / 持久化层 / 单服务集成 `*IT` / 跨服务黑盒）
+2. **失败 AC 断言写什么**（具体错误码与文案，对齐画像 §3.7，禁止「提示错误」）
+3. **Fixture 给什么**（输入、Mock/桩返回、边界值）
 
-## 2. AC → 用例归属规则
+## 2. AC → 用例归属规则（微服务分层）
 
 | AC 特征 | 归属层 | 理由 |
 |---------|--------|------|
-| 纯算法/规则（匹配、排序、窗口、状态判断） | 单元 `*ServiceTest` 或专用工具类 Test | 域内逻辑，Mock 依赖即可验证 |
-| 领域业务成败（库存、状态机、错误码） | 单元（断言 `BizException.code`）+ 可选 Mapper 验证数据 | 错误码在 `*-api`，文案在 Story |
-| HTTP 路由、参数校验、DTO 装配、鉴权 | BFF API `@WebMvcTest`（Mock 域 `XxxApi`） | 只测 BFF，不碰 DB |
-| 数据过滤/映射 SQL（状态过滤、时间窗） | Mapper Test（真实 H2 + 种子） | SQL 语义须真库验证 |
-| 跨模块串联 / 外部系统链路 | 集成 `@SpringBootTest`（可选） | 归 `integration-test-design` 消费 |
-| 纯 UI / 地图 / 第三方页面 | **前端-only / N/A** | 本仓库不测，写 §5 标注 |
+| 纯算法/规则（匹配、排序、窗口、状态判断） | 单元 `*ServiceTest` 或专用工具类 Test | 本服务内逻辑，Mock 依赖即可验证（无 DB） |
+| 领域业务成败（库存、状态机、错误码） | 单元（断言业务异常 code/message）+ 按需持久化层测试 | 错误码在 `*-api`，文案在 Story |
+| HTTP 路由、参数校验、DTO 装配、鉴权 | 入口 API `@WebMvcTest`（BFF 或领域内部 HTTP，Mock 下游客户端/Service） | 只测入口层，不碰 DB |
+| 数据过滤/映射 SQL（状态过滤、时间窗、条件更新） | 持久化层测试（按画像 §5.4 **P-3** ORM 选型 + 本服务 **Testcontainers MySQL**） | SQL/持久化语义须真实 MySQL 容器验证（禁止用 H2） |
+| **单服务完整链路 + 下游远程契约保真** | **单服务集成 `*IT`（本服务真实 DB，进程外下游微服务按 P-2 用 WireMock/Stub 模拟）** | 归 `integration-test-design` 消费；守本服务事务、落库与远程协议层 |
+| **跨微服务真实串联主链路** | **部署后 `api-blackbox-test`（及画像 §5.4 E-5 可选契约测试）** | 单服务 `*IT` 隔离下游进程，真实多服务联调由部署后黑盒补位 |
+| 纯 UI / 地图 / 第三方页面 | **前端-only / N/A** | 本后端不测，写 §5 标注 |
 
-**判定顺序**：先看 AC 语义属于「HTTP 契约」「领域规则」「数据访问」「端到端」哪一类，再落到上表。同一条 AC 可拆多个层（如 AC-01 在单元+BFF 各一条用例）。
+**判定顺序**：先看 AC 语义属于「入口契约」「领域规则」「数据访问」「单服务集成」「跨服务主链路」哪一类，再落到上表。同一条 AC 可拆多个层（如 AC-01 在单元 + 入口 API + 跨服务黑盒各一条用例）。
 
 ## 3. 失败 AC 断言写法
 
@@ -32,7 +33,7 @@
   assertEquals(1601, ex.getCode());
   assertEquals("无可预约的车位", ex.getMessage());
   ```
-- **HTTP 层**：本仓库 `Result` 业务失败 `code !== 200`，HTTP 层可为 200。断言写 `Result.code`，不写 HTTP 状态（除非 OpenAPI 明确 4xx）。
+- **HTTP 层**：按项目画像 §3.7（`§5.4 P-4`）响应形态断言——若采用统一包装体（示例 `Result<T>`，`code !== 200`），断言 `body.code` 与 `body.message`（HTTP 状态可为 200）；若采用 HTTP 状态码模式，断言对应 `4xx/5xx` 与错误响应体。
 
 ## 4. Fixture / 边界值设计
 
@@ -59,5 +60,5 @@
 | 把 BFF API 测试写成带 DB 的集成测试 | BFF `@WebMvcTest` Mock 域，不碰 DB |
 | 失败 AC 只写「返回错误」 | 回 Story/详设找文案；找不到写 §6 阻断 |
 | 所有 AC 堆到一个 `@SpringBootTest` | 按 §2 分层归属，越底层越多 |
-| 断言 HTTP 500 而非 `Result.code` | 本仓库业务失败 HTTP 层可为 200，断言 `Result` |
+| 断言 HTTP 状态与响应体不对齐画像 §3.7 | 按画像 §3.7（P-4）约定断言（统一包装体示例断言 `Result.code`；HTTP 状态码模式断言对应 `4xx/5xx`） |
 | 遗漏「前端-only」AC 的 Java 测试 | 标 §5 N/A，`feature-coding` 不写 |

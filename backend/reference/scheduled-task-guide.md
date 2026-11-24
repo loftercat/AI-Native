@@ -1,7 +1,7 @@
 # 定时任务高可靠设计实践指南（Java）
 
 > **L1 静态层上下文资产**：`detail-design` 步骤 6 在 AC/BR 出现批处理、对账、调度、定时清理、超时扫描等关键词时加载本指南。  
-> **本仓库 V1**：单体 `booking-app`；任务逻辑在 `*-impl`，`@EnableScheduling` 在 `booking-app`；详见 [system-landscape.md](../architecture/system-landscape.md)、HLD 集成矩阵「定时任务」行。
+> **微服务多实例要求**：每个领域微服务各自运行自身的定时任务，**禁止**将所有任务集中在单一启动模块；微服务默认多副本部署，**必须设计防重叠执行方案**（具体调度与分布式锁框架见 [system-landscape.md](../architecture/system-landscape.md) §5.4 **E-6**，未定则详设阻断）。
 
 ---
 
@@ -26,20 +26,21 @@
 | 对账 / 同步 | 与支付系统、车场系统状态核对 | `order-impl` `PaymentClient` / `ParkingLotGateway` |
 | 统计报表 | 日/周预约量（Admin） | `booking-bff-admin` 只读查询；批处理在域 Service |
 
-**V1 边界**（HLD）：优先 **Spring `@Scheduled` + DB 防重叠**；RocketMQ 延迟消息为 V2+ `[AI推断]`。
+**选型说明**：多实例防重方案以画像 §5.4 **E-6** 为准；若需延迟消息替代轮询扫描，按画像 §5.4 **E-2**（MQ）拍板决定。
 
 ---
 
 ## 三、设计原则
 
-### 原则 1：防重叠（同一时刻只有一个实例执行）
+### 原则 1：防重叠（同一时刻只有一个实例执行，微服务必守）
 
-**V1 推荐路径**（按部署形态选型）：
+微服务默认多副本部署，**禁止以「单实例可接受」跳过防重叠设计**；具体方案按画像 §5.4 **E-6** 选型：
 
-| 部署 | 方案 | 说明 |
-|------|------|------|
-| **单实例**（V1 默认可接受） | 仅 `@Scheduled` | 无多副本则无重叠；详设 §1.3 注明部署假设 |
-| **多副本 / V2+** | **DB 分布式锁** 或 **ShedLock（JDBC）** | 与现有 MySQL 一致，不强制 Redis |
+| 方案（画像 E-6 备选） | 说明 |
+|------|------|
+| **ShedLock（JDBC / Redis）** | 轻量注解式分布式锁，适合轻量 `@Scheduled` |
+| **DB 分布式锁表** | 基于本服务独立数据库，不额外引入中间件 |
+| **XXL-JOB / K8s CronJob** | 独立调度中心或容器层统一调度，适合大量任务统一管控与重试 |
 
 **DB 锁（示意，详设须定表名与 TTL）**：
 
@@ -183,18 +184,18 @@ log.error("[Scheduler] task={} failed", taskName, exception);
 ## 四、本仓库分层落点
 
 ```text
-booking-app          调度开关/配置（如 @EnableScheduling，仅一处；具体触发方式见详设 §1.3）
+{service}-impl       各服务独立启用调度开关（如 @EnableScheduling 或调度中心执行器，按画像 E-6）
 order-impl           app/scheduler/* 薄入口 + *Job；业务在 Service
-inventory-impl       库存相关定时释放（若独立）
-*-impl               infrastructure：SchedulerExecutionMapper + XML
+inventory-impl       库存相关定时释放（归属库存微服务独立调度）
+*-impl               infrastructure：本服务独立 SchedulerExecution 持久化
 ```
 
 | 组件 | 路径 | 职责 |
 |------|------|------|
-| 薄入口 | `*-impl/app/scheduler/` | 触发适配（`@Scheduled` / XXL-Job / 手动等）→ 加锁 → 委托 Job |
+| 薄入口 | `*-impl/app/scheduler/` | 触发适配（`@Scheduled` / XXL-Job / K8s CronJob 等）→ 分布式锁防重 → 委托 Job |
 | `*Job` | 同上或 `app/job/` | 编排：记录执行、重试、调 Service |
 | `*Service` | `app/service/` | 单条/批量业务；**状态机与幂等** |
-| 跨域 | `app/client/InventoryClient` | 释放库存调 `InventoryApi`，禁止入口直调 Mapper 跨域 |
+| 跨服务调用 | `app/client/*Client` | 释放库存经远程契约调用下游微服务（按画像 P-2），禁止跨服务直连他库 |
 
 **禁止**：
 
@@ -275,8 +276,8 @@ public class SchedulerTaskRunner {
 
 ## 八、设计 Checklist（详设专项节粘贴）
 
-- [ ] 任务归属模块（`order-impl` / `inventory-impl`）与 cron 配置项
-- [ ] V1 单实例还是多副本？防重叠方案（无 / DB 锁 / ShedLock）
+- [ ] 任务归属微服务（`order-impl` / `inventory-impl`）与调度配置项
+- [ ] 多实例防重叠方案已对齐画像 §5.4 E-6（ShedLock / DB 锁 / XXL-JOB / K8s CronJob；禁止省略防重）
 - [ ] 锁 TTL / `lockAtMostFor`；长任务是否续期或拆批
 - [ ] 失败重试策略与最大次数
 - [ ] 是否 `scheduler_execution` 表；字段与索引

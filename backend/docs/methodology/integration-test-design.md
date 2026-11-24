@@ -9,14 +9,14 @@
 
 ## 1. 一句话定位
 
-**把「双 BFF + 域 + Mapper + 外部依赖」的真实链路在 `booking-app` 里编排成可重复的集成测试，并建立「测试 DB / 测试入口 / 外部 Mock」三个前置决策的统一规范。**
+**把单个微服务内「真实入口 → 业务逻辑 → 持久化/独立容器 DB」的关键链路编排成可重复的单服务集成测试（进程外下游微服务与第三方系统一律模拟隔离），并建立「测试 DB / 测试入口 / 模拟边界」三个前置决策的统一规范。**
 
-- **输入**：详设时序图 + 跨域调用矩阵 + 系统画像集成矩阵
-- **产出**：`booking-app/src/test/java/` 集成测试方案 + 基建（BaseIT、TestDataFactory、种子数据、Mock 策略）
-- **不做**：单元测试 / BFF API 测试（`feature-coding` 承担）、存量测试审计（`test-quality-audit`）、Bug 修复（`bugfix`）
-- **触发时机**：V1 末期接入真实支付/车场前，或需要验证「关键链路真实 SQL + 事务 + 约束」时
+- **输入**：详设时序图 + 跨服务通信矩阵 + 系统画像（§3.6 / §四 / §5.4）
+- **产出**：各微服务 `src/test/java/` 独立集成测试基建（本服务 `AbstractIntegrationTest`、`TestDataFactory`、本服务种子数据、Mock/WireMock 策略）
+- **不做**：单元测试 / 入口 MockMvc 测试（`feature-coding` 承担）、多微服务真实联调主链路验证（部署后归 `api-blackbox-test`）、存量测试审计（`test-quality-audit`）、Bug 修复（`bugfix`）
+- **触发时机**：需要验证单个微服务内真实 SQL + 本地事务 + 状态机落库 + 下游远程契约保真时
 
-**与 `feature-coding` 的边界**：`feature-coding` 的集成测试是「按需、Mock 外部支付/车场」；本 Skill 专管**真实编排与保真策略**，是集成测试的权威入口。
+**与 `feature-coding`、`api-blackbox-test` 的边界**：`feature-coding` 管单服务单元与入口 MockMvc 测试；本 Skill 管**单服务**白盒集成测试 `*IT`（真实 DB + 下游微服务模拟隔离）；**跨服务真实主链路**由部署后 `api-blackbox-test`（及可选画像 §5.4 E-5 契约测试）守卫。
 
 ---
 
@@ -28,15 +28,14 @@
 
 **解决什么问题**：测试环境与生产 MySQL 的**保真度**——H2 只近似 MySQL，会漏掉 XML SQL / 事务 / 约束的真实行为，导致测试误报或漏报。
 
-**当前仓库事实（已取消 H2）**：
+**微服务下每服务独立数据库事实（已取消 H2）**：
 
-| 项 | 现状 |
+| 项 | 约定 |
 |----|------|
-| `booking-app` 数据源 | `jdbc:mysql://localhost:3306/booking`（运行时）；测试由 Testcontainers MySQL 注入 |
-| Mapper 测试 | `@MybatisTest` + `@AutoConfigureTestDatabase(replace = NONE)` + Testcontainers MySQL（`order-impl` / `inventory-impl` 各一个 `AbstractMySqlContainerTest` 基类） |
-| 集成测试 | `booking-app` 集成测试继承 `AbstractIntegrationTest`（其再继承 `AbstractMySqlContainerTest`），`RANDOM_PORT` + Testcontainers MySQL |
-| schema 初始化 | Mapper 测试：`withInitScript("schema.sql")`（`order-impl` / `inventory-impl` 本模块表子集）；集成测试：`@SpringBootTest` 启动时 **Flyway 自动迁移** `booking-app/src/main/resources/db/migration/`；种子数据由各 `*IT` 的 `@Sql` 引用 `db/test-data/*.sql` |
-| 根 pom | `testcontainers-bom`（2.0.5）优先于 spring-boot-dependencies 声明；`commons-lang3` 显式升至 3.14 |
+| 每服务独立数据源 | 每个有库的微服务各自维护独立数据源与独立 Flyway 目录 `{service}-impl/src/main/resources/db/migration/`；测试由 Testcontainers MySQL 注入 |
+| 持久化单测 | 按画像 §5.4 P-3 ORM 选型（如 MyBatis `@MybatisTest` / JPA `@DataJpaTest`）+ Testcontainers MySQL |
+| 单服务集成测试 | 每个微服务各自维护 `AbstractIntegrationTest`（继承容器基类）+ 测试 profile 关闭外部注册发现（按画像 E-1） |
+| schema 初始化 | 单服务集成测试由**本服务 Flyway 自动迁移**；若持久化单测另建 `src/test/resources/schema.sql`，须与本服务 Flyway 结果逐表同构；种子数据由本服务 `*IT` 引用本服务 `db/test-data/*.sql` |
 
 **兼容性风险分层**（已不存在 H2 近似问题，MySQL 直接验证真实行为）：
 
@@ -53,58 +52,35 @@
 | 单元测试 | Service/Facade/Converter（Mock Mapper） | **无 DB**（0 依赖） |
 | BFF API 测试 | `@WebMvcTest` / Mock `XxxApi` | **无 DB** |
 | Mapper 测试 | `@MybatisTest`（验证 XML SQL 真实可执行） | **Testcontainers MySQL** |
-| 关键链路集成测试 | `booking-app/src/test/` | **Testcontainers MySQL** |
+| 关键链路单服务集成测试 | 各微服务 `src/test/java/` | **本服务 Testcontainers MySQL** |
 
-**共享决策原则**：Mapper 测试与集成测试跑同一批 XML，**共用一套 DB 判定、一个 MySQL 容器**；Mapper 测试 schema 与 Flyway 迁移结果逐表同构，禁止各自为政（同一 SQL 一边绿一边红 = 谁都没验证对）。
-
-**配套动作（已落地）**：运行时与集成测试由 Flyway 管理 `booking-app/src/main/resources/db/migration/`；`order-impl` / `inventory-impl` 各保留本模块 `schema.sql` 供 `@MybatisTest` 使用，须与 Flyway 结果逐表同构。
+**独立迁移原则**：各服务只管理自己独占表的迁移脚本，禁止多个微服务共享同一 Flyway 目录或跨库建测试表。
 
 ### 2.2 决策 B：测试入口形态（MOCK vs RANDOM_PORT）
 
-**对比**：
-
-| 维度 | `@SpringBootTest`（webEnvironment=**MOCK**）+ MockMvc | `@SpringBootTest`（webEnvironment=**RANDOM_PORT**）+ `TestRestTemplate` / `WebTestClient` |
-|------|------------------------------------------------------|--------------------------------------------------------------------------|
-| 是否 bind 端口 | ❌ 否，内部派发 DispatcherServlet | ✅ 真实监听随机端口 |
-| 是否走完整 Filter 栈 | ⚠️ 需显式配置 | ✅ 完整（`AppAuthFilter` 鉴权、CORS 等） |
-| 是否走真实 HTTP 序列化 | ❌ 内部 dispatch | ✅ 真实序列化/反序列化 |
-| 是否启动 Servlet 容器 | ❌ | ✅ |
-| 能否验证「启动级真实链路」 | 不能 | 能 |
-| DB 要求 | 可无 DB（Mock 上游） | 通常要真实 DB |
-| 速度 | 快 | 稍慢（容器启动开销） |
-
-**结论：两层都保留，不二选一**：
+**结论：两层都保留，按服务入口协议适配**：
 
 | 层 | 推荐形态 | 位置 |
 |----|----------|------|
-| BFF API 测试（现状） | `@SpringBootTest(MOCK)` + MockMvc + `@MockBean XxxApi` | 保持不变（快、无 DB、测 Controller 守卫） |
-| 关键链路集成测试（新） | **`RANDOM_PORT` + `TestRestTemplate`** | `booking-app/src/test/java/` |
+| 入口 API 测试 | `@SpringBootTest(MOCK)` / `@WebMvcTest` + MockMvc + Mock 下游远程客户端 | 各 BFF / 领域服务 `src/test/java/` |
+| 单服务集成测试（HTTP 入口） | **`RANDOM_PORT` + `TestRestTemplate`（或 `WebTestClient`）** | 各微服务 `src/test/java/` |
+| 单服务集成测试（RPC 入口，若 P-2 选 Dubbo/gRPC） | 启动本服务真实 Spring 上下文 + 真实容器 DB，调本服务真实 Provider 入口 | 各微服务 `src/test/java/` |
 
-理由：集成测试要验证「HTTP 入口 → Filter 鉴权 → BFF → 域 provider/facade/service → 真实 Mapper/DB」全链路成立，MockMvc 绕过真实 Servlet 容器和 Socket，测不到 Filter 完整行为，不叫集成测试。同步单体用 `TestRestTemplate` 足够；`WebTestClient` 是加分项。**禁止 `DEFINED_PORT`**（固定端口并发冲突）。
+**禁止 `DEFINED_PORT`**（固定端口并发冲突）；测试 profile 必须关闭外部注册中心（按画像 §5.4 E-1）。
 
-### 2.3 决策 C：外部依赖 Mock 形态（@MockBean vs WireMock）
+### 2.3 决策 C：下游微服务与外部依赖 Mock 边界
 
-**仓库外部依赖**（system-landscape §四）：支付系统（`PaymentClient`）、iam-server（B 端 Token）、封闭式车场系统（`ParkingLotGateway` → 厂商 adapter）、室内导航（BFF 直调）。
+**微服务核心原则**：本服务边界之内一律真实（禁止 Mock 本服务 Service/持久化/DB）；**本服务边界之外（所有进程外下游微服务 + 第三方外部系统）一律模拟隔离**。
 
-**选项对比**：
+| 测试目标 | 模拟形态 |
+|----------|----------|
+| 单元测试 | Mockito `@Mock`（Mock 持久化层、下游远程 Client、外部 Client） |
+| 入口 API 测试 | `@MockBean` 下游远程 Client 或 Service |
+| 单服务集成测试 — **进程外下游微服务**（见画像 §3.6） | 画像 P-2 为 HTTP → **优先 WireMock**（对齐下游 OpenAPI）；P-2 为 RPC → RPC 测试 Stub / `@MockBean`；若画像 E-5 选定 SCC/Pact → 按工具生成校验契约桩 |
+| 单服务集成测试 — **第三方外部系统**（支付/车场） | 链路通过用 `@MockBean`，请求格式/签名/回调/错误码保真用 **WireMock** |
+| 外部认证（iam-server） | 测试 JWT 或 Mock 校验组件，不依赖真实认证服务 |
 
-| 形态 | 机制 | 优点 | 缺点 | 适用 |
-|------|------|------|------|------|
-| `@MockBean` / `@Mock` | Spring 容器内替换 Bean，stub 方法返回值 | 简单、快、零配置 | 完全绕过 Client 的 HTTP 序列化/超时/重试/错误映射 | 链路通过性测试（Service/Facade/BFF） |
-| **WireMock** | 独立端口起 HTTP 桩，返回预置 JSON | Client 走真实 HTTP，能验证请求格式/签名/响应解析/错误码映射 | 慢一点、需维护 wiremock 映射 JSON | **Client / Adapter 契约保真测试**（`PaymentClient`、`{厂商}ParkingAdapter`） |
-| MockWebServer（OkHttp） | 轻量 HTTP 桩 | 更轻量、直接断言请求 | 生态不如 WireMock 完善 | 底层请求/响应验证（可选） |
-
-**结论：按「外部契约 vs 链路通过」分层，不全局统一**：
-
-| 测试目标 | Mock 形态 |
-|----------|-----------|
-| Service / Facade 单元测试 | Mockito `@Mock`（Mock `XxxApi`、Mapper、Client）—— 现状 |
-| BFF API 测试 | `@MockBean XxxApi` —— 现状 |
-| 集成测试「链路通过性」（跨域编排、状态机、DB 事务） | `@MockBean` 替换 `PaymentClient` / `ParkingLotGateway` —— **不 Mock 本 Story 核心链路** |
-| 集成测试「外部契约保真」（`PaymentClient` 请求/回调解析、`{厂商}ParkingAdapter` HTTP 接口、支付回调） | **WireMock** 起真实 HTTP 桩 |
-| iam-server Token 校验 | 集成测试提供测试 JWT（或 Mock 校验组件），**不依赖真实认证服务** |
-
-**边界写入 `mock-strategy.md`**：`@MockBean` 管「链路通过」，WireMock 管「外部契约」，两者不可混用。当前 `feature-coding` 已强制「V1 集成测试不依赖 Nacos / 外部支付真实环境（Mock Client）」——本决策在其之上补齐「何时用 WireMock 做保真」。
+**跨服务真实联调补位**：单服务集成测试不启动真实下游进程；多微服务真实串联主链路验收由部署后 `api-blackbox-test` 承担。
 
 ---
 
@@ -114,13 +90,9 @@
 
 | 资产 | 路径 | 关键内容 |
 |------|------|----------|
-| 测试分层 Rule | `rules/tdd-project-conventions.md` | 集成测试位置 `booking-app/src/test/java/`；Mock Client |
-| Mock 边界 | `skills/feature-coding/references/test-quality.md` | 集成测试 Mock `PaymentClient` / `ParkingLotGateway`，不 Mock 核心链路 |
-| 集成矩阵 | `architecture/system-landscape.md` §四 | 支付/iam-server/车场/室内导航的集成方式 |
-| 跨域约定 | `architecture/system-landscape.md` §3.6 | V1 同 JVM `@Autowired XxxApi` 经 `app/client` |
-| 集成测试样板 | `booking-bff-app/.../AppReservationControllerTest.java` | `@SpringBootTest(classes=...)` + `@AutoConfigureMockMvc` + `@MockBean` |
-| 启动配置 | `booking-app/src/main/resources/application.yml` | MySQL（`localhost:3306/booking`）、schema.sql、MyBatis XML |
-| 聚合模块 | `booking-app/pom.xml` | 唯一 `@SpringBootApplication` |
+| 测试分层 Rule | `rules/tdd-project-conventions.md` | 单服务测试分层与关闭注册中心约定 |
+| Mock 边界 | `skills/feature-coding/references/test-quality.md` | 本服务内真实，外部与下游模拟隔离 |
+| 通信矩阵与外部集成 | `architecture/system-landscape.md` §3.6 / §四 / §5.4 | 下游微服务清单、P-2 调用协议、P-3 ORM、E-1 注册中心、E-5 契约测试 |
 
 ### 3.2 需新建（当前缺口）
 
@@ -152,13 +124,13 @@
 第 2 步：写 `skills/integration-test-design/references/` 三份配套指南
    │
    ▼
-第 3 步：搭 booking-app/src/test 基建（BaseIT、TestDataFactory、种子 SQL、Testcontainers 配置、WireMock 配置）
+第 3 步：在各目标微服务搭 `{service}-impl/src/test` 基建（本服务 `AbstractIntegrationTest`、`TestDataFactory`、种子 SQL、Testcontainers 配置、WireMock/Stub 配置）
    │
    ▼
 第 4 步：写 skills/integration-test-design/SKILL.md（执行层，引用 1~3 步资产 + Golden）
    │
    ▼
-第 5 步：联动更新 feature-coding SKILL / tdd rule / methodology readme（声明「集成测试从 integration-test-design 消费」）
+第 5 步：联动更新 feature-coding SKILL / tdd rule / methodology readme（声明「单服务集成测试从 integration-test-design 消费，跨服务主链路归 api-blackbox-test」）
 ```
 
 ### 各步验收标准
@@ -166,9 +138,9 @@
 | 步骤 | 验收 |
 |------|------|
 | 0 | 三决策成文（本文件 §2 即决策记录） |
-| 1 | Rule 可被 Agent 在写任何 Mapper/集成测试时自查（含 4 条触发器） |
+| 1 | Rule 可被 Agent 在写任何持久化/集成测试时自查 |
 | 2 | 三指南成文，Mock 边界与决策 C 一致 |
-| 3 | `mvn test` 在 `booking-app` 可跑通一条最小集成链路（示例：创建预约 → Mapper 落库 → 查回） |
+| 3 | 在目标微服务中可独立跑通一条最小单服务集成链路（示例：创建预约 → 本服务落库 → 下游库存 WireMock 桩校验） |
 | 4 | Skill 步骤 1 资产清单完整，缺失阻断策略明确 |
 | 5 | `feature-coding` 不再自行发明集成测试规范 |
 
@@ -184,7 +156,7 @@ detail-design（时序图 + §9 测试策略）
 test-spec-alignment（已落地）    integration-test-design（决策 + 指南 + 基建 + SKILL）
 产出 TS-STORY-*.md               │
         │                          ▼
-        └──── 集成层用例（若有）──► booking-app/src/test/ 集成测试
+        └──── 单服务集成用例 ───► 各微服务 `src/test/` 单服务 `*IT`（跨服务主链路 → `api-blackbox-test`）
 ```
 
 - `feature-coding` 只负责 Story 范围的单元/BFF API 测试；涉及**关键链路集成测试**时切换到本 Skill

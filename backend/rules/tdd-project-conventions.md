@@ -1,9 +1,9 @@
-# TDD 项目约定
+# TDD 项目约定（微服务版）
 
 ## 技术栈
 
-- Java 21、JUnit 5、Mockito、Spring Boot Test
-- 构建：Maven（`mvn test` / `mvn test -pl {module}`）
+- Java 21、JUnit 5、Mockito、Spring Boot Test（ORM 与调用协议见 [system-landscape.md](../architecture/system-landscape.md) §5.4）
+- 构建：Maven（单仓库多服务用 `mvn test -pl {service-module} -am`；独立仓库直接 `mvn test`）
 
 ## 流程
 
@@ -15,24 +15,25 @@
 
 | 层 | 路径 | 说明 |
 |----|------|------|
-| 域单元测试 | `*-impl/src/test/java/` | Service、状态机；Mock Mapper、`XxxApi`、Client |
-| BFF API 测试 | `booking-bff-app/`、`booking-bff-admin/` 的 `src/test/java/` | `@WebMvcTest` + MockMvc；Mock 域 `XxxApi` |
-| 启动集成 | `booking-app/src/test/java/`（按需） | `@SpringBootTest` 关键链路 |
+| 服务单元测试 | 各领域服务 `*-impl/src/test/java/` | Service、Facade、状态机；Mock 持久化层、下游远程客户端、外部 Client；**无 DB** |
+| 入口 API 测试 | 各 BFF 或领域服务 `src/test/java/` | `@WebMvcTest` / `@SpringBootTest(MOCK)` + MockMvc；Mock 下游远程客户端或 Service；**无 DB** |
+| 单服务集成测试 | 各微服务 `src/test/java/`（按需，归 `integration-test-design`） | `@SpringBootTest` 本服务真实链路 + 独立容器 DB；下游微服务模拟隔离 |
+| 跨服务主链路验证 | `tests/blackbox/`（部署后，归 `api-blackbox-test`） | 多服务真实联调与主流程验收 |
 
-**注意**：Controller 测试在 **BFF 模块**，不在 `*-impl`。
+**注意**：对外 HTTP Controller 测试在 BFF 服务，内部远程入口测试在对应领域服务 `*-impl`；禁止跨服务测试耦合。
 
 ## 断言
 
-- 对齐 Story AC 可见结果：HTTP 状态、`Result.code`、关键 `data` 字段
-- 域测试：业务码、`BizException`、状态迁移
-- 模块与类名以详设 §8 为准
+- 对齐 Story AC 可见结果：响应状态、业务码与关键返回字段（响应格式以画像 §3.7 为准）
+- 领域服务测试：业务码、异常语义、状态迁移、向下游发起的远程调用参数
+- 服务与类名以详设 §8 为准
 
 ## 需求变更
 
 - 无 Story「变更记录」→ 拒绝偷偷改 AC
 - 有变更记录 → 先改/删废弃测试，再红绿
 
-## 与详设
+## 与详设及环境隔离
 
-- 先详设后编码；OpenAPI 与 Controller 路径一致
-- V1 集成测试不依赖 Nacos / 外部支付真实环境（Mock Client）
+- 先详设后编码；对外/对内接口契约与实现路径一致
+- 单服务单元测试与集成测试必须关闭服务注册发现（按画像 §5.4 E-1），不依赖外部注册中心、真实下游服务或真实第三方支付环境

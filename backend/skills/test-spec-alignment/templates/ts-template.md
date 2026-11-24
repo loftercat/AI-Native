@@ -29,10 +29,11 @@
 
 | 层 | 测试类 | 覆盖 AC / BR | Mock 什么 | 不 Mock 什么 | 备注 |
 |----|--------|--------------|-----------|--------------|------|
-| 单元 | `XxxServiceTest` | | 依赖的 Mapper/外部 `XxxApi` | 被测 Service 自身逻辑 | |
-| BFF API | `XxxControllerTest`（`@WebMvcTest`） | | 下游域 `XxxApi` | 无 DB | |
-| Mapper | `XxxMapperTest`（真实 H2） | | 无 | H2 真库 + 种子数据 | 主键查询可走 MP |
-| 集成（可选） | `@SpringBootTest` | | 外部系统（支付/车场/iam） | 真 DB | 归 `integration-test-design` 消费 |
+| 单元 | `XxxServiceTest` | | 持久化层 / 下游远程客户端 / 外部 Client | 被测 Service 自身逻辑 | 无 DB |
+| 入口 API | `XxxControllerTest`（`@WebMvcTest`） | | 下游远程客户端或 Service | Controller 守卫与序列化 | 无 DB |
+| 持久化（按需） | `XxxMapperTest` / `XxxRepositoryTest` | | 无 | 本服务 Testcontainers MySQL + 种子 | 按画像 §5.4 P-3 ORM 选型 |
+| 单服务集成 | `*IT`（`@SpringBootTest`） | | **进程外下游微服务（按 P-2 用 WireMock/Stub）** + 外部系统（支付/车场/iam） | 本服务入口 + 业务 + 真实容器 DB | 归 `integration-test-design` 消费 |
+| 跨服务主链路 | 部署后黑盒用例（按需） | | 仅外部环境沙箱 | 多微服务真实联调 | 归 `api-blackbox-test`（及可选 E-5 契约测试） |
 
 ## 4. Fixture / 种子数据设计
 

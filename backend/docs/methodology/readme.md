@@ -10,7 +10,7 @@
 | 主线 | 目的 | 主要目录 |
 |------|------|----------|
 | **方法论流水线** | 用 Agent Skill + Rule + 文档契约，把「需求 → 设计 → 代码 → 测试」做成可重复、可审计的流程 | `skills/`（模板平铺，无镜像）、`docs/*/_golden/`、`docs/agile/` |
-| **可运行后端** | Java 单体（V1）实现预订编排：双 BFF + 域模块 + 南向适配器 | `booking-*/`（规划）、`docs/api/`、`docs/schema/` |
+| **可运行后端** | Java 微服务实现预订编排：API 网关 + 独立 BFF + 独立领域微服务 + 南向适配服务 | `booking-*/`（规划）、`docs/api/`、`docs/schema/` |
 
 **本仓库不是 Python/FastAPI Demo**；Skill 与 Rule 已按 **Java 21 + Spring Boot 3.2 + Maven 多模块** 特化。方法论精华可迁移到其他 Java 业务仓库；`architecture/system-landscape.md` 为**本项目独有**，勿被其它产品线覆盖。
 
@@ -87,7 +87,7 @@
 | **story-splitting** | Epic / PRD / HLD（+ JSD 场景为 AC 完备性源头） | `docs/requirements/{迭代}/STORY-*.md` | 详设、代码 |
 | **detail-design** | Story | `DD-*.md`、OpenAPI、schema、类骨架 | 改 Story 卡、写实现 |
 | **test-spec-alignment** | Story + 详设 §9 | `docs/test-spec/{迭代}/TS-*.md`（AC→用例追溯、分层矩阵、Fixture、缺口阻断） | 写 Java 测试/实现、改 Story/详设正文 |
-| **integration-test-design** | 已实现业务 Story + 详设（+ 可选 TS） | `booking-app/src/test/java/` 下 `*IT`/`*ScenarioIT`（继承 `AbstractIntegrationTest`） | 单元/BFF API 测试（归 feature-coding）、改业务实现、改 Story/详设正文 |
+| **integration-test-design** | 已实现业务 Story + 详设（+ 可选 TS） | 各微服务 `src/test/java/` 下单服务 `*IT`/`*ScenarioIT`（继承本服务 `AbstractIntegrationTest`，下游微服务模拟隔离） | 单元/入口 MockMvc 测试（归 feature-coding）、多服务真实联调（归 `api-blackbox-test`）、改业务实现、改 Story/详设正文 |
 | **feature-coding** | Story + 详设（+ TS） | `*-api`/`*-impl`/BFF Java、`mvn test` | 无变更记录时偷偷改 AC |
 
 > QA 专线（`qa-acceptance-case-design` → `api-blackbox-test` / `test-data-design`）与旁路（`bugfix` / `legacy-test-migration`）不占主线；触发与产出见清单表。
@@ -102,40 +102,38 @@
 
 ---
 
-## 4. 应用代码架构（本仓库 V1）
+## 4. 应用代码架构（微服务版）
 
-与 `rules/java-project.md`、`system-landscape.md` §三 一致：
+与 `rules/java-project.md`、`system-landscape.md` §三 / §5.4 一致：
 
 ```text
-booking-bff-app / booking-bff-admin（Controller，无 main）
-    ↓ @Autowired XxxApi
-{domain}-impl / app/provider（XxxApiImpl）
+API 网关（可选）→ 路由转发、清理外部伪造请求头、拦截内部路径
     ↓
-app/facade → app/service → infrastructure（Mapper / Repository）
-    ↓
-app/client → 其它域 *-api 或 外部 PaymentClient / ParkingLotGateway
-
-booking-app（@SpringBootApplication）聚合全部 impl + 双 BFF
+booking-bff-app / booking-bff-admin（独立启动；对外 Controller，无业务库）
+    ↓ 远程契约调用（协议见画像 §5.4 P-2：OpenFeign / Dubbo / gRPC 等）
+{domain}-impl（独立启动、独立数据库）
+    ├── 内部远程入口（内部 Controller 或 RPC Provider，安全隔离见画像 P-5）
+    ├── app/facade → app/service → infrastructure（持久化访问层，ORM 见画像 P-3）
+    └── app/client → 下游微服务 *-api（远程契约）或外部系统 Client
 ```
 
-| 层 | 职责 | 典型包 |
-|----|------|--------|
-| BFF | 对外 HTTP、鉴权、`Result` 包装 | `booking-bff-*/controller/` |
-| api | 域契约：`XxxApi` + DTO | `*-api/` |
-| provider | 实现 `XxxApi`，域边界入口 | `*-impl/.../app/provider/` |
-| facade | 用例编排、事务、跨域 | `*-impl/.../app/facade/` |
-| service | 域内业务 | `*-impl/.../app/service/` |
-| client | 跨域/外部防腐层 | `*-impl/.../app/client/` |
-| infrastructure | DO、Mapper、Repository | `*-impl/.../infrastructure/` |
+| 层 | 职责 | 典型位置 |
+|----|------|----------|
+| API 网关 | 入口路由、外部头清理、禁止转发内部路径 | `booking-gateway/`（可选） |
+| BFF | 独立启动；对外 HTTP、鉴权、VO 组装（无业务库） | `booking-bff-*/controller/` |
+| `*-api` | 服务远程契约（客户端/接口、DTO、域错误码） | `*-api/` |
+| 内部入口 | 暴露供服务间互调的内部 HTTP 或 RPC 入口 | `*-impl/interfaces/` 或 `app/provider/` |
+| facade / service | 单服务编排、本地事务与领域规则 | `*-impl/app/facade/`、`app/service/` |
+| client | 下游微服务与外部系统防腐层 | `*-impl/app/client/` |
+| infrastructure | DO/Entity、持久化访问层、独立 DB 迁移脚本 | `*-impl/infrastructure/`、`resources/db/migration/` |
 
 **硬约束**：
 
-- 对外 HTTP **仅** BFF；`*-impl` **无** Controller
-- Service 不跨域直调 Mapper 以外的域；跨域走 `app/client` → `XxxApi`
-- SQL：ORM 为 MyBatis；主键查询允许 MyBatis Plus，其余仅 MyBatis XML（见 `rules/mybatis-conventions.md`）
-- V1 不用 OpenFeign / Nacos
+- 对外 HTTP **仅** BFF；领域服务内部入口须按画像 §5.4 P-5 防外泄，严禁直接暴露到公网网关
+- 每服务独立启动与独立数据库；**严禁跨服务 SQL JOIN、跨服务外键、跨服务依赖 `*-impl`、把跨服务调用包进本地 `@Transactional`**
+- 仓库模式（P-1）、同步调用协议（P-2）、ORM（P-3）、响应与错误码（P-4）、内部鉴权（P-5）、公共库边界（P-6）以及异步/一致性/调度/契约测试/追踪（E-1~E-7）统一由 `architecture/system-landscape.md` §5.4 占位驱动，接入时由 AI 引导补全，未定则阻断
 
-技术栈：**Java 21、Spring Boot 3.2.x、MyBatis、Redis（分布式缓存/锁/序列）、Spring Event、JUnit 5、Maven**。
+技术栈基线：**Java 21、Spring Boot / Spring Cloud、JUnit 5、Mockito、Testcontainers、Maven**（具体中间件与 ORM 见画像 §5.4）。
 
 ---
 
@@ -157,7 +155,7 @@ booking-app（@SpringBootApplication）聚合全部 impl + 双 BFF
 **本仓库 OpenAPI 服务标识**（与模块对应）：
 
 - `booking-bff-app`、`booking-bff-admin`
-- `booking-order`、`booking-inventory`、`booking-parking-adapter`（若 Story 仅域内、无 HTTP 可省略 OpenAPI）
+- `booking-order`、`booking-inventory`、`booking-parking-adapter`（内部服务间契约按画像 §5.4 P-2：HTTP 写内部 `openapi.yaml`，RPC 写 `*-api`/`.proto`）
 
 **URL 前缀**（对外 HTTP，见 system-landscape §六）：
 
@@ -179,8 +177,8 @@ Golden（方法论范本，相对线根 `AI-Native/backend/`；重写后归项�
 | 运行时 | FastAPI `app/modules/` | Spring Boot `*-api`/`*-impl` + 双 BFF |
 | 分层 Rule | `architecture`（公司级 Rule，未随附） | `rules/java-project.md` |
 | 测试 | pytest | JUnit 5 + Mockito + `mvn test` |
-| 测试规格 Skill | test-spec-alignment（**已落地**）；integration-test-design（**已落地**）；test-quality-audit 未落地；bugfix **已落地**（旁路） | 编码前生成 TS（`docs/test-spec/`）；关键链路 `*IT`（`booking-app`） |
-| 跨域调用 | 同进程 import | V1 `@Autowired XxxApi`；V2+ OpenFeign |
+| 测试规格 Skill | test-spec-alignment（**已落地**）；integration-test-design（**已落地**）；test-quality-audit 未落地；bugfix **已落地**（旁路） | 编码前生成 TS（`docs/test-spec/`）；单服务 `*IT`（各服务独立）+ 部署后 `api-blackbox-test`（跨服务主链路） |
+| 跨服务调用 | 同进程 import | 按画像 §5.4 P-2 选定远程协议（OpenFeign / Dubbo / gRPC 等） |
 | 系统画像实例 | `ai-native-org-project` | `源项目后端仓` / 源项目产品 |
 
 ---

@@ -35,7 +35,7 @@
 ### 2.3 分层实现顺序（自下而上）
 
 ```text
-DO + Mapper/XML → *-api → Service → Facade/ApiImpl → BFF Controller → booking-app 聚合
+DO/持久化 + 本服务迁移脚本 → *-api（远程契约）→ Service → Facade/内部远程入口 → BFF Controller → 网关/服务配置（按需）
 ```
 
 用户限定单层时只执行该层，但下层须已满足 AC。
@@ -44,11 +44,11 @@ DO + Mapper/XML → *-api → Service → Facade/ApiImpl → BFF Controller → 
 
 | 层 | 路径 | 工具 |
 |----|------|------|
-| 域 Service | `*-impl/src/test/java/` | JUnit 5 + Mockito |
-| BFF HTTP | `booking-bff-*/src/test/java/` | `@WebMvcTest` + MockMvc |
-| 集成 | `booking-app/src/test/java/` | `@SpringBootTest`（按需） |
+| 领域 Service | 各服务 `*-impl/src/test/java/` | JUnit 5 + Mockito |
+| 入口 HTTP / BFF | 各 BFF 或领域服务 `src/test/java/` | `@WebMvcTest` + MockMvc |
+| 单服务集成 | 各微服务 `src/test/java/` | `@SpringBootTest` + 独立容器 DB + 下游模拟桩（归 `integration-test-design`） |
 
-Controller 测试在 **BFF**，不在 `*-impl`。
+对外 Controller 测试在 **BFF**，内部远程入口测试在对应领域微服务 `*-impl`。
 
 ### 2.5 缺口三分法
 

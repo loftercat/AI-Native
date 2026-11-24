@@ -1,7 +1,7 @@
 # 内存安全 IO 实践指南（Java）
 
 > **L1 静态层上下文资产**：`detail-design` 步骤 6 在 AC/BR 出现文件上传、导入、导出、ZIP、附件、大文件下载等关键词时加载本指南。  
-> **本仓库 V1**：单体 `booking-app`；HTTP 在 `booking-bff-app` / `booking-bff-admin`；业务在 `*-impl` Service；详见 [system-landscape.md](../architecture/system-landscape.md)。
+> **微服务分层**：对外文件上传/下载入口在 `booking-bff-app` / `booking-bff-admin`（各自独立配置 `multipart` 上限）；业务解析与分批查询在归属领域微服务 `*-impl`；详见 [system-landscape.md](../architecture/system-landscape.md)。
 
 ---
 
@@ -50,24 +50,23 @@ OOM（Out Of Memory）常见于两类写法：
 ## 四、本仓库分层落点
 
 ```text
-booking-bff-app / booking-bff-admin   接收 MultipartFile、流式下载 ResponseEntity
+booking-bff-app / booking-bff-admin   接收 MultipartFile、流式下载 ResponseEntity（各自 application.yml 配 multipart 上限）
 *-impl/app/service/                   流式读写、ZIP 解析、导出编排
-*-impl/infrastructure/mapper/         keyset 分批查询（XML）
-booking-app/application.yml           multipart 大小上限
+*-impl/infrastructure/                keyset 分批查询（按画像 P-3 ORM）
 ```
 
 | 层 | 职责 |
 |----|------|
-| **BFF Controller** | 接收 `MultipartFile`、校验 Content-Type/大小、调用 `XxxApi` 或 Facade；大文件下载返回 `StreamingResponseBody` |
+| **BFF Controller** | 接收 `MultipartFile`、校验 Content-Type/大小、流式转发或经对象存储 URL 交领域服务；大文件下载返回 `StreamingResponseBody` |
 | **Service** | 编排流式读取、解析逻辑、分批写文件、错误汇总 |
-| **Mapper + XML** | keyset 分批查询（`selectAfterId`）；**禁止**无 `LIMIT` 的全量 `selectList` |
+| **持久化层** | keyset 分批查询（`selectAfterId`）；**禁止**无 `LIMIT` 的全量加载 |
 | **`*-api`** | 导出任务 DTO、错误码；**不**暴露 `MultipartFile` |
 
 **禁止**：
 
-- BFF 内 `getBytes()` 后把 `byte[]` 传给域层
-- Service 一次性 `List<DO>` 加载全表再写文件
-- 在 `*-impl` 写 `@RestController` 处理上传（HTTP 只在 BFF）
+- BFF 内 `getBytes()` 后把 `byte[]` 经远程调用传给领域微服务
+- Service 一次性加载全表再写文件
+- 将领域服务大文件内部入口直接暴露到公网网关
 
 ---
 
@@ -76,7 +75,7 @@ booking-app/application.yml           multipart 大小上限
 ### 5.1 Spring 配置上限
 
 ```yaml
-# booking-app/src/main/resources/application.yml
+# 接收上传的 BFF 服务 application.yml（以及网关请求体大小限制）
 spring:
   servlet:
     multipart:

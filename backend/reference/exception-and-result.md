@@ -1,6 +1,6 @@
 # 异常处理与统一响应（最佳实践）
 
-> **实现来源**：`hema-common`（源项目公司级公共库，另仓未随模板；接入项目替换为本项目公共库），本仓库只约定用法与域错误码号段。  
+> **选型说明**：本指南以源项目 `hema-common` + `Result<T>` 方案作实践参考；实际项目的返回格式、跨服务错误码传递规则与公共基础库坐标以 [system-landscape.md](../architecture/system-landscape.md) §3.7（及 §5.4 **P-4**）为准。
 > AI 编码约束见 [`rules/exception-and-result.md`](../rules/exception-and-result.md)。
 
 ---
@@ -22,7 +22,7 @@
     <artifactId>common-core</artifactId>
 </dependency>
 
-<!-- BFF / booking-app：全局异常处理 -->
+<!-- 每个独立启动的服务（BFF 与各领域微服务 *-impl）：全局异常处理与远程解包 -->
 <dependency>
     <groupId>com.hema</groupId>
     <artifactId>common-web</artifactId>
@@ -80,23 +80,25 @@ Result.fail(ErrorCode.UNAUTHORIZED.getCode(), ErrorCode.UNAUTHORIZED.getMessage(
 
 ---
 
-## 6. V1 与 V2+ 差异
+## 6. 微服务跨服务错误传播参考（按画像 §3.7 / §5.4 P-4 选定）
 
-| 场景 | 约定 |
-|------|------|
-| **V1 单体** | 同 JVM 调 `XxxApi`，`BizException` 直接传播；BFF 无需 RPC 异常解包 |
-| **V2+ Feign** | 下游 HTTP 返回 `Result` 失败体时，由 `common-web` 侧 Feign Decoder（按需启用）还原为 `BizException` |
-| **i18n** | V1 不做；`message` 中文写死在域错误码枚举；多语言由前端按 `code` 映射（若未来需要） |
+| 选型模式 | 实践要点 |
+|----------|----------|
+| **统一 `Result<T>` + 透传下游码**（参考方案 A） | 对外 BFF 与内部 HTTP 均返回 `Result<T>`；下游失败时由调用方统一 Decoder / Filter 还原为 `BizException(code, message)` 并默认透传下游业务码，必要时按场景映射 |
+| **裸 DTO + HTTP 状态码**（参考方案 B） | 内部接口成功直接返回 DTO，失败返回 4xx/5xx + 标准错误体；由调用方 `ErrorDecoder` 解析并转为本服务或下游 `BizException` |
+| **RPC 异常传播**（若画像 P-2 选 Dubbo/gRPC） | 由统一 RPC Filter 序列化业务错误码与消息，调用方还原为 `BizException` |
+| **网络/超时/5xx 故障** | 统一归入 `REMOTE_SERVICE_ERROR(502)` 等远程故障码，禁止伪装成业务成功 |
+| **i18n** | 默认 `message` 中文定义在各服务错误码枚举；多语言由前端或网关按 `code` 映射（按需） |
 
 ---
 
 ## 7. 反模式
 
-- 在 `booking-common` 再写一套 `Result` / `BizException`
-- 域 `XxxApi` 返回 `Result<T>`
-- Controller 内 `catch (BizException e) { return Result.fail(...); }`
-- 在 `ErrorCode` 枚举中增加 `1501` 等业务码
-- 用 `new BizException("自定义字符串")` 代替域错误码（会落 `SYSTEM_ERROR` 的 code）
+- 在 `booking-common` 再写一套与公共基础库同名的 `Result` / `BizException`
+- Controller / 内部远程入口内 `catch (BizException e) { return Result.fail(...); }`
+- 在业务 Service 中散落手写解析下游 HTTP 状态码或 JSON 错误体（应统一收拢到远程客户端解包层）
+- 在通用 `ErrorCode` 枚举中硬塞各微服务的业务码
+- 用 `new BizException("自定义字符串")` 代替服务错误码枚举（会落 `SYSTEM_ERROR` 的 code）
 
 ---
 

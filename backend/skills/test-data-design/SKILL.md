@@ -18,7 +18,8 @@ description: >-
 
 ## 定位与边界
 
-- **做什么**：从 blackbox 行 Given + OpenAPI 生成 DP（YAML）+ seed 脚本（Python，生成 SQL 文本）；标 `seed_key` 幂等可重跑
+- **做什么**：从 blackbox 行 Given + OpenAPI 生成 DP（YAML）+ seed 脚本（Python，按服务独立数据源生成 SQL 或 API 造数脚本）；标 `seed_key` 幂等可重跑
+- **微服务造数原则**：遵循每服务独立数据库边界——每个服务的 SQL 造数脚本只操作该服务独占的表（环境变量按服务区分，如 `SEED_ORDER_DB_URL`、`SEED_INVENTORY_DB_URL`）；**涉及跨服务强关联的前置数据，优先通过调用对应微服务的 API 准备**，禁止跨库直插绕过业务状态机
 - **不做**：写 Java 测试（归 `feature-coding` / `integration-test-design`）
 - **不做**：进程内 `@Sql`/`TestDataFactory`（归 `integration-test-design`，MR 进程内）
 - **不做**：直连 DB 执行造数（首版生成 SQL 文本，执行由运维/CI）

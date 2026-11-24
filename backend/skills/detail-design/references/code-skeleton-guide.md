@@ -30,13 +30,13 @@
 |---------|------|
 | 对外 HTTP | BFF `*Controller` + VO；OpenAPI 同 path；实现时补中文 JavaDoc + `@Tag`/`@Operation`/`@Schema`（见 feature-coding layer-guides §5.1） |
 | HTTP **守卫**（空参、格式、未登录） | BFF `*Controller` 内 guard → `BookingErrorCode`；鉴权 Filter → `ErrorCode`（hema-common） |
-| 域能力（无 HTTP） | `*-api` `XxxApi` 方法 + DTO |
+| 域内部远程接口 | 按画像 §5.4 P-2：`*-api` 远程客户端/接口 + DTO（HTTP 协议同步维护内部 OpenAPI；RPC 协议维护接口/`.proto`），`*-impl` 提供内部远程入口（内部 Controller 或 RPC Provider） |
 | 域规则 / 状态机 / 匹配算法 | `*-impl` `*Service`、可选 `domain/model/*`（贫血）、`*Validator`、`util/*` |
-| 状态迁移落库 | `*Mapper` + XML **条件 `UPDATE`**（非聚合 save）；见 domain-model-guide |
-| 新建实体落库 | `*CommandService`：注入 `SnowflakeIdGenerator` → `setId` → Mapper `insert` |
-| 业务删除实体 | `*CommandService` → Mapper XML 软删（`UPDATE deleted=1`）；不用 `deleteById` |
-| 编排多域 | `*Facade` 或 `XxxApiImpl` 薄委托 |
-| 跨域调用 | `*-impl/app/client/*Client` → `@Autowired` 其它 `XxxApi` |
+| 状态迁移落库 | 按画像 §5.4 P-3（ORM）：条件更新（非查聚合全量覆盖）；见 domain-model-guide |
+| 新建实体落库 | `*CommandService`：按画像 P-3 主键策略赋值后写入 |
+| 业务删除实体 | `*CommandService` → 软删（`UPDATE deleted=1`）；禁止业务路径物理删 |
+| 编排多服务 | `*Facade`（不跨服务包本地事务；跨服务写一致性按画像 §5.4 E-3） |
+| 跨服务调用 | `*-impl/app/client/*Client` → 封装下游服务的远程客户端（按画像 §5.4 P-2）+ 请求头透传（按 P-5） |
 | 外部支付 | `order-impl/app/client/PaymentClient` |
 | 车场南向 | `adapter-api` `ParkingLotGateway`；实现在 `adapter-impl` |
 | 落库 | `*DO` + `*Mapper` 接口 + XML `id`；DO 含 `deleted`/`deletedAt` |
@@ -127,32 +127,31 @@
 
 ---
 
-## 分层依赖（§8.1 固定写法）
+## 分层依赖（§8.1 微服务写法）
 
 ```text
-booking-bff-app / booking-bff-admin  →  *-api（XxxApi）、common-web
-*-impl  →  *-api、common-core（SnowflakeIdGenerator / BizException 等）、booking-common（按需）
-booking-app  →  聚合 BFF + *-impl（脚手架阶段）
+booking-gateway（可选）              →  路由转发至 BFF、清理外部伪造请求头、拦截内部路径
+booking-bff-app / booking-bff-admin  →  各领域服务 *-api（远程契约）、通用公共库（无业务库）
+*-impl（独立启动微服务）             →  本服务 *-api + 下游 *-api（远程契约）+ 通用公共库
 ```
 
-写操作骨架示意（详设 §8.3 可照此列依赖字段）：
+写操作骨架示意（详设 §8.3 可照此列依赖字段，主键与持久化按画像 §5.4 P-3）：
 
 ```text
 BookingOrderCommandService
-  - SnowflakeIdGenerator idGenerator
-  - createPendingOrder(...)   // setId(idGenerator.nextId()) → mapper.insert
+  - createPendingOrder(...)   // 按 P-3 主键策略生成 ID → 写入本服务独立库
 
 ParkingSpaceCommandService
-  - lockSpace(...)            // mapper.updateStatusIfAvailable（条件 UPDATE，无雪花）
+  - lockSpace(...)            // 条件 UPDATE（本服务独立库）
 ```
 
 **禁止**：
 
-- `*-impl` 写 `@RestController`
-- BFF 写核心状态机
-- BFF 与 `*-impl` 各设计**同职责**工具类（如双份 `KeywordNormalizer`）
-- 详设 §8 写「各一份或 common」而不选定模块
-- V1 详设出现 OpenFeign 接口（可记 V2+ ADR）
+- 跨服务依赖对方 `*-impl` 或绕过契约直连他服务数据库
+- BFF 写核心状态机或跨服务复杂写编排
+- BFF 与领域微服务各设计**同职责**工具类（如双份 `KeywordNormalizer`）
+- 详设 §8 写「各一份或 common」而不选定服务（或违反画像 §5.4 P-6 公共库边界）
+- 在画像 §5.4 P-2（调用协议）/ P-3（ORM）/ P-4（响应错误码）/ P-5（内部鉴权）仍为 `[TBD]` 时擅自编造具体框架骨架
 
 ---
 

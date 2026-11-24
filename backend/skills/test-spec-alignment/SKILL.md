@@ -51,7 +51,7 @@ description: >-
 2. `references/ac-to-case-guide.md`（**缺失则阻断**）
 3. Golden 范本 `docs/test-spec/_golden/TS-STORY-GOLDEN-001-query-allocate-space.md`（**缺失则降级**，照模板结构自拟）
 4. Story 需求卡 + 详设 + OpenAPI（用户 `@` 或自动查找）
-5. 显式读取 Rule：`rules/story-ac-conventions.md`、`rules/integration-test-conventions.md`、`rules/mybatis-conventions.md`（含 Mapper 层时）
+5. 显式读取 Rule：`rules/story-ac-conventions.md`、`rules/integration-test-conventions.md`、`architecture/system-landscape.md`（确认 §5.4 P-2 调用协议、P-3 ORM、E-5 契约测试选型；P-3 选 MyBatis 时读 `rules/mybatis-conventions.md`）
 6. `../feature-coding/references/test-quality.md`（分层 Mock 边界）
 
 ### 步骤 2：核对输入
@@ -71,7 +71,12 @@ description: >-
 ### 步骤 4：填分层测试矩阵（TS §3）
 
 - 以详设 §9 测试类清单为骨架，补 Mock 什么 / 不 Mock 什么
-- 对齐 `test-quality.md`：单元 Mock 依赖、BFF API `@WebMvcTest` Mock 域（无 DB）、Mapper 走真实 H2、集成（可选）归 `integration-test-design`
+- 对齐 `test-quality.md` 与 `rules/integration-test-conventions.md`（微服务分层）：
+  - **单元测试**：Mock 持久化层、下游远程客户端与外部 Client（无 DB）；
+  - **入口 API 测试**：`@WebMvcTest` / MockMvc，Mock 下游远程客户端或 Service（无 DB）；
+  - **持久化层测试**：按画像 §5.4 P-3（ORM）走本服务 Testcontainers MySQL 容器；
+  - **单服务集成测试（`*IT`）**：归 `integration-test-design`，本服务内真实 DB 与代码，**进程外下游微服务必须做模拟隔离**（按画像 P-2 选 WireMock 或 RPC Stub）；若画像 §5.4 E-5 选定了自动化契约测试工具（Spring Cloud Contract / Pact），标明契约校验用例；
+  - **跨服务主链路验证**：涉及多微服务真实联动验收的 AC，标明归部署后 `api-blackbox-test`（单服务 `*IT` 仅验证各服务自身边界与契约）。
 
 ### 步骤 5：Fixture / 种子数据设计（TS §4）
 
