@@ -1,6 +1,6 @@
 # frontend：前端 AI 原生工作流模板
 
-自源项目（C 端微信小程序仓）抽取。三段流水线：需求拆解 → 前端详设 → TDD 编码；消费后端 handoff 契约，编码后、联调/提测前做独立代码审查。
+三段流水线：需求拆解 → 前端详设 → TDD 编码；消费后端 handoff 契约，编码后、联调/提测前做独立代码审查。所有项目专属值统一从 `architecture/system-landscape.md`、`config/current-sprint` 与 `docs/handoff/` 读取，接入时无需全局替换 Skill 正文。
 
 ## 快速导航
 
@@ -30,7 +30,7 @@ Epic/PRD/原型 + 后端 OpenAPI handoff（docs/handoff/）
 
 | 目录 | 职责 |
 |------|------|
-| `skills/` | 3 个前端 Skill（自包含） |
+| `skills/` | 3 个前端 Skill（自包含，纯抽象通用模板） |
 | `rules/` | 5 条前端规范：API Client 约定、错误展示、性能、工程结构、代码审查 |
 | `architecture/system-landscape.md` | 前端画像（**接入必填**；含 §四 契约与鉴权、§六 与后端协作机制） |
 | `glossary/domain-glossary.md` | 前端词表（与后端仓对齐的子集） |
@@ -38,23 +38,23 @@ Epic/PRD/原型 + 后端 OpenAPI handoff（docs/handoff/）
 | `docs/methodology/` | 前端方法论（与后端方法论的差异、两条主线） |
 | `templates/` | 代码审查报告模板（`code-review-report.md`） |
 | `docs/reviews/` | 前端代码审查报告落点（`REVIEW-CODE-FE-*`）；接入后在前端工程根 `docs/reviews/` |
-| `docs/{requirements,design}/_golden/` | STORY-FE / DD-FE 标准样例（destination-search-allocate 一族） |
+| `docs/{requirements,design}/_golden/` | STORY-FE / DD-FE 标准样例（接入时按本项目重写） |
 | `config/current-sprint` | 当前迭代号 |
 | `scripts/validate-skills.sh` | 前端资产完整性校验 |
 
 ---
 
-## 接入替换
+## 接入
 
 - **前置**：模板放入项目的方式见仓库根 [README.md](../README.md)「快速开始」。
-- **完整步骤**：handoff 包 → 画像 → 锚点替换 → Golden 重写 → 分发 → 裁剪，见 [MIGRATION.md](MIGRATION.md)。
+- **完整步骤**：handoff 包与迭代号 → 前端画像 → 重写 Golden（建议）→ 分发与裁剪 → AI 自动接入审查，见 [MIGRATION.md](MIGRATION.md)。
 - **分工**：AI 执行，人只在人工介入点拍板。
 
 ---
 
 ## 使用
 
-见 [USAGE.md](USAGE.md)（含可直接复制的提示词 Demo、端到端示例、反模式清单）。
+见 [USAGE.md](USAGE.md)（含可直接复制的提示词模板、端到端示例、反模式清单）。
 
 ---
 

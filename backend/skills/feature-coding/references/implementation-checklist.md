@@ -40,7 +40,7 @@
 
 - [ ] 远程契约接口/客户端（按画像 P-2）+ DTO/枚举，**无业务实现代码**
 - [ ] DTO 命名与详设 §8.3 一致；请求/响应分离
-- [ ] 服务错误码枚举（如 `InventoryErrorCode`）含 code + 默认 message，号段对齐画像 §3.7
+- [ ] 服务错误码枚举（如 `{Domain}ErrorCode`）含 code + 默认 message，号段对齐画像 §3.7
 - [ ] 内部 DTO 不泄漏 BFF VO；不违反画像 §5.4 P-6 公共库边界
 
 ### 测试
@@ -72,24 +72,24 @@
 
 ---
 
-## 4. BFF 层（`booking-bff-app` / `booking-bff-admin`）
+## 4. BFF 层（`{project}-bff-app` / `{project}-bff-admin`）
 
 ### 实现
 
 - [ ] Controller 仅：鉴权上下文、**守卫**（空参/格式）、调用下游远程客户端（按 P-2）、VO 转换与响应封装（按 P-4）
-- [ ] DTO↔VO 经 `bff.*.converter` MapStruct；**禁止** Controller 内手写字段映射
-- [ ] **禁止**在 BFF 实现 normalize、分词、匹配、推荐、状态机、库存锁定或跨服务复杂写编排
+- [ ] DTO↔VO 经 `{basePackage}.bff.*.converter` MapStruct；**禁止** Controller 内手写字段映射
+- [ ] **禁止**在 BFF 实现 normalize、分词、匹配、推荐、状态机、资源锁定或跨服务复杂写编排
 - [ ] **禁止** BFF 与领域微服务各建同职责工具类；详设 §8 重复时**阻断**并回溯 `detail-design`
-- [ ] 对外 URL 前缀对齐画像 §六（示例：App `/api/v1/booking/app/`；Admin `/api/v1/booking/admin/`）
+- [ ] 对外 URL 前缀对齐画像 §六（如 App `/api/v1/{project}/app/`；Admin `/api/v1/{project}/admin/`）
 - [ ] `@Valid` 请求体；校验失败由全局异常处理器统一处理
 - [ ] Controller 类/公开方法有**中文 JavaDoc**；`@Tag` + `@Operation(summary, description)`，对齐 OpenAPI YAML
 - [ ] 需登录接口有 `@SecurityRequirement(name = "bearerAuth")`（与 YAML 一致）
 - [ ] 请求/响应 VO 字段有中文 `@Schema(description)`
 - [ ] 模块依赖 `io.swagger.core.v3:swagger-annotations-jakarta`（见 layer-guides §5.1）
 
-### 测试（`booking-bff-*/src/test/java/`）
+### 测试（`{project}-bff-*/src/test/java/`）
 
-- [ ] `@WebMvcTest(controllers = XxxController.class)` + MockMvc
+- [ ] `{Resource}ControllerTest`：`@WebMvcTest(controllers = {Resource}Controller.class)` + MockMvc
 - [ ] Mock 下游远程客户端，不访问数据库
 - [ ] 断言 HTTP 状态、业务响应字段（对齐画像 §3.7）与关键返回数据
 - [ ] 失败类 AC 对齐 Story 可见文案
@@ -148,7 +148,7 @@ mvn test
 |--------|----------|
 | BFF 或其他服务直接依赖 `*-impl` 内部类或表 | 通过 `*-api` 远程契约调用（按画像 P-2） |
 | 把跨服务远程调用包进本地 `@Transactional` | 本地事务仅限单服务单库；跨服务写按画像 E-3 选型 |
-| BFF 与领域微服务各建 `KeywordNormalizer` 等同职责类 | 算法仅归属领域服务一处；guard 在 BFF |
+| BFF 与领域微服务各建 `{Domain}Normalizer` 等同职责类 | 算法仅归属领域服务一处；guard 在 BFF |
 | 将领域服务内部路径暴露到公网 API 网关 | 按画像 P-5 做好隔离与内部鉴权 |
 | Service 单测连真实 DB 或真实下游服务 | Mock 持久化层与远程客户端 |
 | 跨服务 SQL JOIN 或跨服务外键 | 严禁；经远程接口或本服务异步冗余副本获取 |

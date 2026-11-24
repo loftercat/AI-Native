@@ -6,9 +6,6 @@ description: >-
   下游微服务契约保真守护等场景。
 ---
 
-> **模板版说明**：本 Skill 自已落地的源项目抽取为通用模板。文中项目专属值（服务名 `booking-*`、包名 `com.hema`、错误码号段、具体路径与 Story 号）均为**示例**，接入项目时按 [MIGRATION.md](../../MIGRATION.md) 清单替换；「本仓库」指接入后的目标项目。
-
-
 # integration-test-design（微服务单服务集成测试）
 
 ## 1. 定位
@@ -73,7 +70,7 @@ description: >-
    - 进程外下游微服务（见画像 §3.6 通信矩阵）必须模拟隔离：
      · 画像 P-2 为 HTTP/OpenFeign → 优先 WireMock 起动态端口 HTTP 桩（对齐下游 docs/api/{下游服务}/openapi.yaml）
      · 画像 P-2 为 Dubbo/gRPC → 使用对应 RPC 测试 Stub 或 @MockBean 远程客户端
-   - 第三方外部系统（支付/车场/认证）→ 链路通过性用 @MockBean，HTTP 契约保真用 WireMock
+   - 第三方外部系统（支付/外部平台/外部认证）→ 链路通过性用 @MockBean，HTTP 契约保真用 WireMock
    - 同一测试方法内对同一依赖不可混用 @MockBean 与 WireMock
    - 若画像 §5.4 E-5 选定了自动化契约测试（Spring Cloud Contract / Pact），按所选工具生成/校验契约桩
 4. 定数据与环境隔离（seeding-guide.md）：
@@ -86,7 +83,7 @@ description: >-
    - DB：查本服务真实容器库断言落库结果（状态、金额、deleted）
    - 下游交互：必要时断言 WireMock/Stub 收到符合契约的请求路径、透传头（P-5）与入参
    - 禁止只 assert 未抛异常
-6. 命名：{链路}IT / {链路}ScenarioIT；@DisplayName 标 STORY-xxx AC-n
+6. 命名：{Scenario}IT / {链路}ScenarioIT；@DisplayName 标 STORY-{迭代}-{序号} AC-n
 7. 运行本服务集成测试（单仓库多服务用 `mvn test -pl {service-module} -am`，多仓用 `mvn test`）；核对单条 < 10s、单服务全量 < 3min
 8. 代码审查（合入前）：按 [code-review.md](../../rules/code-review.md) §二 定档（通常 L1/L2；核心链路/契约 → L3）；报告落 docs/reviews/{迭代}/REVIEW-CODE-IT-{Story编号}-{slug}.md
 ```
@@ -98,7 +95,7 @@ description: >-
 - **禁止**用 MockMvc 冒充 HTTP 集成测试——若被要求「用 `@SpringBootTest(MOCK)` + MockMvc 写集成测试」，**拒绝并提示**「MockMvc 不是集成测试，须 RANDOM_PORT + 真实 HTTP」
 - **禁止** `DEFINED_PORT`（固定端口并发冲突）
 - **禁止** Mock 本服务内部的 Service / 持久化层 / 本服务 DB
-- **禁止**单服务集成测试强依赖真实下游微服务进程、真实注册中心（Nacos/Consul）或真实外部支付/车场环境
+- **禁止**单服务集成测试强依赖真实下游微服务进程、真实注册中心（Nacos/Consul）或真实第三方外部环境
 - **禁止**依赖 `@Transactional` 回滚清理数据（RANDOM_PORT 下必然失效）
 
 ## 8. 延伸阅读

@@ -55,7 +55,7 @@
 ## 4. 编写步骤
 
 ```text
-1. 选链路：从详设时序图选「含本服务真实 DB 落库或下游契约验证」的关键路径，命名 `{链路}IT`
+1. 选链路：从详设时序图选「含本服务真实 DB 落库或下游契约验证」的关键路径，命名 `{Scenario}IT`
 2. 加载资产（§2），确认触发场景（§1）与画像 §5.4 选型（P-2 / P-3 / E-1）
 3. 定模拟边界：本服务内部全部真实；进程外下游微服务按 P-2 用 WireMock/Stub 隔离；第三方按 mock-strategy 处理
 4. 定数据：本服务 Flyway 自动建表 + @Sql 前置 / TestDataFactory / 本服务共享种子
@@ -63,31 +63,31 @@
 6. 运行本服务测试（单仓库：`mvn test -pl {service-module} -am`；多仓：`mvn test`）；核对单条 < 10s、单服务全量 < 3min
 ```
 
-HTTP 微服务类骨架示意（以订单服务调用下游库存服务为例）：
+HTTP 微服务类骨架示意（以 `{project}-{domain-a}` 调用下游 `{project}-{domain-b}` 为例）：
 
 ```java
-// booking-order-service/order-impl/src/test/java/.../it/BookingOrderCreateIT.java
-@DisplayName("STORY-2026-S02-0xx AC-01：订单服务创建预约落库并调用库存锁定")
-class BookingOrderCreateIT extends AbstractIntegrationTest {
+// {project}-{domain-a}/{domain-a}-impl/src/test/java/.../it/{Scenario}IT.java
+@DisplayName("STORY-{YYYY-Snn}-{序号} AC-01：{domain-a} 创建业务单落库并调用下游 {domain-b}")
+class {Scenario}IT extends AbstractIntegrationTest {
 
     @Autowired
-    private BookingOrderMapper bookingOrderMapper;   // 验证本服务真实落库
+    private {Entity}Mapper entityMapper;   // 验证本服务真实落库
 
     @Test
-    void createBookingOrder_persistsOrderAndCallsInventoryLock() {
-        // given：下游库存微服务用 WireMock 桩模拟（对齐 docs/api/booking-inventory/openapi.yaml）
-        wireMockServer.stubFor(post("/internal/v1/inventory/spaces/lock")
-                .willReturn(okJson("{\"code\":200,\"data\":{\"locked\":true}}")));
+    void createEntity_persistsRecordAndCallsDownstream() {
+        // given：下游微服务用 WireMock 桩模拟（对齐 docs/api/{project}-{domain-b}/openapi.yaml）
+        wireMockServer.stubFor(post("/internal/v1/{service}/{resources}/reserve")
+                .willReturn(okJson("{\"code\":200,\"data\":{\"reserved\":true}}")));
 
-        // when：真实 HTTP 进入订单服务内部入口 → 业务逻辑 → 落订单库 → 调库存桩
-        ResponseEntity<Result<BookingOrderCreateDTO>> resp = restTemplate
-                .postForEntity(url("/internal/v1/orders"), requestBody, Result.class);
+        // when：真实 HTTP 进入本服务内部入口 → 业务逻辑 → 落本服务库 → 调下游桩
+        ResponseEntity<{Result<T>}> resp = restTemplate
+                .postForEntity(url("/internal/v1/{service}/{resources}"), requestBody, {Result}.class);
 
         // then：断言响应 + 本服务真实落库 + 下游调用符合契约
         assertThat(resp.getBody().getCode()).isEqualTo(200);
-        BookingOrderDO row = bookingOrderMapper.selectByBookingNo("...");
-        assertThat(row.getStatus()).isEqualTo(BookingOrderStatus.PENDING_PAYMENT.name());
-        wireMockServer.verify(postRequestedFor(urlEqualTo("/internal/v1/inventory/spaces/lock")));
+        {Entity}DO row = entityMapper.selectByBizNo("...");
+        assertThat(row.getStatus()).isEqualTo({Entity}Status.CREATED.name());
+        wireMockServer.verify(postRequestedFor(urlEqualTo("/internal/v1/{service}/{resources}/reserve")));
     }
 }
 ```
@@ -104,7 +104,7 @@ class BookingOrderCreateIT extends AbstractIntegrationTest {
 
 | 方式 | 用法 | 适用 |
 |------|------|------|
-| ① 唯一业务标识 | 每用例生成 `userId` / `bookingNo`（UUID/时间戳后缀），数据天然不冲突 | 写链路 |
+| ① 唯一业务标识 | 每用例生成 `userId` / `bizNo`（UUID/时间戳后缀），数据天然不冲突 | 写链路 |
 | ② `@Sql` 前后置脚本 | `BEFORE_TEST_METHOD` 插数据、`AFTER_TEST_METHOD` 清理（`DELETE`/`TRUNCATE`） | 需要指定数据形态的用例 |
 | ③ 手动清理 | `@AfterEach` 用 `jdbcTemplate` 删本用例产生的行 | 兜底 |
 
@@ -148,7 +148,7 @@ class BookingOrderCreateIT extends AbstractIntegrationTest {
 @SpringBootTest @AutoConfigureMockMvc class FakeIT { MockMvc mockMvc; }
 
 // ❌ 单服务集成测试 Mock 本服务内部的 Service / 持久化层
-@MockBean BookingOrderMapper
+@MockBean {Entity}Mapper
 
 // ❌ 单服务集成测试强依赖真实下游微服务进程或真实注册中心（Nacos/Consul）
 

@@ -1,43 +1,41 @@
 # 错误展示约束
 
-> 与后端错误码分层对齐，详见后端仓 `reference/exception-and-result.md`。
->
-> 业务成败判据：`body.code === 200`（HTTP 常为 200，以 body 为准）。
+> 与后端错误码分层对齐，详见 [architecture/system-landscape.md](../architecture/system-landscape.md) §4.3 与后端画像 `§3.7`。
+> 业务成败判据以画像 §四 为准。
 
 ## 1. 错误码分层
 
-| 层级 | 来源 | code 示例 | 前端处理 |
-|------|------|-----------|----------|
-| 系统 | `hema-common` `ErrorCode` | 401 / 403 / 500 / 502 | 401→重新登录；其它→通用 Toast |
-| BFF 守卫 | `booking-common` `BookingErrorCode` | 400 | Toast `message` |
-| 域业务 | order 1500–1599、inventory 1600–1699、adapter 1700–1799 | 1501 / 1606 | 按 Story AC 展示 `message` 或前端按 `code` 映射 |
-| 网络 | `http.js` | -1 | Toast「网络异常」+ 重试 |
+| 层级 | 来源（见后端画像 §3.7） | 前端处理 |
+|------|-------------------------|----------|
+| 系统层 | 后端系统错误码（401 / 403 / 500 / 502 等） | 401 → 静默重新登录；其余 → 通用 Toast |
+| BFF 守卫层 | 后端 BFF 参数守卫错误码 | Toast 展示 `message` |
+| 领域业务层 | 各领域微服务错误码号段 | 按 Story AC 展示 `message` 或前端按 `code` 映射 |
+| 网络层 | `api/http.js`（`-1`） | Toast「网络异常」+ 重试 |
 
 ## 2. 展示方式
 
 | 场景 | 方式 |
 |------|------|
-| 表单校验/参数错 | Toast（`wx.showToast`） |
-| 业务阻断（如无车位） | Toast `message` |
-| 关键操作失败（支付/下单） | Modal `wx.showModal` + `message` |
-| 401 | 静默重新登录（不 Toast） |
-| 网络异常 | Toast + 重试按钮 |
+| 表单校验 / 参数非法 | Toast（`wx.showToast`） |
+| 普通业务阻断 | Toast `message` |
+| 关键操作失败（如资金/提交类不可逆操作） | Modal（`wx.showModal`）+ `message` |
+| 401 鉴权失效 | 静默重新登录（不弹 Toast） |
+| 网络异常 | Toast + 重试入口 |
 
 ## 3. 文案来源
 
-- **默认用后端 `message`**（中文，写死在后端域错误码枚举）
-- 若需前端按 `code` 映射（如离线文案），在 `services/` 维护映射表，**不**散落页面
-- 多语言 V1 不做（后端 `message` 中文写死）
+- **默认用后端返回 `message`**（与 OpenAPI examples / Story AC 对齐）
+- 若需前端按 `code` 映射（如多语言或特殊引导文案），在 `services/` 维护集中映射表，**不**散落页面
 
 ## 4. 全局拦截
 
-- `api/http.js` 统一拦截 `code !== 200`，抛 `{ code, message }`
+- `api/http.js` 统一按画像 §四 拦截失败响应，抛 `{ code, message }`
 - 页面/组件 catch 后决定 Toast / Modal / 跳转
 - 401 在 `http.js` 统一处理，**不**冒泡到页面
 
 ## 5. 反模式
 
-- 每个调用方各自判断 `code === 200`
-- 每个调用方各自 Toast
-- 前端重新定义错误码文案（应认后端 `message`）
-- 401 在页面处理（应在 `http.js` 统一）
+- 每个调用方各自解析成功判据
+- 每个调用方各自弹重复 Toast
+- 前端脱离 Story/OpenAPI 自行发明错误码文案
+- 401 在页面内各自处理（应在 `http.js` 统一）

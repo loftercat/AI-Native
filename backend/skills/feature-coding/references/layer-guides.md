@@ -36,15 +36,15 @@
 | 项 | 约定 |
 |----|------|
 | 位置 | `app/service/`（默认）；复杂可选 `domain/model/` + `domain/service/` |
-| 简单 Story | `{实体}QueryService` / `{实体}CommandService`：`持久化 → DO → Converter → DTO`；**只读推荐归 Query** |
+| 简单 Story | `{Entity}QueryService` / `{Entity}CommandService`：`持久化 → DO → Converter → DTO`；**只读推荐归 Query** |
 | **复杂 Story** | 可选贫血 `domain/model/*` 做 `canXxx()` / 状态判断；落库仍走条件更新 |
-| 职责 | 业务规则、抛业务异常；跨服务调用走 `app/client` 远程封装（按 P-2）；本地 `@Transactional` 仅限本服务单库 |
+| 职责 | 业务规则、抛 `{BizException}`；跨服务调用走 `app/client` 远程封装（按 P-2）；本地 `@Transactional` 仅限本服务单库 |
 | **对象转换** | DO↔DTO（及可选 domain）放 `infrastructure/converter/`，**优先 MapStruct `@Mapper(componentModel = "spring")`**；条件字段用 `@Mapping` / `@AfterMapping` |
 | 禁止 | 在 Service 直接散落原生 HTTP/RPC 调用代码；直连外部厂商；大段手写字段拷贝（应进 Converter） |
 | **单点** | 匹配/normalize/推荐等算法**仅**在归属领域微服务一处；BFF 不得重复同名工具类 |
-| 测试 | `*ServiceTest`；JUnit 5 + `@ExtendWith(MockitoExtension.class)` |
-| Mock | `@Mock` 持久化层、下游远程 `*Client`、外部 Client |
-| 断言 | 断言业务异常 `code` / `message` 对齐 AC（响应/异常规则见画像 §3.7） |
+| 测试 | `{Entity}QueryServiceTest` / `{Entity}CommandServiceTest`；JUnit 5 + `@ExtendWith(MockitoExtension.class)` |
+| Mock | `@Mock` 持久化层、下游远程 `{Domain}Client`、外部 `{External}Client` |
+| 断言 | 断言 `{BizException}` 的 `code` / `message` 对齐 AC（响应/异常规则见画像 §3.7） |
 
 **快捷路径**：持久化层未就绪时先 Mock 持久化层写 Service 测试，不得直连 DB。
 
@@ -65,7 +65,7 @@
 | 项 | 约定 |
 |----|------|
 | 契约接口 | 远程客户端/接口（按画像 §5.4 **P-2**）+ DTO/枚举（及按 **E-4** 的事件对象） |
-| 错误码 | 领域服务：`*-api` 的 `*ErrorCode`（号段对齐画像 §3.7）；入口守卫与系统错误码对齐 `rules/exception-and-result.md` |
+| 错误码 | 领域服务：`*-api` 的 `{Domain}ErrorCode`（号段对齐画像 §3.7）；入口守卫 `{GuardErrorCode}` 与系统错误码 `{SystemErrorCode}` 对齐 `rules/exception-and-result.md` |
 | 禁止 | 放入业务实现类或违反画像 **P-6** 公共库边界的内部实体 |
 
 ---
@@ -74,17 +74,17 @@
 
 | 项 | 约定 |
 |----|------|
-| 位置 | `booking-bff-app` / `booking-bff-admin` `controller/` |
-| URL | 对外前缀对齐画像 §六（示例：`/api/v1/booking/app/` 或 `/admin/` + OpenAPI path） |
-| 响应 | 严格遵循画像 §3.7（**P-4**）与 `rules/exception-and-result.md`（源项目示例：`Result<T>`，`code === 200` 判成功） |
+| 位置 | `{project}-bff-app` / `{project}-bff-admin` `controller/` |
+| URL | 对外前缀对齐画像 §六（如 `/api/v1/{project}/app/` 或 `/api/v1/{project}/admin/` + OpenAPI path） |
+| 响应 | 严格遵循画像 §3.7（**P-4**）与 `rules/exception-and-result.md`（若采用统一包装体 `{Result<T>}`，按约定的成功码判定成功） |
 | 依赖 | 经 `client/` 注入下游服务的 `*-api` 远程客户端（按画像 **P-2**）；**严禁**依赖任何领域服务的 `*-impl` |
 | **守卫** | 鉴权、空参/`isBlank`、简单格式（如 `endTime > startTime`）；**禁止** normalize/匹配/状态机/跨服务复杂写编排 |
-| **守卫异常** | 抛入口守卫错误码枚举（示例：`BookingErrorCode`）；**禁止** Controller 内 magic number / 硬编码文案 |
-| **系统异常** | 鉴权/框架层用公共系统错误码枚举（示例：`ErrorCode.UNAUTHORIZED`） |
-| **对象转换** | DTO↔VO 放 `bff.app.converter`（或 `bff.admin.converter`），**优先 MapStruct**；**禁止**在 Controller 内手写字段 builder 映射 |
+| **守卫异常** | 抛入口守卫错误码枚举 `{GuardErrorCode}`；**禁止** Controller 内 magic number / 硬编码文案 |
+| **系统异常** | 鉴权/框架层用公共系统错误码枚举 `{SystemErrorCode}` |
+| **对象转换** | DTO↔VO 放 `{basePackage}.bff.app.converter`（或 `bff.admin.converter`），**优先 MapStruct**；**禁止**在 Controller 内手写字段 builder 映射 |
 | **中文说明** | 类与公开方法须有中文 JavaDoc；`summary` 对齐 OpenAPI |
 | **Swagger** | 见下方「文档注解」；依赖 `swagger-annotations-jakarta` |
-| 测试 | `@WebMvcTest` + `@MockBean` 下游远程客户端 + MockMvc |
+| 测试 | `{Resource}ControllerTest`：`@WebMvcTest` + `@MockBean` 下游远程客户端 + MockMvc |
 | 断言 | 按画像 §3.7 响应格式断言状态码、业务码、提示文案与关键字段 |
 
 路径与 OpenAPI、详设 §5.1 三者一致。守卫 vs 领域规则见 `rules/bff-domain-boundary.md` 与 [bff-domain-boundary-guide.md](../../detail-design/references/bff-domain-boundary-guide.md)。
@@ -93,19 +93,19 @@
 
 | 项 | 约定 |
 |----|------|
-| 包 | `com.hema.booking.bff.app.converter` / `...bff.admin.converter` |
+| 包 | `{basePackage}.bff.app.converter` / `{basePackage}.bff.admin.converter` |
 | 实现 | MapStruct `@Mapper(componentModel = "spring")`；接口名 `*Converter` |
-| Controller | `return Result.success(converter.toVo(dto));` — **不**内联 `toVo`/`toSummaryVo` |
-| 职责边界 | 仅 DTO↔VO；**禁止**在 BFF converter 写域规则（状态筛选、payDeadline 业务判断等属 order-impl） |
+| Controller | 返回 `{Result<T>}` 封装（如 `return {Result}.success(converter.toVo(dto));`）— **不**内联 `toVo`/`toSummaryVo` |
+| 职责边界 | 仅 DTO↔VO；**禁止**在 BFF converter 写域规则（状态筛选、截止时间业务判断等属领域微服务 `*-impl`） |
 | 依赖 | `org.mapstruct:mapstruct`；父 POM 已配 `mapstruct-processor` + `lombok-mapstruct-binding` |
 
 示意：
 
 ```java
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
-public interface ActiveReservationBffConverter {
-    ActiveReservationQueryResultVO toVo(ActiveReservationQueryResultDTO dto);
-    ActiveReservationSummaryVO toSummaryVo(ActiveReservationSummaryDTO dto);
+public interface {Entity}BffConverter {
+    {Entity}QueryResultVO toVo({Entity}QueryResultDTO dto);
+    {Entity}SummaryVO toSummaryVo({Entity}SummaryDTO dto);
 }
 ```
 
@@ -124,7 +124,7 @@ public interface ActiveReservationBffConverter {
 依赖：
 
 ```xml
-<!-- booking-bff-*：编译期注解 -->
+<!-- {project}-bff-*：编译期注解 -->
 <dependency>
   <groupId>io.swagger.core.v3</groupId>
   <artifactId>swagger-annotations-jakarta</artifactId>
@@ -141,22 +141,22 @@ public interface ActiveReservationBffConverter {
 
 ```java
 /**
- * App 端预约单查询。
+ * App 端 {资源} 查询。
  */
-@Tag(name = "reservation", description = "预约单查询")
+@Tag(name = "{resource}", description = "{资源}查询")
 @RestController
-@RequestMapping("/api/v1/booking/app/reservations")
-public class AppReservationController {
+@RequestMapping("/api/v1/{project}/app/{resources}")
+public class {Resource}Controller {
 
     /**
-     * 查询当前进行中预约单摘要（首页进度卡片）。
+     * 查询当前进行中 {实体} 摘要。
      */
     @Operation(
-            summary = "查询当前进行中预约单摘要",
-            description = "Story AC-01～04、AC-06。无进行中单时 hasActiveReservation=false，非业务错误。")
+            summary = "查询当前进行中{实体}摘要",
+            description = "Story AC-01～04、AC-06。无进行中记录时返回空状态标记，非业务错误。")
     @SecurityRequirement(name = "bearerAuth")
     @GetMapping("/active")
-    public Result<ActiveReservationQueryResultVO> getActiveReservation() { ... }
+    public {Result<T>} getActive() { ... }
 }
 ```
 
@@ -168,9 +168,9 @@ public class AppReservationController {
 
 | 场景 | 落点 |
 |------|------|
-| 跨服务同步调用 | `*-impl/app/client/*Client`（或 BFF `client/`）→ 封装下游 `*-api` 远程契约（协议见画像 §5.4 **P-2**，如 OpenFeign / Dubbo / gRPC），并落实请求头透传（**P-5**）与错误解包（**P-4**） |
-| 外部支付 | `order-impl/app/client/PaymentClient` |
-| 车场南向 | 专属适配微服务 `adapter-api` `ParkingLotGateway`；实现在 `adapter-impl` |
+| 跨服务同步调用 | `*-impl/app/client/{Domain}Client`（或 BFF `client/`）→ 封装下游 `*-api` 远程契约（协议见画像 §5.4 **P-2**，如 OpenFeign / Dubbo / gRPC），并落实请求头透传（**P-5**）与错误解包（**P-4**） |
+| 第三方外部服务 | `{domain-a}-impl/app/client/{External}Client` |
+| 外部厂商南向对接 | 专属适配微服务 `{project}-adapter` 的 `adapter-api` 契约接口；实现在 `adapter-impl` |
 
 Service **调 Client**，不直接把原生 HTTP/RPC 调用代码散落在业务逻辑里。单元测试 Mock Client；单服务集成测试按 `rules/integration-test-conventions.md` 对下游微服务做模拟隔离。
 
@@ -205,10 +205,10 @@ Service **调 Client**，不直接把原生 HTTP/RPC 调用代码散落在业务
 
 | 公司级 | 本仓库 |
 |--------|--------|
-| `architecture（公司级示例） | `rules/java-project.md` |
-| `api-layer（公司级规则） | 本章 §5 + `rules/exception-and-result.md` + `rules/bff-domain-boundary.md` |
-| `service-layer（公司级规则） | 本章 §2、§3 |
-| `integration-client（公司级规则） | 本章 §6 |
-| `repository（公司级规则） / `database-model（公司级规则） | 本章 §1 + `rules/mybatis-conventions.md` |
-| `data-objects（公司级规则） | DO/DTO 命名；§8 详设 |
-| `exception-handling（公司级规则） | `rules/exception-and-result.md` |
+| `architecture`（公司级示例） | `rules/java-project.md` |
+| `api-layer`（公司级规则） | 本章 §5 + `rules/exception-and-result.md` + `rules/bff-domain-boundary.md` |
+| `service-layer`（公司级规则） | 本章 §2、§3 |
+| `integration-client`（公司级规则） | 本章 §6 |
+| `repository`（公司级规则） / `database-model`（公司级规则） | 本章 §1 + `rules/mybatis-conventions.md` |
+| `data-objects`（公司级规则） | DO/DTO 命名；§8 详设 |
+| `exception-handling`（公司级规则） | `rules/exception-and-result.md` |

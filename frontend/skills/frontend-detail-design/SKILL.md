@@ -6,9 +6,6 @@ description: >-
   不改 OpenAPI、不写页面代码。
 ---
 
-> **模板版说明**：本 Skill 自源项目（C 端微信小程序）抽取为通用模板。文中项目专属值（`docs/handoff/openapi/{后端服务标识}.yaml`、页面/组件名、Story 号）均为**示例**，接入时按 [frontend/MIGRATION.md](../../MIGRATION.md) 处理；「本仓库」指接入后的前端项目。
-
-
 # 前端详设（frontend-detail-design）
 
 ## 1. 定位
@@ -63,9 +60,9 @@ description: >-
 
 ### 4.5 错误展示
 
-- `code !== 200` 的 Toast / Modal / 跳转
+- 按画像 §四 约定的成功判据处理失败分支（Toast / Modal / 跳转）
 - 401 统一由 `http.js` 处理（页面不感知）
-- 域业务码按 Story AC 展示 `message`
+- 领域业务码按 Story AC 展示 `message`（对齐后端画像 §3.7）
 
 ### 4.6 性能关注
 

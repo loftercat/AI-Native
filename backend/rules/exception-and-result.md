@@ -4,9 +4,9 @@
 
 ## 一、通用异常纪律（必守，不随选型变化）
 
-1. **错误码必须按微服务号段归口枚举**：各领域服务在自己的 `*-api` 定义 `*ErrorCode` 枚举（号段见画像 §3.7）；入口守卫错误码放公共横切模块；**禁止**在代码里硬编码 magic number（如 `400`、`1501`）或用纯字符串代替业务错误码。
+1. **错误码必须按微服务号段归口枚举**：各领域服务在自己的 `*-api` 定义 `{Domain}ErrorCode` 枚举（号段见画像 §3.7）；入口守卫错误码放公共横切模块；**禁止**在代码里硬编码 magic number 或用纯字符串代替业务错误码。
 2. **禁止入口层吞异常**：Controller / 内部远程入口**不写** `try/catch (BizException)` 手动拼装失败响应，统一交由全局异常处理器或协议拦截器处理。
-3. **不重复造公共基础库轮子**：项目已引入统一公共基础库（见画像 §3.7 公共基础库锚点）时，严禁在各微服务或 `*-common` 里重复定义同名响应体、异常类或全局异常处理器。
+3. **不重复造公共基础库轮子**：项目已引入统一公共基础库（见画像 §3.7 公共基础库锚点）时，严禁在各微服务或 `{project}-common` 里重复定义同名响应体、异常类或全局异常处理器。
 4. **错误文案与 Story AC 对齐**：失败类 AC 中写明的用户可见提示文案，必须与对应错误码枚举的默认文案或转换规则保持一致。
 5. **跨服务异常传播边界**：
    - 调用下游微服务（协议见画像 §5.4 P-2）时，必须在统一客户端解包/拦截层（如 `ErrorDecoder` / RPC Filter）处理下游失败响应，**不得**在业务 Service 中到处散落手工拆解 HTTP 状态码或 JSON 错误体；
@@ -20,50 +20,43 @@
 
 ---
 
-## 三、参考示例（源项目 `hema-common` + `Result<T>` 方案）
+## 三、项目实现速查（接入时按画像 §3.7 填写）
 
-> **接入提示**：下文为源项目采用「统一 `Result<T>` 包装 + `hema-common` 公共库」时的落地参考。接入项目若在画像 §5.4 P-4 中选择了相同模式，替换公共库锚点与号段后即可直接使用；若选择了「裸 DTO + HTTP 状态码」或其他公共库，接入时按 [MIGRATION.md](../MIGRATION.md) §一.3b 重写本节。
+> **接入动作**：按 [common-foundation-migration.md](../docs/methodology/common-foundation-migration.md) 把本项目真实公共基础库（或自建封装）的坐标、响应体、异常、分页与号段填入本节，供 AI 编码直接照抄、防止造同名轮子。
 
-### 示例依赖与坐标
+### 依赖坐标与包根
 
-| 能力 | Maven 坐标（示例） | 包名（示例） |
-|------|--------------------|--------------|
-| 响应 / 异常 / 分页 | `com.hema:common-core` | `com.hema.common.core.*` |
-| 全局异常处理 / Feign 解包 | `com.hema:common-web` | `com.hema.common.web.*` |
+| 能力 | 依赖坐标 | 包根 |
+|------|----------|------|
+| 核心契约（响应 / 异常 / 分页） | `{groupId}:{common-core}` | `{com.company.common.core.*}` |
+| Web / 协议异常处理与解包 | `{groupId}:{common-web}` | `{com.company.common.web.*}` |
 
-### 示例响应与异常用法
+### 最小代码形态示意
 
 ```java
-// ✅ 对外 BFF Controller：成功直接包装，失败异常上浮给 GlobalExceptionHandler
-@PostMapping("/spaces/recommend")
-public Result<SpaceRecommendDTO> recommend(@Valid @RequestBody RecommendRequest req) {
-    return Result.success(inventoryClient.recommend(req));
+// ✅ 对外 BFF Controller：按画像 §3.7 响应形态返回，异常上浮给全局处理器
+@PostMapping("/{resource}")
+public {Result}<{Entity}VO> handle(@Valid @RequestBody {Action}Request req) {
+    return {Result}.success(toVo({domainClient}.{action}(req)));
 }
 
-// ✅ 领域服务：抛域错误码枚举
-throw new BizException(InventoryErrorCode.SLOT_NOT_AVAILABLE);
+// ✅ 领域服务：抛归属服务错误码枚举
+throw new {BizException}({Domain}ErrorCode.{BIZ_ERROR});
 
-// ❌ 禁止在 Controller try/catch 后手动 Result.fail
-// ❌ 禁止硬编码数字错误码或自造同名 Result / BizException
+// ❌ 禁止在 Controller try/catch 后手动拼装失败响应
+// ❌ 禁止硬编码数字错误码或自造同名响应/异常类
 ```
 
-### 示例微服务错误码号段
+### 微服务错误码号段与核心 API 速查
 
-| 层级 / 服务 | 位置（示例） | 号段 / 说明 |
-|-------------|--------------|-------------|
-| 通用（系统） | `com.hema.common.core.exception.ErrorCode` | 200 / 401 / 403 / 404 / 500 / 502 等 |
-| 入口守卫 | `booking-common` → `BookingErrorCode implements BizErrorCode` | BFF 守卫（对齐 OpenAPI `code=400`） |
-| 订单服务 | `order-api` → `OrderErrorCode` | **1500~1599** |
-| 库存服务 | `inventory-api` → `InventoryErrorCode` | **1600~1699** |
-| 适配器服务 | `adapter-api` → `AdapterErrorCode` | **1700~1799** |
-| 硬件 IoT 服务 | `iot-api` → `IotErrorCode` | **1900~1999** |
-
-### 示例公共库核心 API 速查（仅当沿用 `hema-common` 形态时适用）
-
-- **`Result<T>`**：`Result.success()` / `Result.success(T data)` / `Result.fail(ErrorCode)` / `Result.fail(Integer code, String message)` / `isSuccess()`（`code == 200`）。
-- **`BizException`**：`BizException(ErrorCode)` / `BizException(BizErrorCode)` / `BizException(Integer code, String message)`（跨服务透传下游错误码用）。
-- **`ErrorCode`**：`SUCCESS(200)` / `PARAM_ERROR(400)` / `UNAUTHORIZED(401)` / `FORBIDDEN(403)` / `NOT_FOUND(404)` / `SYSTEM_ERROR(500)` / `REMOTE_SERVICE_ERROR(502)`。
-- **`PageResult<T>` / `PageQuery`**：统一分页请求与响应基类。
-- **`SnowflakeIdGenerator#nextId()`**：分布式雪花 ID（若画像 P-3 选用雪花 ID，多实例须配置独立 `workerId`）。
+| 项 | 填写内容（对齐画像 §3.7） |
+|----|--------------------------|
+| 系统级错误码 | `{SystemErrorCode}`（位置与常见枚举值） |
+| 入口守卫错误码 | `{GuardErrorCode}`（放 `{project}-common`） |
+| 各领域服务错误码号段 | 见画像 §3.7 号段表（每个领域放各自 `{domain}-api`） |
+| 统一响应体 API | `{Result.success / fail / isSuccess 签名与成功判据}` |
+| 业务异常构造器 | `{BizException 构造器清单}` |
+| 分页对象 | `{PageQuery / PageResult 签名}` |
+| 主键生成器（若适用） | `{IdGenerator 签名，按画像 §5.4 P-3}` |
 
 完整实践说明见 [reference/exception-and-result.md](../reference/exception-and-result.md)。

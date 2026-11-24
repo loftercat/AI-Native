@@ -22,7 +22,7 @@
 
 开工前确认迭代号与环境凭据。
 
-> 一次性接入（画像、锚点替换、Golden 重写、分发、裁剪）见 [MIGRATION.md](MIGRATION.md)；公共基础库替换见 [任务书](docs/methodology/common-foundation-migration.md)。
+> 一次性接入（迭代号、画像与两档 13 项选型、条件 Rule 与 Hook 配置、Golden 重写、分发与裁剪）见 [MIGRATION.md](MIGRATION.md)；公共基础库登记见 [指南](docs/methodology/common-foundation-migration.md)。
 
 ### 迭代切换
 

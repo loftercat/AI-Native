@@ -1,8 +1,8 @@
 # 系统画像：{项目名}
 
-> **AI Skill 上下文资产**（`architecture/system-landscape.md`）。全部 Skill 的项目层事实唯一定义处——凡「具体仓库模式、服务名、端口、数据库归属、调用协议、号段、账号、未定技术选型」都只写在这里，Skill 与 Rule 引用不复制。
+> **AI Skill 上下文资产**（`architecture/system-landscape.md`）。全部 Skill 的项目层事实唯一定义处——凡「仓库模式、服务名、端口、数据库归属、调用协议、公共库、号段、测试账号、两档技术选型」都只写在这里，通用 Skill 与 Rule 引用本文件而不复制。
 > 写法指南：[docs/methodology/system-landscape.md](../docs/methodology/system-landscape.md)
-> **接入必填**：本文件是模板中唯一必须逐节填写的文件。下文带「示例」标注的内容来自源项目，接入时整节替换；`§5.4` 为**两档 13 项微服务选型占位**，接入时由 AI 按 [MIGRATION.md](../MIGRATION.md) 引导逐项拍板或显式标 `[TBD]`。
+> **接入必填**：本文件是模板中唯一必须逐节填写的核心事实文件；`§5.4` 为**两档 13 项微服务选型占位**，接入时由 AI 按 [MIGRATION.md](../MIGRATION.md) 引导逐项拍板或显式标 `[TBD]`。
 
 ---
 
@@ -14,8 +14,8 @@
 
 | 端 | 做什么 |
 |----|--------|
-| **C 端**（示例） | 输入目的地 → 匹配可预约车场 → 下单 → 支付 → 核销 |
-| **B 端**（示例） | 主数据管理、订单管理、规则配置、报表 |
+| **C 端**（如有） | {核心面向终端用户的业务流程} |
+| **B 端**（如有） | {核心面向运营/管理的配置、查询与审批流程} |
 
 > 领域术语见 [domain-glossary.md](../glossary/domain-glossary.md)。
 
@@ -25,8 +25,8 @@
 
 | 系统 | 一句话定位 | 与本系统关系 |
 |------|-----------|-------------|
-| **{本系统}** | （示例）预订微服务群：API 网关 + 双 BFF + 各领域微服务 | 对外 API；不含前端 UI |
-| **{外部系统 A}**（示例） | 支付系统：收单与退款回调 | 订单服务编排；不实现支付渠道 |
+| **{本系统}** | {一句话定位，如：API 网关 + BFF + 多领域微服务后端} | 对外 API；不含前端 UI |
+| **{外部系统 A}** | {一句话定位，如：第三方支付/结算平台} | 由 `{service-a}` 编排对接；本系统不实现其内部能力 |
 
 **核心关系图**：用一张 text/Mermaid 图画出 端 → API 网关 → BFF → 领域微服务 → 外部系统 的调用拓扑。
 
@@ -40,12 +40,12 @@
 
 | 服务 | 服务标识（简称） | 仓库 / 路径 | 职责与数据归属（独占表） | 默认端口 | 对外 / 对内契约路径 |
 |------|------------------|-------------|--------------------------|----------|---------------------|
-| （示例）API 网关 | `{项目}-gateway` | `{项目}-gateway/` | 统一入口路由、剥离外部伪造请求头、拦截内部路径 | `8080` | — |
-| （示例）App BFF | `{项目}-bff-app` | `{项目}-bff-app/` | 面向 C 端对外 HTTP（无业务库，仅编排/聚合） | `8081` | `docs/api/{项目}-bff-app/openapi.yaml` |
-| （示例）Admin BFF | `{项目}-bff-admin` | `{项目}-bff-admin/` | 面向 B 端对外 HTTP（无业务库） | `8082` | `docs/api/{项目}-bff-admin/openapi.yaml` |
-| （示例）订单服务 | `{项目}-order` | `{项目}-order-service/`（`order-api` + `order-impl`） | 预约单生命周期、支付编排；独占 `booking_order*` 表 | `8091` | 按 §5.4 P-2（如 `docs/api/{项目}-order/openapi.yaml` 或 `order-api`） |
-| （示例）库存服务 | `{项目}-inventory` | `{项目}-inventory-service/`（`inventory-api` + `inventory-impl`） | 车位可售、锁定、占用；独占 `space_*` 表 | `8092` | 按 §5.4 P-2 |
-| （示例）公共库 | `{项目}-common` | `{项目}-common/` | 通用横切工具（严格受 §5.4 P-6 边界约束，禁放业务 DTO/DO） | — | — |
+| API 网关（可选） | `{project}-gateway` | `{project}-gateway/` | 统一入口路由、剥离外部伪造请求头、拦截内部路径 | `{8080}` | — |
+| C 端 BFF（如有） | `{project}-bff-app` | `{project}-bff-app/` | 面向 C 端对外 HTTP（无业务库，仅编排/聚合） | `{8081}` | `docs/api/{project}-bff-app/openapi.yaml` |
+| B 端 BFF（如有） | `{project}-bff-admin` | `{project}-bff-admin/` | 面向 B 端对外 HTTP（无业务库） | `{8082}` | `docs/api/{project}-bff-admin/openapi.yaml` |
+| 领域服务 A | `{project}-{domain-a}` | `{project}-{domain-a}/`（`{domain-a}-api` + `{domain-a}-impl`） | {核心职责；独占 `{table_a*}` 表} | `{8091}` | 按 §5.4 P-2（如 `docs/api/{project}-{domain-a}/openapi.yaml` 或 `{domain-a}-api`） |
+| 领域服务 B | `{project}-{domain-b}` | `{project}-{domain-b}/`（`{domain-b}-api` + `{domain-b}-impl`） | {核心职责；独占 `{table_b*}` 表} | `{8092}` | 按 §5.4 P-2 |
+| 公共库（可选） | `{project}-common` | `{project}-common/` | 通用横切工具（严格受 §5.4 P-6 边界约束，禁放业务 DTO/DO） | — | — |
 
 > **服务标识**：与上表「服务标识」一致，必须与 `docs/api/{服务标识}/`、`docs/schema/{服务标识}/` 的目录名对齐。
 
@@ -66,15 +66,15 @@
 
 ### 3.2 模块与包结构
 
-包结构概览（权威来源为 `rules/java-project.md` 与 `rules/project-layout.md`）。写清：网关/BFF/领域服务（`*-api` + `*-impl`）的目录职责、`*-impl` 内部分层（接口入口/facade/service/client/infrastructure 等）、包名约定。
+包结构概览（权威来源为 `rules/java-project.md` 与 `rules/project-layout.md`）。写清：网关/BFF/领域服务（`*-api` + `*-impl`）的目录职责、`*-impl` 内部分层（接口入口/facade/service/client/infrastructure 等）、基础包根 `{basePackage}`。
 
 ### 3.3 命名规范
 
-| 类型 | 命名 | 示例 | 所在位置 |
-|------|------|------|----------|
-| 远程契约客户端 / 接口 | `XxxClient` / `XxxApi` | （示例）`BookingOrderClient` / `BookingOrderApi` | `*-api/`（按 §5.4 P-2 协议定名） |
-| 内部服务入口 | `*InternalController` / `*ProviderImpl` | — | `*-impl/interfaces/` 或 `app/provider/` |
-| 数据库实体 | `XxxDO` | — | `*-impl/infrastructure/dataobject/` |
+| 类型 | 命名模式 | 所在位置 |
+|------|----------|----------|
+| 远程契约客户端 / 接口 | `{Domain}Client` / `{Domain}Api` | `*-api/`（按 §5.4 P-2 协议定名） |
+| 内部服务入口 | `{Domain}InternalController` / `{Domain}ProviderImpl` | `*-impl/interfaces/` 或 `app/provider/` |
+| 数据库实体 | `{Entity}DO` / `{Entity}` | `*-impl/infrastructure/dataobject/`（按 §5.4 P-3） |
 
 ### 3.4 依赖方向
 
@@ -84,8 +84,8 @@
 
 | 服务 / 类别 | 部署形态 | 实例数与伸缩 | 独立数据库 | 备注 |
 |-------------|----------|--------------|------------|------|
-| （示例）网关 / BFF | 独立容器 / 进程 | 多实例无状态 | 无 | 外部流量入口 |
-| （示例）领域微服务 | 独立容器 / 进程 | 多实例无状态 | 每服务独立库 | 定时任务须防重叠（见 §5.4 E-6） |
+| 网关 / BFF | 独立容器 / 进程 | 多实例无状态 | 无 | 外部流量入口 |
+| 领域微服务 | 独立容器 / 进程 | 多实例无状态 | 每服务独立库 | 定时任务须防重叠（见 §5.4 E-6） |
 
 ### 3.6 跨服务调用与通信矩阵
 
@@ -93,45 +93,46 @@
 
 | 调用方 | 被调方 | 通信方式（同步/异步） | 协议/主题（对齐 §5.4 P-2 / E-2） | 关键接口/事件 | 失败处理 / 一致性（对齐 §5.4 E-3） |
 |--------|--------|----------------------|----------------------------------|---------------|-------------------------------------|
-| （示例）`{项目}-bff-app` | `{项目}-order` | 同步 | 按 P-2 | 下单 / 查询进行中预约 | 超时重试限制，错误按 P-4 处理 |
-| （示例）`{项目}-order` | `{项目}-inventory` | 同步 / 异步 | 按 P-2 / E-2 | 锁定/释放车位 | 按 E-3 选定的一致性方案 |
+| `{project}-bff-app` | `{project}-{domain-a}` | 同步 | 按 P-2 | `{核心操作}` | 超时重试限制，错误按 P-4 处理 |
+| `{project}-{domain-a}` | `{project}-{domain-b}` | 同步 / 异步 | 按 P-2 / E-2 | `{跨服务操作}` | 按 E-3 选定的一致性方案 |
 
 > **Skill 结论**：单服务集成测试 `*IT` 必须把上表中所有进程外下游服务视为外部依赖做模拟隔离（见 `rules/integration-test-conventions.md`）。
 
 ### 3.7 异常与统一响应（对齐 §5.4 P-4）
 
 > 本节编号 `§3.7` 被校验器与 `bugfix` / `detail-design` Skill 固定引用，**不得更改编号**。
-> 接入时须先在 §5.4 P-4 拍板「对外/对内返回格式」与「跨服务错误码传递方式」，再填写下方公共库锚点与服务号段表。
+> 接入时须先在 §5.4 P-4 拍板「对外/对内返回格式」与「跨服务错误码传递方式」，再填写下方公共库锚点与服务号段表（登记流程见 [common-foundation-migration.md](../docs/methodology/common-foundation-migration.md)）。
 
 **选型结论（接入必填，未定写 `[TBD]`）**：
 
 | 项 | 当前结论 |
 |----|----------|
-| 对外响应形态 | `[TBD]`（示例：统一 `Result<T>`，`code === 200` 判成功 / 或 裸 DTO + HTTP 状态码） |
-| 内部服务间响应形态 | `[TBD]`（示例：统一 `Result<T>` 由调用层解包 / 或 裸 DTO + 状态码 / RPC 异常） |
-| 跨服务错误码策略 | `[TBD]`（示例：默认透传下游业务码 / 上游按需映射转义） |
+| 对外响应形态 | `[TBD]`（备选：统一包装体 `{Result<T>}` 按业务码判成功 / 或 裸 DTO + HTTP 状态码） |
+| 内部服务间响应形态 | `[TBD]`（备选：统一包装体由调用层解包 / 或 裸 DTO + 状态码 / RPC 异常） |
+| 跨服务错误码策略 | `[TBD]`（备选：默认透传下游业务码 / 调用方按需映射转义） |
 
-**公共基础库锚点**（公共库替换任务先读这里；若项目自研封装则填本仓公共模块）：
+**公共基础库锚点**（若项目自研封装则填本仓公共模块）：
 
 | 项 | 值 |
 |----|----|
-| Maven 坐标 | `{groupId}:{common-core}`、`{groupId}:{common-web}` |
-| 版本属性 | `${...}` |
-| 包根 | `{com.acme.common}` |
-| 成功码 | `{200}`（若采用统一包装） |
-| 统一响应 | `{Result 全限定名}` |
-| 错误码 | `{ErrorCode}` / `{BizErrorCode}` |
+| 依赖坐标 | `{groupId}:{common-core}`、`{groupId}:{common-web}` |
+| 版本属性 | `${common.version}` |
+| 包根 | `{com.company.common}` |
+| 成功判据 | `{如 code === 200 或 HTTP 2xx}` |
+| 统一响应 | `{Result 全限定名或 N/A}` |
+| 错误码 / 异常 | `{ErrorCode}` / `{BizErrorCode}` / `{BizException}` |
 | 分页 | `{PageQuery}` / `{PageResult}` |
-| ID 生成器 | `{SnowflakeIdGenerator#nextId}`（按 §5.4 P-3 主键策略） |
+| ID 生成器 | `{IdGenerator 全限定名或 N/A}`（按 §5.4 P-3 主键策略） |
 | 全局异常处理 | `{GlobalExceptionHandler}` |
 
 **微服务错误码号段分配表**（`bugfix` 责任服务定位依赖此表）：
 
-| 区间 | 责任服务 | 定义位置 |
-|------|----------|----------|
-| 200 / 400~503 | 通用与网关/入口层 | （示例）`{公共库}` → `ErrorCode` |
-| （示例）1500~1549 | 订单服务（`{项目}-order`） | `order-api` → `OrderErrorCode` |
-| （示例）1600~1649 | 库存服务（`{项目}-inventory`） | `inventory-api` → `InventoryErrorCode` |
+| 区间 / 前缀 | 责任服务 | 定义位置 |
+|-------------|----------|----------|
+| `{系统码区间}` | 通用与网关/入口层 | `{公共库}` → `{SystemErrorCode}` |
+| `{守卫码区间}` | BFF 入口守卫 | `{project}-common` → `{GuardErrorCode}` |
+| `{号段 A}` | `{project}-{domain-a}` | `{domain-a}-api` → `{DomainAErrorCode}` |
+| `{号段 B}` | `{project}-{domain-b}` | `{domain-b}-api` → `{DomainBErrorCode}` |
 
 ### 3.8 消息与缓存
 
@@ -154,7 +155,7 @@
 
 | 系统 | 职责 | 集成方式 | 归属微服务 | MVP |
 |------|------|----------|------------|-----|
-| （示例）支付系统 | 收单、退款回调 | HTTPS | 订单服务 | P0 |
+| `{外部系统 A}` | `{核心外部能力}` | `{HTTPS / RPC / MQ}` | `{service-a}` | `{P0}` |
 
 每个外部系统一小节（§4.1 起）：职责边界（对方做什么 / 本系统做什么）、对接要点、新增厂商/通道的扩展方式。
 
@@ -173,8 +174,8 @@
 
 | 角色 / 场景 | userId / ownerId | 数据范围 | 权限码 | 环境变量 | seed 写什么 |
 |-------------|------------------|----------|--------|----------|-------------|
-| （示例）平台超管 | u-platform | 全部 | 全量 | `ADMIN_TOKEN` | 不需对齐 |
-| （示例）越权用例账号 | u-denied | — | `[]` | `ADMIN_TOKEN_DENIED` | 验 403 |
+| `{管理员角色}` | `{u-admin}` | `{全部}` | `{全量}` | `{ADMIN_TOKEN}` | `{不需对齐}` |
+| `{越权校验账号}` | `{u-denied}` | — | `[]` | `{ADMIN_TOKEN_DENIED}` | 验 403 |
 
 **造数对齐规则**：功能权限不靠造数靠挑 Token；数据权限按归属键（层级 id / 创建人 / 本人 owner）与 Token 的 scope 对齐。Token 由测试环境准备并写入环境变量，**不进 Git**。
 
@@ -195,11 +196,11 @@
 
 | 分类 | 技术 | 版本 | 说明 |
 |------|------|------|------|
-| （示例）开发语言 | Java | 21 | |
-| （示例）核心框架 | Spring Boot + Spring Cloud | 3.2.x | 每服务独立启动 |
-| （示例）数据库 | MySQL | 8.0 | 每服务独立实例/库 |
-| （示例）数据访问（ORM） | `[TBD]`（见 §5.4 P-3） | — | 接入时拍板 |
-| （示例）测试 | JUnit 5、Mockito、Testcontainers | — | 详见 `rules/integration-test-conventions.md` |
+| 开发语言 | `{Java}` | `{21}` | |
+| 核心框架 | `{Spring Boot + Spring Cloud}` | `{3.x}` | 每服务独立启动 |
+| 数据库 | `{MySQL}` | `{8.0}` | 每服务独立实例/库 |
+| 数据访问（ORM） | `[TBD]`（见 §5.4 P-3） | — | 接入时拍板 |
+| 测试 | `{JUnit 5、Mockito、Testcontainers}` | — | 详见 `rules/integration-test-conventions.md` |
 
 ### 5.2 启动与打包
 
@@ -214,7 +215,7 @@
 
 ### 5.4 微服务技术选型占位（接入拍板 / 按需演进）
 
-> **设计原则**：不把未定型技术栈写死在模板里。以下 **13 项选型** 分两档管理——接入时由 AI 按 [MIGRATION.md](../MIGRATION.md) §一.2 引导填写；开发期若某张 Story 命中仍为 `[TBD]` 的项，Skill **禁止自行猜测**，必须阻断请用户拍板并回写本节（回刷派生项见 [rules/system-landscape-change.md](../rules/system-landscape-change.md)）。
+> **设计原则**：不把未定型技术栈写死在模板里。以下 **13 项选型** 分两档管理——接入时由 AI 按 [MIGRATION.md](../MIGRATION.md) §一.2 引导填写；开发期若某张 Story 命中仍为 `[TBD]` 的项，Skill **禁止自行猜测**，必须阻断请用户拍板并回写本节（同步规范见 [rules/system-landscape-change.md](../rules/system-landscape-change.md)）。
 
 #### 第一档：开工前必选（6 项 — 接入填画像时 AI 优先引导拍板）
 
@@ -225,7 +226,7 @@
 | **P-1** | **仓库组织模式** | `单仓库多服务（同一 Git 仓）` / `一服务一独立仓库` / `按业务域分仓`。<br>若选多仓，须同时写清：① 跨服务文档总仓位置；② `*-api` 契约发布/同步方式；③ 各仓校验脚本复用方式 | `[TBD]` |
 | **P-2** | **服务间同步调用协议** | `Spring Cloud OpenFeign（HTTP）` / `Apache Dubbo` / `gRPC` / `RestClient / WebClient` / 混合模式。<br>同步明确：领域服务入口形态、内部契约载体（OpenAPI / `*-api` / `.proto`）与单服务 `*IT` 下游模拟方式（WireMock / RPC Stub） | `[TBD]` |
 | **P-3** | **数据库访问框架（ORM）** | `MyBatis + XML` / `MyBatis-Plus` / `Spring Data JPA` / `jOOQ` / 其他；含主键策略（雪花/UUID/自增）与软删除规则 | `[TBD]` |
-| **P-4** | **响应格式与跨服务错误码规则** | ① 返回格式：统一包装（如 `Result<T>`）vs 裸 DTO + 状态码；② 跨服务报错处理：解包透传下游码 vs 调用方映射转义；③ 公共库与服务号段（同步写进 §3.7） | `[TBD]` |
+| **P-4** | **响应格式与跨服务错误码规则** | ① 返回格式：统一包装（如 `{Result<T>}`）vs 裸 DTO + 状态码；② 跨服务报错处理：解包透传下游码 vs 调用方映射转义；③ 公共库与服务号段（同步写进 §3.7） | `[TBD]` |
 | **P-5** | **内部接口防外泄与服务间鉴权** | ① 防外泄：网关禁转 `/internal/**` / 独立内网端口 / 容器网络策略；② 内部鉴权：内部 Token / 签名校验 / mTLS / 仅内网隔离；③ 外部伪造头清理 + 透传头名（如 `X-User-Id`、`X-Trace-Id`） | `[TBD]` |
 | **P-6** | **公共库边界（`*-common`）** | 明确允许放的通用工具（如通用错误码接口、请求头常量、工具类）与**严禁放入项**（业务 DTO/DO、业务枚举、业务 Service，防服务紧耦合） | `[TBD]` |
 
@@ -249,8 +250,8 @@
 
 | 前缀 | 服务 | 调用方 |
 |------|------|--------|
-| （示例）`/api/v1/{项目}/app/` | App BFF（经 API 网关路由） | C 端 |
-| （示例）`/api/v1/{项目}/admin/` | Admin BFF（经 API 网关路由） | B 端 |
+| `/api/v1/{project}/app/` | `{project}-bff-app`（经 API 网关路由） | C 端 |
+| `/api/v1/{project}/admin/` | `{project}-bff-admin`（经 API 网关路由） | B 端 |
 
 > 对外 OpenAPI：`docs/api/{bff服务标识}/openapi.yaml` 分目录维护；内部接口前缀与防外泄规则见 §5.4 P-5；响应判成功规则见 §3.7（P-4）。
 
@@ -265,8 +266,8 @@
 ## 变更记录
 
 > 仅记录**当前有效决策**的关键转折，日常修订看 git log。
-> 本文件变更后（含 §5.4 任意项从 `[TBD]` 拍板定稿），按 [rules/system-landscape-change.md](../rules/system-landscape-change.md) 回刷派生项；「影响面」列标注本次需回刷的文件。
+> 本文件变更后（含 §5.4 任意项从 `[TBD]` 拍板定稿），按 [rules/system-landscape-change.md](../rules/system-landscape-change.md) 同步派生项；「影响面」列标注本次需同步的文件。
 
-| 日期 | 关键决策（当前有效） | 影响面（需回刷的派生项） | 详见 |
-|------|----------------------|--------------------------|------|
-| （示例）2026-08-18 | 确定服务间同步调用协议（P-2） | `rules/java-project.md`、`detail-design`、`feature-coding` | §3.6 / §5.4 |
+| 日期 | 关键决策（当前有效） | 影响面（需同步项） | 详见 |
+|------|----------------------|--------------------|------|
+| `{YYYY-MM-DD}` | `{初版系统画像定稿}` | `{无}` | §二 / §5.4 |

@@ -5,9 +5,9 @@
 | 迭代 | {迭代} |
 | 状态 | 草稿 / 评审中 / 已确认（= 已通过审查，须有 `docs/reviews/{迭代}/REVIEW-*` 报告，见 [rules/story-review.md](../../../rules/story-review.md)） |
 | 实现波次 | W0 Foundation / W1 主链路 / W2 扩展 / W3 低耦合 |
-| 来源 | {Epic / PRD} · {HLD 建议 Story 若有} · 原型「{工程名}」`{主 HTML 路径}`（如 `目的地.html`） |
+| 来源 | {Epic / PRD} · {HLD 建议 Story 若有} · 原型「{工程名}」`{主 HTML 路径}`（如 `{主页面}.html`） |
 | 复杂度 | 简单 / 中等 / 高复杂 |
-| 服务/模块 | booking-bff-app / booking-bff-admin / booking-order / booking-inventory / booking-parking-adapter / booking-common / 集成 |
+| 服务/模块 | {project}-gateway / {project}-bff-app / {project}-bff-admin / {project}-{domain-a} / {project}-{domain-b} / {project}-adapter / {project}-common / 集成 |
 
 ## 1. 用户故事
 

@@ -5,7 +5,7 @@
 | 迭代 | {迭代} |
 | 状态 | 草稿 / 评审中 / 已确认 |
 | 来源 | `STORY-{迭代}-{序号}-{slug}.md` · `docs/api/{服务标识}/openapi.yaml` · 可选 `TS-STORY-{迭代}-{序号}-{slug}.md`（只读对齐） |
-| 服务/模块 | {booking-bff-app / booking-bff-admin / booking-order / booking-inventory / ...} |
+| 服务/模块 | {{project}-bff-app / {project}-bff-admin / {project}-{domain-a} / {project}-{domain-b} / ...} |
 | 复杂度 | 简单 / 中等 / 高复杂 |
 
 > **模板说明**：由 `qa-acceptance-case-design` Skill 在提测前根据 Story + OpenAPI（可选 TS 对齐）生成。删除本说明块。命名与落盘：`docs/qa/{迭代}/AC-STORY-{迭代}-{序号}-{slug}.md`（见 [card-naming-conventions.md](../../../docs/agile/card-naming-conventions.md)）。
@@ -34,7 +34,7 @@
 > - **Given**：前置条件（数据、登录态、配置）。
 > - **When**：用户操作 / 接口调用（含 HTTP 方法与路径）。
 > - **Then**：用户**能看见**的结果（`code=200`、列表字段、业务失败 `message`）；**不**断言 Mapper 内部状态或 Mock 边界（AC-04）。
-> - 失败 AC 的 Then **必须含 Story 具体文案**（如「无可预约的车位」），禁止「提示错误」（AC-03）。
+> - 失败 AC 的 Then **必须含 Story 具体文案**（如「{资源不可用}」），禁止「提示错误」（AC-03）。
 > - `execution=ci_covered` 行 Then 写「以 MR 流水线 `mvn test` 通过为准」+ Pipeline 引用占位，**不生成**等价 pytest 步骤（BR-05）。
 > - `manual` / `frontend_only` 的 AC，以及 TS 矩阵中标 `N/A` 的 AC，须**展开 GWT**（含失败类用户可见文案，与 Story AC 一致）（BR-06）。
 

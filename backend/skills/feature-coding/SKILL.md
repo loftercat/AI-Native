@@ -6,9 +6,6 @@ description: >-
   按详设编码、按 AC 写测试与实现、增量补全模块等场景。
 ---
 
-> **模板版说明**：本 Skill 自已落地的源项目抽取为通用模板。文中项目专属值（模块名 `booking-*`、包名 `com.hema`、错误码号段、具体路径与 Story 号）均为**示例**，接入项目时按 [MIGRATION.md](../../MIGRATION.md) 清单替换；「本仓库」指接入后的目标项目。
-
-
 # 功能编码（Story + 详设 → Java + mvn test）
 
 以 Story + 详设 + OpenAPI 为输入，在 Story 范围内**一体化 TDD**（先写/补测试，再写/修 Java），
@@ -39,12 +36,12 @@ description: >-
 ### 触发示例
 
 ```text
-/feature-coding 实现 STORY-2026-S01-001
-@docs/requirements/2026-S01/STORY-2026-S01-001-query-allocate-space.md
+/feature-coding 实现 STORY-{YYYY-Snn}-001
+@docs/requirements/{YYYY-Snn}/STORY-{YYYY-Snn}-001-{slug}.md
 @docs/design/_golden/DD-STORY-GOLDEN-001-*.md
 
-按变更记录重新实现 STORY-xxx
-只实现 inventory-impl 的 Service 层
+按变更记录重新实现 STORY-{迭代}-{序号}
+只实现 {domain-a}-impl 的 Service 层
 ```
 
 ---
@@ -57,7 +54,7 @@ description: >-
 
 1. `references/implementation-checklist.md`（**缺失则阻断**）
 1b. `../detail-design/references/bff-domain-boundary-guide.md`（详设含 BFF + 域时 **必读**）
-1c. `hema-common` 核心 API 已内联进 `rules/exception-and-result.md`（下方第 2 步自动注入，**无需额外 Read**）；完整说明见 [rules/exception-and-result.md](../../rules/exception-and-result.md)（按需延伸阅读）
+1c. `{company-common}` 公共库（含 `{Result<T>}`、`{BizException}` 等）核心 API 约定已内联进 `rules/exception-and-result.md`（下方第 2 步自动注入，**无需额外 Read**）；完整说明见 [rules/exception-and-result.md](../../rules/exception-and-result.md)（按需延伸阅读）
 2. **显式读取** Rule：
    - `rules/java-project.md`
    - `rules/bff-domain-boundary.md`（改 BFF 或 `*-impl` 时）
@@ -83,14 +80,14 @@ description: >-
 
 ```text
 1. 用户 @ 的 Story 路径 → 直接使用
-2. 指令含 STORY-YYYY-Snn-nnn → glob docs/requirements/**/STORY-{编号}*.md
+2. 指令含 STORY-{YYYY-Snn}-{序号} → glob docs/requirements/**/STORY-{迭代}-{序号}*.md
 3. 仅关键词 → docs/requirements/ 标题模糊匹配（多命中则 AskQuestion）
 4. 均未命中 → 阻断，请用户 @ Story 或给出编号
 ```
 
 **迭代标识**（与 detail-design 对齐）：`用户指令 > Story 所在目录名 > config/current-sprint > 询问用户`
 
-从 Story 提取：Story 编号、AC/BR 列表、变更记录、**服务/模块**字段、前端-only AC 线索、跨 Story BR 引用（`STORY-xxx`、`STORY-xxx.BRn`）。
+从 Story 提取：Story 编号、AC/BR 列表、变更记录、**服务/模块**字段、前端-only AC 线索、跨 Story BR 引用（`STORY-{迭代}-{序号}`、`STORY-{迭代}-{序号}.BRn`）。
 
 **模块预判**（终判在步骤 4）：用 Story「服务/模块」字段；不臆测。
 
@@ -134,15 +131,15 @@ description: >-
 
 | 类型 | 路径 |
 |------|------|
-| 服务契约 | `booking-*-service/*-api/src/main/java/` — 远程客户端/接口（按画像 P-2）、DTO、域错误码枚举 |
-| 领域微服务实现 | `booking-*-service/*-impl/` — 独立启动类、内部远程入口（内部 Controller 或 RPC Provider）、`facade`、`service`、`client` |
+| 服务契约 | `{project}-{domain-a}/{domain-a}-api/src/main/java/` — 远程客户端/接口（按画像 P-2）、DTO、域错误码枚举 `{Domain}ErrorCode` |
+| 领域微服务实现 | `{project}-{domain-a}/{domain-a}-impl/` — 独立启动类、内部远程入口（内部 Controller 或 RPC Provider）、`facade`、`service`、`client` |
 | 持久化与迁移 | `*-impl/infrastructure/`（DO、持久化访问层，按画像 P-3）+ `*-impl/src/main/resources/db/migration/` |
-| App BFF | `booking-bff-app/` — 独立启动；对外 Controller、鉴权 Filter、下游远程客户端封装 |
-| Admin BFF | `booking-bff-admin/` — 独立启动；对外 Controller、鉴权、下游远程客户端封装 |
-| 网关（可选） | `booking-gateway/` — 路由转发、清理外部伪造请求头、拦截内部路径（按画像 P-5） |
+| App BFF | `{project}-bff-app/` — 独立启动；对外 Controller、鉴权 Filter、下游远程客户端封装 |
+| Admin BFF | `{project}-bff-admin/` — 独立启动；对外 Controller、鉴权、下游远程客户端封装 |
+| 网关（可选） | `{project}-gateway/` — 路由转发、清理外部伪造请求头、拦截内部路径（按画像 P-5） |
 | 单元测试 | 各服务 `*-impl/src/test/java/` |
 | 入口 API 测试 | 各 BFF 或领域服务 `src/test/java/` — `@WebMvcTest` / MockMvc |
-| 单服务集成测试 | 各微服务 `src/test/java/`（`*IT`/`*ScenarioIT`，归 `integration-test-design` Skill） |
+| 单服务集成测试 | 各微服务 `src/test/java/`（`{Scenario}IT`/`*ScenarioIT`，归 `integration-test-design` Skill） |
 
 扫描现有 Java 与测试，对照 AC 产出**缺口清单**。
 
@@ -161,12 +158,12 @@ description: >-
 缺口清单模板：
 
 ```markdown
-## 缺口清单 — {Story编号}
+## 缺口清单 — STORY-{迭代}-{序号}
 | 类别 | 项 | 动作 |
 |------|-----|------|
-| AC 覆盖 | AC-03 无测试 | 新增 ParkingLotQueryServiceTest + AppParkingLotControllerTest |
+| AC 覆盖 | AC-03 无测试 | 新增 {Entity}QueryServiceTest + {Resource}ControllerTest |
 | URL | path 与 OpenAPI 不一致 | 整改 Controller @RequestMapping |
-| 阻断 | OpenAPI 缺 1604 错误示例 | 须先 detail-design |
+| 阻断 | OpenAPI 缺 {Domain}ErrorCode 错误示例 | 须先 detail-design |
 ```
 
 ### 步骤 5：增量计划
@@ -202,12 +199,12 @@ description: >-
 |----|----------|------|
 | Service / Facade | 各服务 `*-impl/src/test/java/*ServiceTest` | 真实 HTTP/RPC、真实 DB |
 | 内部远程入口 | 本服务 `*-impl/src/test/java/`（HTTP 入口可用 `@WebMvcTest` Mock Service） | 暴露到公网网关、吞异常 |
-| BFF API | `booking-bff-*/src/test/java/*ControllerTest` — `@WebMvcTest` + Mock 下游远程客户端 | 依赖 `*-impl` 或断言下游库 |
-| 单服务集成 | 各微服务 `src/test/java/`（`*IT`/`*ScenarioIT`） | 依赖真实下游微服务或真实注册中心；**归 `integration-test-design` Skill，不在本 Skill 编写** |
+| BFF API | `{project}-bff-*/src/test/java/*ControllerTest` — `@WebMvcTest` + Mock 下游远程客户端 | 依赖 `*-impl` 或断言下游库 |
+| 单服务集成 | 各微服务 `src/test/java/`（`{Scenario}IT`/`*ScenarioIT`） | 依赖真实下游微服务或真实注册中心；**归 `integration-test-design` Skill，不在本 Skill 编写** |
 
 **增量 TDD 分支**——对每条后端 AC：
 
-1. 已有测试且绿、符合当前 AC → 保留（可补 `@DisplayName` 或注释 `STORY-xxx AC-n`）
+1. 已有测试且绿、符合当前 AC → 保留（可补 `@DisplayName` 或注释 `STORY-{迭代}-{序号} AC-n`）
 2. 已有测试失败 + AC 未变 → 修实现（测不动）；仅 URL 不合规 → 改路由与 MockMvc path
 3. 已有测试失败 + AC 已变 → 确认 Story 已更新 → 改测 → 改实现
 4. 无测试覆盖 → 先写失败测试 → 再实现
@@ -216,21 +213,21 @@ description: >-
 
 **前端-only AC**：后端不测不写；测试类文件头注释 N/A 及 AC 编号。
 
-**新增错误码**：域模块 `*ErrorCode` 枚举 + OpenAPI `BusinessErrorBody` examples；OpenAPI 未声明则先补当前 Story operation 或标阻断。
+**新增错误码**：域模块 `{Domain}ErrorCode` 枚举 + OpenAPI `BusinessErrorBody` examples；OpenAPI 未声明则先补当前 Story operation 或标阻断。
 
 按 `implementation-checklist.md` 每层完成后自检。
 
 ### 步骤 7：Story 范围 mvn test 验收
 
-工作目录：仓库根（含根 `{项目}/pom.xml`）。
+工作目录：仓库根（含根 `{project}/pom.xml`）。
 
 ```bash
 # 单模块（推荐）
-mvn test -pl booking-inventory-service/inventory-impl -am
-mvn test -pl booking-bff-app -am
+mvn test -pl {project}-{domain-a}/{domain-a}-impl -am
+mvn test -pl {project}-bff-app -am
 
 # 多模块 Story
-mvn test -pl booking-bff-app,booking-inventory-service/inventory-impl -am
+mvn test -pl {project}-bff-app,{project}-{domain-a}/{domain-a}-impl -am
 ```
 
 **验收标准**：Story 关联测试**全部通过**。
@@ -276,10 +273,10 @@ mvn test
 **默认**：在对话末尾输出结构化汇总，**不自动落盘**；用户明确要求时可写入 `docs/design/summaries/`。
 
 ```markdown
-## 实现汇总 — {Story编号}
+## 实现汇总 — STORY-{迭代}-{序号}
 
 ### 1. 元信息
-- 模块：{booking-bff-app / inventory-impl / ...}
+- 模块：{{project}-bff-app / {domain-a}-impl / ...}
 - 模式：全新 / 增量 / 变更后（可组合）
 - 输入：Story、详设、OpenAPI 路径
 
@@ -312,8 +309,8 @@ mvn test
 对外完整路径（经 API 网关路由至 BFF）：
 
 ```text
-/api/v1/booking/app/{resource}     # C 端 booking-bff-app
-/api/v1/booking/admin/{resource}   # B 端 booking-bff-admin
+/api/v1/{project}/app/{resource}     # C 端 {project}-bff-app
+/api/v1/{project}/admin/{resource}   # B 端 {project}-bff-admin
 ```
 
 内部服务间路径（若画像 §5.4 P-2 选 HTTP 协议）：遵循画像 §5.4 **P-5** 内部前缀（如 `/internal/v1/{service}/{resource}`），并确认 API 网关禁止对外转发。
@@ -363,9 +360,9 @@ Story 未更新但用户要求改实现 → **拒绝**，提示先更新 Story�
 
 | 路径 | 默认 |
 |------|------|
-| `booking-*-service/*-api/`、`*-impl/`、`booking-bff-*/`、`booking-common/` | ✅ |
+| `{project}-{domain-a}/{domain-a}-api/`、`*-impl/`、`{project}-bff-*/`、`{project}-common/` | ✅ |
 | `*/src/test/java/` | ✅ |
-| `booking-gateway/`（路由/安全配置） | ✅（Story 需要时） |
+| `{project}-gateway/`（路由/安全配置） | ✅（Story 需要时） |
 | 当前 Story `DD-*.md`、`docs/api/**/openapi.yaml`（URL/路径同步） | ✅ |
 | `docs/requirements/**`、`_golden/`、`rules/` | ❌ |
 | 其他模块实现、非当前 Story 详设/OpenAPI 业务定义 | ❌（须用户显式授权） |
@@ -395,7 +392,7 @@ Story 未更新但用户要求改实现 → **拒绝**，提示先更新 Story�
 | 步骤 6 分层/依赖 | `rules/java-project.md`、`rules/bff-domain-boundary.md`、[layer-guides.md](references/layer-guides.md) |
 | 步骤 6 测试 | `rules/tdd-project-conventions.md`、[test-quality.md](references/test-quality.md) |
 | 步骤 6 响应/异常 | `rules/exception-and-result.md` |
-| 步骤 6 持久化 | `rules/mybatis-conventions.md`、[schema-conventions.md](../detail-design/references/schema-conventions.md) §1.4（Flyway + `sync-mapper-schema-from-flyway.sh`（源项目脚本，未随模板）） |
+| 步骤 6 持久化 | `rules/mybatis-conventions.md`、[schema-conventions.md](../detail-design/references/schema-conventions.md) §1.4（Flyway 与测试 schema 同构约束） |
 | 步骤 6 大文件 IO | `rules/memory-safe-io.md`、[memory-safe-io-guide.md](../../reference/memory-safe-io-guide.md) |
 | 步骤 6 BFF API | layer-guides §5 / **§5.1**（中文 JavaDoc + `@Tag`/`@Operation`/`@Schema`）、[openapi-conventions.md](../detail-design/references/openapi-conventions.md) §6 |
 | 步骤 6 Client | layer-guides §6、详设时序图 |
@@ -409,7 +406,7 @@ Story 未更新但用户要求改实现 → **拒绝**，提示先更新 Story�
 
 | 资产 | 路径 |
 |------|------|
-| hema-common API 速查 | `rules/exception-and-result.md` |
+| `{company-common}` 公共库 API 约定 | `rules/exception-and-result.md` |
 | 实现检查清单 | `references/implementation-checklist.md` |
 | 分层编码指引 | `references/layer-guides.md` |
 | 测试质量 | `references/test-quality.md` |
@@ -417,7 +414,7 @@ Story 未更新但用户要求改实现 → **拒绝**，提示先更新 Story�
 | Golden 测试参考 | `docs/design/_golden/DD-STORY-GOLDEN-001-*.md` §9 |
 | Story | `docs/requirements/{迭代}/STORY-*.md` |
 | 详设 | `docs/design/{迭代}/DD-*.md` |
-| OpenAPI | `docs/api/{服务标识}/`、`docs/api/{服务标识}/`、`docs/api/{域}/` |
+| OpenAPI | `docs/api/{服务标识}/` |
 | schema | `docs/schema/{服务标识}/schema.md` |
 | 系统画像 | `architecture/system-landscape.md` |
 | 迭代配置 | `config/current-sprint` |

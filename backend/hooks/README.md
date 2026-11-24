@@ -10,7 +10,7 @@
 
 ## 接入
 
-1. **改保护路径**：`bugfix-protect-common.sh` 顶部 `PROTECTED` 数组按目标微服务项目替换（横切公共库 `*-common` / 各微服务对外契约 `*-api` / 公司级公共包的 glob）。**注意：`{项目}` 等占位符在 case 匹配中按字面量处理，未替换时该条保护静默不生效**——接入后务必用一个公共代码或 `*-api` 契约路径试触一次确认被拦。
+1. **改保护路径**：`bugfix-protect-common.sh` 顶部 `PROTECTED` 数组按目标微服务项目替换（横切公共库 `*-common` / 各微服务对外契约 `*-api` / 公司级公共包的 glob）。**注意：`{project}`、`{company}` 等占位符在 case 匹配中按字面量处理，未替换时该条保护静默不生效**——接入后务必用一个公共代码或 `*-api` 契约路径试触一次确认被拦。
 2. **注册到 agent**：这些脚本遵循 Cursor hooks 的 JSON 协议（stdin 收 JSON、stdout 回 JSON）。Cursor 在 `.cursor/hooks.json` 注册；其他 Agent（Claude Code、ZCode 等）用各自等价机制挂载同一脚本，协议字段（`permission` / `additional_context` / `followup_message`）按目标平台语义适配。
 3. `bugfix-test-reminder.sh` 默认解析单仓库多服务的 Maven 模块路径（`mvn -pl <service-module> test`）；一服务一独立仓库（画像 §5.4 P-1）改为仓库根 `mvn test`，Gradle 项目改 `gradle :module:test` 的解析逻辑。
 

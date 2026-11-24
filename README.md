@@ -15,7 +15,7 @@ AI 原生开发工作流模板：**后端线（12 Skill）+ 前端线（3 Skill�
 | 查某个 Skill 的触发/产出 | [Skill 体系](#skill-体系) |
 | 查 EPIC / JSD / DD / TS 等工件 | [工件速查](#工件速查) |
 | 看目录结构 | [目录职责](#目录职责) |
-| 准备或替换公共基础库 | [公共基础库替换任务书](backend/docs/methodology/common-foundation-migration.md) |
+| 准备或登记公共基础库 | [公共基础库登记与适配指南](backend/docs/methodology/common-foundation-migration.md) |
 | 日常使用（后端） | [backend/USAGE.md](backend/USAGE.md) |
 | 日常使用（前端） | [frontend/USAGE.md](frontend/USAGE.md) |
 
@@ -37,7 +37,7 @@ AI 会读取模板仓的接入引导，带你走完手动步骤；你只在画�
 新项目与存量项目同法：
 
 1. **引入**：把 AI-Native 工程放到项目的根目录下、**不带 `.git`**，放入后目录名保持为 `AI-Native/`。存量项目原有代码与目录不动，用 [templates/AGENTS.template.md](templates/AGENTS.template.md) 生成项目根 `AGENTS.md`（填完占位符）；存量项目已有 `AGENTS.md` 时进行整合。
-2. **接入**：后端按 [backend/MIGRATION.md](backend/MIGRATION.md) §一（填画像 → 替换锚点 → 重写 Golden → 分发到 Agent → 工作流裁剪，每步 AI 执行、人审定稿）；前端按 [frontend/MIGRATION.md](frontend/MIGRATION.md)。
+2. **接入（零全局替换，只填配置层）**：通用 `skills/` 与通用 `rules/` 均已抽象化，**无需对工作流正文做全局字符串替换**。后端按 [backend/MIGRATION.md](backend/MIGRATION.md) §一（设迭代号 → 填画像与 13 项选型 → 适配条件 Rule 与 Hook 路径 → 重写 Golden → 分发与接入审查）；前端按 [frontend/MIGRATION.md](frontend/MIGRATION.md)。
 
 > 模板仓根 [AGENTS.md](AGENTS.md) 是模板仓入口，**不要直接复制**到目标项目；目标项目用 `templates/AGENTS.template.md` 生成自己的入口。
 

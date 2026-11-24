@@ -5,9 +5,6 @@ description: >-
   并对照 TS 去重。用于验收用例设计、提测清单、UAT、冒烟/回归选集等场景。
 ---
 
-> **模板版说明**：本 Skill 自已落地的源项目抽取为通用模板。文中项目专属值（模块名 `booking-*`、包名 `com.hema`、错误码号段、具体路径与 Story 号）均为**示例**，接入项目时按 [MIGRATION.md](../../MIGRATION.md) 清单替换；「本仓库」指接入后的目标项目。
-
-
 # 验收用例设计（Story + OpenAPI → 验收清单 GWT）
 
 以 Story 需求卡（AC/BR）+ OpenAPI 为**硬依赖**，产出**给人执行**的验收用例（用户可见 GWT），
@@ -28,7 +25,7 @@ description: >-
 
 ## 字段与枚举定义
 
-> 权威语义与 STORY-2026-S01-090（源项目 QA Skill 需求卡）§3.1 一致。`status`（TC 生命周期）见追溯表模板，与 `execution` **分两维度**（BR-07）。
+> `status`（TC 生命周期）见追溯表模板，与 `execution` **分两维度**（BR-07）。
 
 ### `execution`（单条用例怎么验收）
 
@@ -87,9 +84,9 @@ description: >-
 ### 触发示例
 
 ```text
-/qa-acceptance-case-design STORY-2026-S01-001
+/qa-acceptance-case-design STORY-{YYYY-Snn}-001
 
-增量：为 STORY-xxx 补 execution=blackbox 行的 blackbox_rationale
+增量：为 STORY-{迭代}-{序号} 补 execution=blackbox 行的 blackbox_rationale
 ```
 
 ## 输出
@@ -131,7 +128,7 @@ description: >-
 1. **筛选漏斗**（§1）：全量候选 → 剔除白盒已细测 → 黑盒候选 → 冒烟 5~15 → 回归按影响面
 2. **黑盒候选判定**（§2，照搬 marp §3 共 7 类场景）：其中 **2 类不进黑盒**（白盒已覆盖：参数校验/鉴权/状态机/事务/DB 断言/单字段映射/业务计算 + 仅 Mock 第三方超时异常），**5 类方可标 `blackbox`**（真实 HTTP/跨进程串联/真实第三方联调/用户可见主路径/历史缺陷）
 3. **ci_covered 双条件**（§3，BR-05）：① TS 矩阵对该 AC 标单元/BFF/IT 全覆盖 **且** ② 该 AC 无部署态独有验证点；仅 ① 不满足 ② → `blackbox`
-4. **反例**：BFF 测参数校验 ≠ 黑盒无部署态增量（真实 iam 鉴权、网关 Filter、TLS 是部署态独有）
+4. **反例**：BFF 测参数校验 ≠ 黑盒无部署态增量（真实认证鉴权、网关 Filter、TLS 是部署态独有）
 
 `execution` 枚举：`manual` / `ci_covered` / `blackbox` / `frontend_only` / `obsolete`
 `suite` 枚举：`smoke` / `regression` / `N/A`（非 blackbox 时）
@@ -139,7 +136,7 @@ description: >-
 ### 步骤 5：写 GWT（清单 §3，用户可见断言）
 
 - **Given/When/Then**：Then 不断言 Mapper 内部状态或 Mock 边界；允许 `code=200`、列表字段可见、业务失败 `message` 与 Story 一致（AC-04）
-- **失败 AC Then 必须含 Story 具体文案**（如「无可预约的车位」「车场不存在」），禁止「提示错误」（AC-03）
+- **失败 AC Then 必须含 Story 具体文案**（如「{资源不可用}」「{实体不存在}」），禁止「提示错误」（AC-03）
 - `execution=ci_covered` 行 Then 写「以 MR 流水线 `mvn test` 通过为准」+ Pipeline 引用占位，**不生成等价 pytest 步骤**（BR-05）
 - `manual` / `frontend_only` 的 AC，以及 TS 矩阵中标 `N/A` 的 AC，须**展开 GWT**（含失败类用户可见文案，与 Story AC 一致）（BR-06）
 - `blackbox` 行必填 `blackbox_rationale`

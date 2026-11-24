@@ -4,7 +4,7 @@
 >
 > **本文性质**：方法论——说明系统画像**必须体现的内容**与 Skill 消费关系。
 >
-> **本仓库实例**：[`architecture/system-landscape.md`](../../architecture/system-landscape.md)（源项目）。
+> **模板实例**：[`architecture/system-landscape.md`](../../architecture/system-landscape.md)。
 
 ---
 
@@ -54,7 +54,7 @@
 | **本系统微服务** | 服务名、服务标识、仓库/路径、职责与独占表（数据归属）、端口、对外/对内契约路径 |
 | **外部系统** | 系统名、集成方式、归属调用微服务 |
 
-**服务标识**与 `docs/api/{服务标识}/`、`docs/schema/{服务标识}/` 一致（如 `booking-bff-app`、`booking-order`）。
+**服务标识**与 `docs/api/{服务标识}/`、`docs/schema/{服务标识}/` 一致（如 `{project}-bff-app`、`{project}-{domain-a}`）。
 
 ### 3.4 架构与分层（必备）
 
@@ -85,26 +85,26 @@
 
 ### 3.7 URL 基线（Web/API 项目必备）
 
-本仓库对外前缀：
+对外前缀（以画像 §六 为准）：
 
 ```text
-/api/v1/booking/app/...      → booking-bff-app
-/api/v1/booking/admin/...    → booking-bff-admin
+/api/v1/{project}/app/...      → {project}-bff-app
+/api/v1/{project}/admin/...    → {project}-bff-admin
 ```
 
-BFF 统一返回 `com.hema.common.core.result.Result<T>`（`hema-common`）；业务成败看 `code === 200`。
+响应格式、成功判据与错误码号段以画像 `§3.7`（`§5.4 P-4`）为准。
 
 ---
 
 ## 4. OpenAPI / schema 路径规则
 
 ```text
-读 system-landscape 模块清单
+读 system-landscape 服务清单
   → OpenAPI: docs/api/{服务标识}/openapi.yaml
   → schema:  docs/schema/{服务标识}/schema.md
 ```
 
-本仓库典型服务标识：`booking-bff-app`、`booking-bff-admin`、`booking-order`、`booking-inventory`、`booking-parking-adapter`。
+服务标识模式：`{project}-bff-app`、`{project}-bff-admin`、`{project}-{domain-a}`、`{project}-{domain-b}`。
 
 ---
 

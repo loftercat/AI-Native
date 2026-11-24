@@ -4,12 +4,12 @@
 # fail open: 依赖缺失时不阻断
 #
 # ── 接入配置 ─────────────────────────────────────────────
-# PROTECTED 为公共/共享代码的 glob 列表，按目标项目替换。
-# 示例值来自已落地的源项目：公共库、对外 API 模块、公司级 common 包。
+# PROTECTED 为公共/共享代码的 glob 列表，接入时替换为本项目真实路径。
+# 建议保护：项目公共库、各微服务对外契约 *-api、公共基础包目录。
 PROTECTED=(
-  "*{项目}-common/src/main/*"   # 例：*booking-common/src/main/*
-  "*-api/src/main/java/*"        # 对外 API 模块（被多域依赖）
-  "*com/{公司}/*"                # 例：*com/hema/common/*
+  "*{project}-common/src/main/*"
+  "*-api/src/main/java/*"
+  "*com/{company}/common/*"
 )
 # ─────────────────────────────────────────────────────────
 

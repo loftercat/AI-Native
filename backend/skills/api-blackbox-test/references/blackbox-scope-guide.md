@@ -12,9 +12,9 @@
 | 语言 | Java | Python |
 | 运行环境 | 进程内（`@SpringBootTest RANDOM_PORT`） | 部署后（已部署测试环境） |
 | 时机 | MR 每次 PR（`mvn test`） | 发版后/提测后（独立 deploy stage） |
-| Mock | 外部系统 `@MockBean`/WireMock | 环境级沙箱（测试支付、测试 iam） |
+| Mock | 外部系统 `@MockBean`/WireMock | 环境级沙箱（外部系统测试沙箱、认证服务） |
 | 断言粒度 | DB + 错误码 + 状态机细断言 | HTTP 200 + `result.code==200` + 关键字段 |
-| 覆盖目标 | PR 逻辑正确性 | 部署态可用性（网关/Filter/iam/配置） |
+| 覆盖目标 | PR 逻辑正确性 | 部署态可用性（网关/Filter/认证鉴权/配置） |
 | 同场景 | **优先 IT**；IT 已覆盖 → pytest 不复制 | 仅域级 1 条主路径冒烟 |
 | `ci_covered` 行 | qa-acceptance-case-design 已判定 TS 全覆盖 **且** 无部署态独有（BR-05 双条件） | **不生成 pytest**；Then 以 MR `mvn test` 通过为准 |
 | `manual`/`frontend_only`/`obsolete` 行 | 非黑盒 | **不生成 pytest**（归 qa-acceptance-case-design GWT / 前端仓） |
@@ -31,8 +31,8 @@
 **冒烟横切探测**（迭代级共享，不重复为每个 Story 新增）：
 
 - **health**：`GET /actuator/health` → 200
-- **auth_probe Admin**：未授权 `GET /api/v1/booking/admin/...` → 401/403
-- **auth_probe App**：未授权 `GET /api/v1/booking/app/...` → 401/403
+- **auth_probe Admin**：未授权 `GET /api/v1/{project}/admin/...` → 401/403
+- **auth_probe App**：未授权 `GET /api/v1/{project}/app/...` → 401/403
 
 ## 3. 边缘场景归属（BR-06）
 
@@ -43,11 +43,11 @@
 | 参数非法全组合 | IT / `*ServiceTest`（PR 白盒） | — |
 | 业务错误码全表 | IT / `*ServiceTest`（PR 白盒） | — |
 | 真实网关/Filter 链路 | — | **必进黑盒**（IT 不经真实 Filter） |
-| 真实 iam 鉴权 | — | **必进黑盒**（IT 用 Mock） |
-| 真实支付沙箱联调 | — | **进回归 manifest**（注理由） |
+| 真实认证鉴权 | — | **必进黑盒**（IT 用 Mock） |
+| 真实外部系统沙箱联调 | — | **进回归 manifest**（注理由） |
 | 历史缺陷路径 | — | **进回归 manifest**（注理由） |
 
-**判定原则**：仅当「环境/网关/真实 iam 特有」**且**「IT 无法覆盖」时，方进黑盒 manifest。
+**判定原则**：仅当「环境/网关/真实认证鉴权特有」**且**「IT 无法覆盖」时，方进黑盒 manifest。
 
 ## 4. manifest 规模原则
 
@@ -71,5 +71,5 @@
 
 - `BLACKBOX_BASE_URL` 缺失 → `pytest.skip`（非 fail，AC-07）
 - `ADMIN_TOKEN` / `APP_TOKEN` 缺失 → auth_probe 用例 skip；主路径用例标 xfail 或 skip
-- 测试支付沙箱不可用 → 支付类回归 skip + 汇总提示
-- Token/iam 漂移 → auth_probe 失败优先查配置而非改断言
+- 外部系统测试沙箱不可用 → 对应外部联调回归 skip + 汇总提示
+- Token/认证服务漂移 → auth_probe 失败优先查配置而非改断言

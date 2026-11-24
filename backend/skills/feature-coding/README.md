@@ -32,7 +32,7 @@
 | 3 | 测试质量 | [test-quality.md](references/test-quality.md) |
 | 4 | Golden 测试参考 | `docs/design/_golden/DD-STORY-GOLDEN-001-*.md` §9 |
 | 5 | Story + 详设 | `docs/requirements/{迭代}/STORY-*.md`、`docs/design/{迭代}/DD-*.md` |
-| 6 | OpenAPI | `docs/api/{服务标识}/`、`docs/api/booking-bff-admin/` |
+| 6 | OpenAPI | `docs/api/{服务标识}/` |
 | 7 | schema | `docs/schema/{服务}/schema.md` |
 | 8 | 系统画像 | `architecture/system-landscape.md` |
 | 9 | 代码审查 | [rules/code-review.md](../../rules/code-review.md)、[code-review-report.md](../../templates/code-review-report.md) |
@@ -55,14 +55,14 @@
 
 | 公司级（Python Demo） | 本仓库（Java） |
 |----------------------|----------------|
-| `app/modules/{module}/` | `*-api`/`*-impl`、`booking-bff-*` |
+| `app/modules/{module}/` | `*-api`/`*-impl`、`{project}-bff-*` |
 | `tests/unit/{module}/` | `*/src/test/java/` |
 | `pytest` | `mvn test` |
 |  `rules` | `rules/` |
 | 公司级 rules/unit-test-quality | [test-quality.md](references/test-quality.md) |
 | `api-layer` / `service-layer` 等 Rule | [layer-guides.md](references/layer-guides.md) |
 | `tests/_golden/` | `docs/design/_golden/` §9 + 同模块 `*Test.java` |
-| `/{product}/api/v1/{module}/` | `/api/v1/booking/app|admin/` |
+| `/{product}/api/v1/{module}/` | `/api/v1/{project}/app/`、`/api/v1/{project}/admin/` |
 | `test-quality-audit` / `bugfix` | `test-quality-audit` 未落地；`bugfix` 已落地（旁路） |
 
 ## 边界

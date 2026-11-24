@@ -13,7 +13,7 @@
 | 归属 | 规则 | 说明 |
 |------|------|------|
 | **本服务内部**（入口 Filter/拦截器 → Controller/Provider → Facade → Service → 持久化层 → 本服务容器 DB） | **一律真实，严禁 Mock** | 否则测不到本服务真实 SQL、事务和状态机 |
-| **进程外下游微服务**（如订单服务调库存服务、BFF 调订单服务） | **必须模拟隔离，不启动真实下游进程** | 保证单服务 `*IT` 独立、快速、离线可重复运行 |
+| **进程外下游微服务**（如 `{project}-{domain-a}` 调 `{project}-{domain-b}`、BFF 调领域微服务） | **必须模拟隔离，不启动真实下游进程** | 保证单服务 `{Scenario}IT` 独立、快速、离线可重复运行 |
 | **第三方外部系统**（支付网关、厂商系统、外部认证服务） | **必须模拟隔离** | 区分「链路通过」与「外部契约保真」两条线 |
 | **服务注册与配置中心**（Nacos / Consul 等，见画像 §5.4 E-1） | **测试 profile 一律关闭** | 不依赖外部基础设施 |
 
@@ -38,21 +38,21 @@
         │   ├─ 画像 §5.4 P-2 为 HTTP（如 OpenFeign / RestClient）→ 优先 WireMock 真实 HTTP 桩（对齐下游 docs/api/{下游服务}/openapi.yaml）
         │   ├─ 画像 §5.4 P-2 为 RPC（如 Dubbo / gRPC）→ 使用框架测试 Stub 或 @MockBean 远程客户端接口
         │   └─ 画像 §5.4 E-5 选定了 Spring Cloud Contract / Pact → 按工具生成与校验契约桩
-        └─ 第三方外部系统（支付、车场厂商、iam-server 等）：
+        └─ 第三方外部系统（第三方支付、外部厂商平台、外部认证中心等）：
             ├─ 需验证请求格式/签名/回调解析/错误码映射/超时处理 → WireMock
             └─ 仅需「它返回一个固定结果」→ @MockBean
 ```
 
 ---
 
-## 4. 常见依赖逐项处理（源项目示例，接入按画像替换）
+## 4. 常见依赖逐项处理（按画像 §3.6 / §四 映射）
 
 | 依赖 | 类别 | 单服务集成测试处理 | 备注 |
 |------|------|--------------------|------|
-| **下游领域微服务**（如订单服务调库存服务 `InventoryClient`） | 进程外下游微服务 | **优先 WireMock**（若 P-2 为 HTTP）：桩响应体严格对齐 `docs/api/booking-inventory/openapi.yaml`，验证路径、透传头（P-5）与错误解包（P-4）；RPC 协议用对应 Stub / `@MockBean` | 不拉起库存服务进程，不连库存库 |
-| **支付系统**（`order-impl/app/client/PaymentClient`） | 第三方外部系统 | 链路通过性 → `@MockBean PaymentClient`；请求签名/回调解析/错误码映射 → **WireMock** | 仅在订单服务 `*IT` 中声明 |
-| **封闭式车场系统**（`adapter-impl` `{厂商}ParkingAdapter`） | 第三方外部系统 | 仅在适配微服务 `*IT` 中用 **WireMock** 验厂商 HTTP 契约；上游订单/库存服务测的是「调用适配微服务」而非直连厂商 | 隔离南向厂商依赖 |
-| **iam-server**（B 端 Token 校验） | 外部认证系统 | 测试 JWT 或 Mock 校验组件，**不依赖真实认证服务** | 详见 §5 |
+| **下游领域微服务**（如 `{project}-{domain-a}` 调 `{project}-{domain-b}` 的 `{Domain}Client`） | 进程外下游微服务 | **优先 WireMock**（若 P-2 为 HTTP）：桩响应体严格对齐 `docs/api/{project}-{domain-b}/openapi.yaml`，验证路径、透传头（P-5）与错误解包（P-4）；RPC 协议用对应 Stub / `@MockBean` | 不拉起下游服务进程，不连下游库 |
+| **第三方外部服务**（`{domain-a}-impl/app/client/{External}Client`） | 第三方外部系统 | 链路通过性 → `@MockBean {External}Client`；请求签名/回调解析/错误码映射 → **WireMock** | 仅在归属领域服务 `*IT` 中声明 |
+| **外部厂商南向平台**（`{project}-adapter` 的 `adapter-impl`） | 第三方外部系统 | 仅在适配微服务 `*IT` 中用 **WireMock** 验厂商 HTTP 契约；上游业务服务测的是「调用 `{project}-adapter`」而非直连厂商 | 隔离南向厂商依赖 |
+| **外部认证服务**（如 B 端 Token 校验） | 外部认证系统 | 测试 JWT 或 Mock 校验组件，**不依赖真实认证服务** | 详见 §5 |
 | **异步消息中间件**（若已启用画像 E-2） | 基础设施 | 本服务发件箱表/业务表真实验证；MQ Broker 按画像 E-2 选择 Testcontainers Broker 或 Mock Producer | 不依赖共享测试环境 MQ |
 
 ---
@@ -102,21 +102,21 @@ static void stopWireMock() {
 // 将桩地址注入下游微服务客户端或外部 Client 的 base-url（关闭服务发现后直连桩地址）
 @DynamicPropertySource
 static void wireMockProperties(DynamicPropertyRegistry registry) {
-    registry.add("clients.inventory.base-url", wireMockServer::baseUrl);
-    registry.add("pay.client.base-url", wireMockServer::baseUrl);
+    registry.add("clients.{domain-b}.base-url", wireMockServer::baseUrl);
+    registry.add("clients.{external}.base-url", wireMockServer::baseUrl);
 }
 ```
 
 ```java
 @Test
-@DisplayName("STORY-xxx AC-0x：下游库存不足错误码按画像 P-4 正确处理")
-void createOrder_handlesInventoryInsufficientError() {
-    wireMockServer.stubFor(post("/internal/v1/inventory/spaces/lock")
-            .willReturn(okJson("{\"code\":1601,\"message\":\"暂无可用车位\"}")));
+@DisplayName("STORY-{迭代}-{序号} AC-0x：下游业务错误码按画像 P-4 正确处理")
+void execute_handlesDownstreamBizError() {
+    wireMockServer.stubFor(post("/internal/v1/{service}/{resources}/reserve")
+            .willReturn(okJson("{\"code\":{下游错误码},\"message\":\"{预期错误文案}\"}")));
 
-    ResponseEntity<Result<?>> resp = restTemplate.postForEntity(
-            url("/internal/v1/orders"), payload, Result.class);
-    assertThat(resp.getBody().getCode()).isEqualTo(1601);
+    ResponseEntity<{Result<T>}> resp = restTemplate.postForEntity(
+            url("/internal/v1/{service}/{resources}"), payload, {Result}.class);
+    assertThat(resp.getBody().getCode()).isEqualTo({Domain}ErrorCode.{ERR_ENUM}.getCode());
 }
 ```
 

@@ -13,7 +13,7 @@ acceptance_id,story_id,ac_id,priority,execution,suite,status,git_ref,external_tc
 #                      未导入或无外部系统填 —
 #   legacy_tc_id       无 Story 的遗留外部 TC 关联（任意 TMS 的老用例 ID）；新建填 —；
 #                      下次触达补 Story 或标 obsolete（BR-12）
-#   blackbox_rationale 仅 execution=blackbox 时必填；说明部署态独有验证点（如「真实 iam 鉴权，部署态独有」）
+#   blackbox_rationale 仅 execution=blackbox 时必填；说明部署态独有验证点（如「真实认证鉴权，部署态独有」）
 #   last_verified      最近一次验证日期 YYYY-MM-DD；未验证填 —
 #
 # P0/P1/P2 统计：按 priority 列聚合；与外部用例系统的用例等级对齐（若有）。

@@ -2,7 +2,7 @@
 
 ## 技术栈
 
-- Java 21、JUnit 5、Mockito、Spring Boot Test（ORM 与调用协议见 [system-landscape.md](../architecture/system-landscape.md) §5.4）
+- Java + JUnit 5 + Mockito + Spring Boot Test（具体版本、ORM 与调用协议见 [system-landscape.md](../architecture/system-landscape.md) §5.1 / §5.4）
 - 构建：Maven（单仓库多服务用 `mvn test -pl {service-module} -am`；独立仓库直接 `mvn test`）
 
 ## 流程
@@ -36,4 +36,4 @@
 ## 与详设及环境隔离
 
 - 先详设后编码；对外/对内接口契约与实现路径一致
-- 单服务单元测试与集成测试必须关闭服务注册发现（按画像 §5.4 E-1），不依赖外部注册中心、真实下游服务或真实第三方支付环境
+- 单服务单元测试与集成测试必须关闭服务注册发现（按画像 §5.4 E-1），不依赖外部注册中心、真实下游服务或真实第三方环境

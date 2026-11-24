@@ -1,183 +1,126 @@
-# MIGRATION：后端线接入指南（微服务版）
+# MIGRATION：后端线接入指南（微服务纯模板版）
 
 本文件为**后端线（微服务工作流）**接入指南；前端见 [frontend/MIGRATION.md](../frontend/MIGRATION.md)。
 
+> **零全局替换设计**：本模板的 `skills/` 与通用 `rules/` 均已彻底抽象化，项目专属事实统一收拢在 `architecture/system-landscape.md`、`config/current-sprint`、项目根 `AGENTS.md` 与 `hooks/` 配置中。接入时**无需对 `skills/` 做全局锚点搜索替换**，后续模板母版升级可直接覆盖通用层。
 > 本指南由 AI 引导执行：AI 按步骤推进，在人工介入点停下问人。可以直接对 AI 说「帮我接入这套工作流」进入引导。
 
 ## 快速导航
 
 | 阶段 | 内容 |
 |------|------|
-| [§一.1](#1-初始化迭代号) | 初始化迭代号 |
-| [§一.2](#2-填写项目画像含两档选型拍板) | 填写项目画像（含两档选型拍板） |
-| [§一.3a](#3a-通用项目锚点) | 通用项目锚点 |
-| [§一.3b](#3b-公共基础库替换) | 公共基础库替换 |
-| [§一.4](#4-重写-golden) | 重写 Golden |
-| [§一.5](#5-分发到-agent) | 分发到 Agent |
-| [§一.6](#6-工作流裁剪) | 工作流裁剪 |
-| [§一.7](#7-接入审查ai-自动) | 接入审查（AI 自动） |
+| [§一.1](#1-初始化迭代号与入口) | 初始化迭代号与项目根 `AGENTS.md` |
+| [§一.2](#2-填写项目画像含两档选型拍板与公共库登记) | 填写项目画像（含两档 13 项选型与公共库登记） |
+| [§一.3](#3-轻量项目配置条件-rule-与-hook) | 轻量项目配置（按选型适配条件 Rule + Hook 路径） |
+| [§一.4](#4-重写-golden建议) | 重写 Golden（建议） |
+| [§一.5](#5-分发裁剪与接入审查) | 分发到 Agent、裁剪与接入审查（AI 自动） |
 | [§二](#二接入后验收) | 接入后验收 |
 
 ---
 
 ## 一、接入步骤
 
-### 1. 初始化迭代号
+### 1. 初始化迭代号与入口
 
-把 `config/current-sprint` 设为接入后的第一个迭代（一行，如 `2026-S03`）。所有 Skill 的工件路径都从这里取迭代号；不要保留模板示例 `2026-S01` / `2026-S02`。
+1. 把 `config/current-sprint` 设为接入后的第一个迭代（一行，如 `2026-S03`）。所有 Skill 的工件路径都从这里取迭代号。
+2. 用 [templates/AGENTS.template.md](../templates/AGENTS.template.md) 生成项目根 `AGENTS.md`（填完基本摘要与链接前缀）；存量项目已有 `AGENTS.md` 时进行整合。不在 `AGENTS.md` 复制画像正文。
 
-**验收**：文件只有一行，值为目标首个迭代；后续锚点替换后再确认一次，避免被模板值覆盖。
+**验收**：`config/current-sprint` 仅有一行且为目标首个迭代号；项目根 `AGENTS.md` 指向 `AI-Native/backend/architecture/system-landscape.md`。
 
 ---
 
-### 2. 填写项目画像（含两档选型拍板）
+### 2. 填写项目画像（含两档选型拍板与公共库登记）
 
-`architecture/system-landscape.md` 是模板中唯一必须逐节填写的文件——12 个 Skill 的项目层判断（服务清单、数据归属、仓库模式、调用协议、ORM、响应/错误码、内部鉴权、外部系统 Mock 边界）全部读它。两条路径均以人审定稿收口——画像是项目层事实唯一定义处，错了全链路漂；且须保留被 Skill 与校验器引用的小节编号（`§3.7` / `§4.3.4` / `§4.7` / `§5.4`）。
-
-项目根 `AGENTS.md` 用 [templates/AGENTS.template.md](../templates/AGENTS.template.md) 生成（见根 [README.md](../README.md) 快速开始）；本线画像只写 `architecture/system-landscape.md`，不在 `AGENTS.md` 复制项目事实。
+`architecture/system-landscape.md` 是本模板唯一必须逐节填写的核心事实文件——12 个 Skill 的项目层判断（服务清单、数据归属、仓库模式、调用协议、ORM、响应/错误码、内部鉴权、测试账号、外部系统 Mock 边界）全部直接读取它。必须保留被 Skill 与校验器引用的小节编号（`§3.7` / `§4.3.4` / `§4.7` / `§5.4`）。
 
 | 项目形态 | 填法 |
 |----------|------|
-| 现有项目接入（已有代码） | AI 扫代码仓起草：构建文件→服务清单与技术栈（ORM/调用协议/公共库）、网关与 Controller→URL 前缀与内部路由、错误码枚举→号段表、client/config→服务间通信矩阵与外部集成；人审补漏后定稿 |
-| 从 0 开始的新项目 | 无代码可扫，服务切分与技术选型是**架构决策**：AI 按画像模板逐节提问访谈（模板表即提纲）或基于 PRD 出提案，每节人拍板。**不必把所有细节一次填满**——先填服务清单、基本架构与下方「第一档 6 项必选」，跑完 `high-level-design` 后把定稿的服务边界与通信矩阵回写画像 §二 / §3.6 |
+| 现有项目接入（已有代码） | AI 扫代码仓起草：构建文件→服务清单与技术栈（ORM/调用协议/公共库）、网关与入口→URL 前缀与内部路由、错误码枚举→号段表、client/config→服务间通信矩阵与外部集成；人审补漏后定稿（**人工介入点 1**） |
+| 从 0 开始的新项目 | 无代码可扫，服务切分与技术选型是**架构决策**：AI 按画像模板逐节提问访谈或基于 PRD 出提案，每节人拍板（**人工介入点 1**）。先填服务清单、基本架构与下方第一档 6 项必选；跑完 `high-level-design` 后把定稿的服务边界与通信矩阵回写画像 §二 / §3.6 |
 
 #### 微服务两档技术选型引导（画像 §5.4，AI 必执行）
 
-AI 在起草或访谈画像时，必须按两档向用户逐项确认：
-
-1. **第一档：开工前必选（P-1 ~ P-6，共 6 项）**——接入期应拍板定稿（若确需暂缓，须显式登记豁免；未拍板在首次 `detail-design` / `feature-coding` 会阻断）：
+1. **第一档：开工前必选（P-1 ~ P-6，共 6 项）**——接入期应拍板定稿（未拍板在首次 `detail-design` / `feature-coding` 会阻断）：
    - **P-1 仓库组织模式**：单仓库多服务 vs 一服务一独立仓库 vs 按业务域分仓。
-     - **若选一服务一独立仓库（多仓）**，AI 必须追加确认 **3 件事** 并写入画像 §5.4 P-1：① 跨服务文档（EPIC/JSD/HLD/迭代索引）的总仓位置；② `*-api` 契约包或接口文档如何跨仓发布与同步；③ 各服务仓如何复用校验脚本。
+     - **若选一服务一独立仓库（多仓）**，AI 必须追加确认 **3 件事** 写入画像 §5.4 P-1：① 跨服务文档（EPIC/JSD/HLD/迭代索引）总仓位置；② `*-api` 契约包或接口文档跨仓发布与同步方式；③ 各服务仓复用校验脚本方式。
    - **P-2 服务间同步调用协议**：OpenFeign（HTTP）/ Dubbo / gRPC / RestClient / 混合。同步明确领域服务入口形态、内部契约载体与单服务 `*IT` 下游模拟方式。
-   - **P-3 数据库访问框架（ORM）**：MyBatis + XML / MyBatis-Plus / JPA / jOOQ 等（含主键与软删策略）。选非 MyBatis 时，在 §3a 换栈确认步骤替换 `rules/mybatis-conventions.md`。
-   - **P-4 响应格式与跨服务错误码规则**：对外/对内返回结构、跨服务报错透传或映射策略、公共库与服务号段（同步填进画像 §3.7）。
+   - **P-3 数据库访问框架（ORM）**：MyBatis + XML / MyBatis-Plus / JPA / jOOQ 等（含主键与软删策略）。
+   - **P-4 响应格式与跨服务错误码规则**：对外/对内返回结构、跨服务报错透传或映射策略、公共基础库坐标与微服务号段（同步填进画像 §3.7；公共库登记细则见 [common-foundation-migration.md](docs/methodology/common-foundation-migration.md)）。
    - **P-5 内部接口防外泄与服务间鉴权**：防外泄方式、内部鉴权机制、外部伪造头清理与透传头约定。
-   - **P-6 公共库边界（`*-common`）**：允许放哪些横切工具、严禁放业务 DTO/DO。
-2. **第二档：用到再定（E-1 ~ E-7，共 7 项）**——AI 仅做一次快速确认：「服务注册配置、异步 MQ、跨服务一致性、事件契约、自动化契约测试、多实例定时任务、链路追踪这 7 项里，哪些现在已定型？」已定即填入，未定显式保留 `[TBD]`（待首次业务需求命中时再由 Skill 阻断补全）。
+   - **P-6 公共库边界（`*-common`）**：允许放哪些通用工具、严禁放业务 DTO/DO。
+2. **第二档：用到再定（E-1 ~ E-7，共 7 项）**——AI 做一次快速确认：「服务注册配置、异步 MQ、跨服务一致性、事件契约、自动化契约测试、多实例定时任务、链路追踪这 7 项里，哪些现在已定型？」已定即填入，未定显式保留 `[TBD]`（首次业务需求命中时再由 Skill 阻断补全）。
 
 `glossary/domain-glossary.md` 按业务域重建词表（缺失时 Skill 降级运行，不阻断）。
 
-**画像变更后的回刷**：画像会在项目推进中完善（HLD 定稿回写、§5.4 `[TBD]` 拍板、服务拆分调整）。变更后须按回刷约束处理派生项，否则 `skills/`、`rules/` 与画像不一致且无任何报错——对照表与验证方式见 [rules/system-landscape-change.md](rules/system-landscape-change.md)。
+**画像变更后的同步**：项目推进中完善画像（HLD 回写、§5.4 `[TBD]` 拍板、服务调整）后，按 [rules/system-landscape-change.md](rules/system-landscape-change.md) 同步条件规则。
 
 ---
 
-### 3. 全局替换项目锚点
+### 3. 轻量项目配置（条件 Rule 与 Hook）
 
-本步分两部分：通用锚点替换与公共基础库替换。
+通用 `skills/` 与通用 `rules/` **无需批量替换**，仅处理以下 3 处与目标项目选型强相关的配置落点（**人工介入点 2**，无换栈项时合并确认）：
 
-#### 3a. 通用项目锚点
-
-把模板里的源项目示例锚点替换为目标项目事实，并按画像 §5.4 第一档选型同步条件规则。人确认映射与验收。
-
-**人工介入点**
-
-1. **映射确认**：AI 提交「源值 → 目标值」表（含服务裁剪/合并建议与 §5.4 选型对规则的影响），人裁定。
-2. **换栈 / 选型规则确认**：当 P-2（调用协议）、P-3（ORM，如选非 MyBatis）、P-4（响应/错误码）或 P-5（内部鉴权）与模板示例不同时，AI 按选型更新/重写对应 Rule，人审定稿。
-3. **验收确认**：AI 提交残留清单与命令输出，人确认清零或登记豁免。
-
-**AI 任务**
-
-1. **提映射** → 人工介入点 1
-   - 先 grep 扫源值：服务/模块名、包名、公共库、号段、URL（含内部路径前缀）、迭代号。
-   - 读画像 §二 / §3.7 / §5.4，按职责映射。
-   - 领域服务与其 `*-api` / `*-impl`、错误码枚举、包名、独立 DB/迁移目录成对映射。
-   - 服务无对应就裁掉，不硬凑；BFF 或网关合并/拆分别只做机械替换。
-2. **替换与规则适配**
-   - 按映射批量替换，长前缀先替换；同步 `config/current-sprint`。
-   - 按 §5.4 P-1 ~ P-6 回刷对应 Rule（详见 [rules/system-landscape-change.md](rules/system-landscape-change.md)）；涉及换栈或规则重写时 → 人工介入点 2。
-   - Windows Git Bash 用 `find -exec` 调 `perl`，避免 `grep | xargs` 的路径转义问题。
-3. **验收** → 人工介入点 3
-   - 用映射表中**未被目标选用**的旧值构造 grep，排除 `_golden/`。
-   - 跑校验器；表外形态逐条报告。
-   - 重点抽查：重复服务名、只换 `-api` 未换 `-impl`、URL 前缀与 path 不一致、包名与服务名不一致、遗留已裁减的旧规则。
-
-**源值类别**（具体值以当前模板为准，AI 从画像/目录扫描补全）：
-
-| 类别 | 处理 |
-|------|------|
-| 服务 / 模块 / 包名 | 网关、BFF、领域服务按职责语义映射；包名机械替换；无对应服务就裁剪 |
-| 公共库 | 见 §3b |
-| 错误码号段 | 按目标微服务重排，写入画像 §3.7 |
-| URL / 内部路由 / 迭代号 | 替换对外前缀与内部路径/协议示例；同步 `config/current-sprint` |
-| 技术选型（§5.4 P-1~P-6） | 按画像拍板结果更新/重写对应 Rule（ORM、调用协议、响应错误码、内部鉴权、仓库布局） |
-
-**替换边界**：删了 Skill 不能执行的（服务名、包名、公共库、号段、URL、测试账号、构建命令）必须换；只是举例的（业务示例、Golden 文件名、模板说明）保留。
-
-**验收**：
-
-- `bash scripts/validate-skills.sh --quiet-tick` PASSED
-- 映射表中未被目标选用的旧值 grep 为 0（`_golden/` 豁免）
-- 表外形态逐条有结论
-
-#### 3b. 公共基础库替换
-
-仅当目标公共库与模板示例不同（坐标/包根/API 形状变化）或项目自建响应封装时执行；完整 AI 任务书（数据来源、映射表、四个人工介入点、验证命令）见 [common-foundation-migration.md](docs/methodology/common-foundation-migration.md)。
+1. **ORM 条件规则（按画像 P-3）**：
+   - 选 MyBatis → 直接保留 `rules/mybatis-conventions.md`；
+   - 选 JPA / jOOQ 等其他 ORM → 删除 `rules/mybatis-conventions.md`，按目标 ORM 编写一份持久化 Rule 并在 `AGENTS.md` / 相关指引登记。
+2. **公共基础库 API 速查（按画像 P-4 / §3.7）**：
+   - 按 [common-foundation-migration.md](docs/methodology/common-foundation-migration.md) 把本项目实际公共基础库（或自建封装）的坐标、响应体、异常与分页 API 登记到 `rules/exception-and-result.md`「项目实现速查」节。
+3. **Hook 保护路径（若启用 `hooks/`）**：
+   - 修改 `hooks/bugfix-protect-common.sh` 顶部 `PROTECTED` 数组为本项目真实公共库与 `*-api` 路径，并试触一次确认拦截生效（详见 [hooks/README.md](hooks/README.md)）。
 
 ---
 
-### 4. 重写 Golden
+### 4. 重写 Golden（建议）
 
-- 从画像 §二 服务清单与词表选取真实业务场景，构造「查询-分配」同族用例（源项目为 query-allocate-space 一族）。
-- 保持文件名模式与结构，把线根（`AI-Native/backend/`）`docs/**/_golden/` 下 12 个样例用本项目业务重写一遍（重写后视为项目资产，模板升级不覆盖）。
+- 从画像 §二 服务清单与词表选取真实业务场景，保持文件名模式与结构，把线根（`AI-Native/backend/`）`docs/**/_golden/` 下样例用本项目业务重写一遍（重写后视为项目资产，模板升级不覆盖）。
 - 提交人验收时随附「3 处关键改动 + 建议抽查 1 份」。
-- 画像与词表仍为占位、构造不出可信场景时，降级为人工指定场景后再重写。
+- 画像与词表仍不足、构造不出可信场景时，可先跳过并在完成首个真实 Story 后补写。
 
 > Golden 的价值是「标准长什么样」，不是「别人的业务长什么样」。
 
 ---
 
-### 5. 分发到 Agent
+### 5. 分发、裁剪与接入审查
 
-探测当前环境确定所用 Agent 与目标目录（如存在 `.zcode/` 即 ZCode），按该 Agent 的技能 / 规则目录约定完成分发与格式适配，跑校验器验证。仅用户提出多 Agent 需求时才询问。
+#### 5a. 分发到 Agent
 
-> 部分 Agent 的技能目录在**会话启动时扫描**（如 ZCode）——分发的技能当次会话不可见属预期，用新会话验证，或当前会话按路径直呼 SKILL.md。
+探测当前环境确定所用 Agent 与目标目录，按该 Agent 的技能 / 规则目录约定完成分发与格式适配（打包为一次收尾提问，不逐项问）。
 
-**AI 任务**：
+> 部分 Agent 的技能目录在**会话启动时扫描**——分发的技能当次会话不可见属预期，用新会话验证，或当前会话按路径直呼 `SKILL.md`。
 
-1. **分发资产（按线）**：后端线 = `skills/` + `rules/` + `templates/`（至少含 `code-review-report.md`、`stage-review-report.md`、`artifact-review-report.md`）+ 可选 `hooks/`；前端线 = `skills/` + `rules/` + `templates/`，不依赖 `backend/` 路径。
-2. **格式适配（按所用 Agent 的约定）**：技能放技能目录、规则放规则目录；Agent 对规则有格式要求时适配——如 Cursor 需转 `.mdc` 并加回 frontmatter（description + globs/alwaysApply），纯 markdown 可直接读的 Agent 原样落位。拿不准该 Agent 的目录约定时问人，不猜。
-3. **不变约束**：
-   - 不用 symlink 做多 Agent 镜像——Windows 无特权检出时 symlink 物化成路径文本文件，镜像静默失效（源项目实测教训）；多 Agent 用 CI 拷贝同步。
-   - 代码审查不绑定 Agent——审查人可为独立 AI 会话、专用审查 agent、人或 CI 工具，统一使用 `rules/code-review.md` §三 的任务书。
-   - hooks 按 [hooks/README.md](hooks/README.md) 注册，`PROTECTED` 先改公共库与 `*-api` 保护路径；前端线复用同机制、路径改前端公共组件目录。
-4. **验证**：分发后按目标布局调整 `AGENTS.md` 与规则内的相对链接，跑 `bash <线>/scripts/validate-skills.sh`；模板仓库里的 `backend/...` 链接只是示例布局。
+1. **分发资产（按线）**：后端线 = `skills/` + `rules/` + `templates/`（至少含 `code-review-report.md`、`stage-review-report.md`、`artifact-review-report.md`）+ 可选 `hooks/`。
+2. **格式适配**：技能放技能目录、规则放规则目录；如 Cursor 需转 `.mdc` 并补 frontmatter（description + globs/alwaysApply），纯 markdown 可直接读的 Agent 原样落位。
+3. **不变约束**：不用 symlink 做多 Agent 镜像（Windows 检出会物化失效，多 Agent 用复制/CI 同步）；代码审查不绑定具体 Agent。
+4. **验证**：分发后按目标布局调整 `AGENTS.md` 相对链接，跑 `bash scripts/validate-skills.sh --quiet-tick`。
 
----
+#### 5b. 工作流裁剪
 
-### 6. 工作流裁剪
-
-- **无 QA 团队**：`qa-acceptance-case-design` 与 `test-data-design` 可按需裁剪；**但微服务架构下建议保留 `api-blackbox-test`**，用于部署后跨服务主链路验证（单服务 `*IT` 无法替代跨服务真实联调，见 [docs/methodology/test-line.md](docs/methodology/test-line.md)）。
+- **无 QA 团队**：`qa-acceptance-case-design` 与 `test-data-design` 可按需裁剪；**微服务架构下建议保留 `api-blackbox-test`**，用于部署后跨服务主链路验证（见 [docs/methodology/test-line.md](docs/methodology/test-line.md)）。
 - **无独立前端仓**：忽略前端协作章节。
-- **非 MyBatis 栈（画像 P-3）**：删除 `rules/mybatis-conventions.md` 并替换为目标 ORM 规范，同步清理 Skill 对它的引用。
 - **legacy-test-migration**：仅当存量项目有历史用例时保留，否则删除。
-- 裁剪后跑对应线 `bash scripts/validate-skills.sh`，清掉对被裁资产的引用。
+- 裁剪后必须重跑 `bash scripts/validate-skills.sh --quiet-tick`，清掉对被裁资产的引用。
 
-### 7. 接入审查（AI 自动）
+#### 5c. 接入审查（AI 自动）
 
-自验（校验器 + §3 残留 grep）通过后，**自动**派独立审查人（subagent / 新会话），无需人发起。审查只做脚本查不出的**显性一致性**：
+自验（校验器 PASSED）通过后，**自动**派独立审查人（subagent / 新会话），无需人发起。审查聚焦脚本查不出的**显性一致性**：
 
-1. **画像残留、自洽与占位检查**：
-   - 服务清单无源项目模块名残留；`-api`/`-impl` 配对完整；外部系统表与依据材料一致（存量项目=扫码产出，新项目=访谈/PRD 结论；无法取证时标「依据材料待确认」，不臆断）；
-   - **画像 §5.4 第一档 6 项（P-1 ~ P-6）均已定稿**（或有书面豁免理由），无遗漏未答的 `[TBD]`；若 P-1 选多仓模式，3 项多仓配套约定均已填实；
-   - **画像 §5.4 第二档 7 项（E-1 ~ E-7）** 已定项与规则一致，未定项均显式标注 `[TBD]`（无源项目残留假值）。
-2. **锚点与规则语义**：替换结果自洽——无 `{项目}-app` 重复、子模块映射不断裂、URL 与服务对应；按 P-1 ~ P-6 选型同步的 Rule 与画像结论一致。
-3. **Golden 抽样**：抽 2 份（不审全部），业务场景来自本项目画像而非源项目搬运。
+1. **画像完整与自洽**：服务清单无未填占位符 `{项目名}` / `{project}` / `{service}` / `{domain-*}` 残留（`§5.4` 显式 `[TBD]` 除外）；`-api`/`-impl` 配对完整；外部系统表与依据材料一致；
+   - **画像 §5.4 第一档 6 项（P-1 ~ P-6）均已定稿**（或有书面豁免理由）；若 P-1 选多仓模式，3 项多仓配套约定均已填实；
+   - **画像 §5.4 第二档 7 项（E-1 ~ E-7）** 已定项与规则一致，未定项均显式标注 `[TBD]`。
+2. **配置落点一致**：`config/current-sprint`、项目根 `AGENTS.md`、条件 Rule（ORM / 公共库速查）与 Hook `PROTECTED` 路径均与画像一致且无 `{project}` / `{company}` 等字面量占位残留。
+3. **Golden 抽样（若已重写）**：抽 2 份，业务场景来自本项目画像而非模板搬运。
 
-**闭环**（审查人只读，不修文件；每条 finding 由审查人打标签）：
+**闭环**（审查人只读，不修文件；每条 finding 打标签）：
 
-- **`[机械]`**（残留、命名、配对断裂等可确定性修复）：P0/P1 由**主流程 AI** 修复 → 审查人确认 finding 已消除（P0/P1 必须确认）→ 重跑校验器与 §3 残留 grep。
-- **`[映射]`**（涉及服务映射、§5.4 选型拍板或画像事实的语义决策）：**不自动修**——服务映射回 §3a 介入点 1，选型/画像事实回 §一.2 人审定稿；改后重跑 §3a 验收，再回本节复审。
-- P2 记录；P3 不报（与 artifact-review 一致）。
-- 报告格式复用 [templates/artifact-review-report.md](templates/artifact-review-report.md)（审查对象 / 依据材料 / findings ≤5 / 结论 + Blocker 数），由**主流程（实现者）落盘**（审查人只读），落 `docs/reviews/{迭代}/REVIEW-ONBOARD-{日期}.md`；交人一行结论 + 「修了什么」摘要（3–5 行），无需逐项核对。
-- 复审：`[机械]` 修复后由审查人确认即可（不重跑全审）；连续 2 轮不通过 → 交人裁定（与 artifact-review 一致）。
-
-> **能力边界**：审查人捕捉显性不一致（残留、命名、搬运、未填的必选占位）；业务合理性（服务该不该这么拆、中间件该选哪个）由 §一.2 人审定稿与 §3a 介入点 1 拍板，AI 不做业务判断。
+- **`[机械]`**（占位残留、链接、命名、配对断裂）：P0/P1 由**主流程 AI** 修复 → 审查人确认消除 → 重跑校验器。
+- **`[映射]`**（涉及服务切分、§5.4 选型拍板或画像事实的语义决策）：**不自动修**——回 §一.2 人审定稿；改后回本节复审。
+- P2 记录；P3 不报；报告复用 [templates/artifact-review-report.md](templates/artifact-review-report.md)，由主流程落 `docs/reviews/{迭代}/REVIEW-ONBOARD-{日期}.md`；连续 2 轮不通过交人裁定。
 
 ---
 
 ## 二、接入后验收
 
 1. 本线校验器 **PASSED**：`bash scripts/validate-skills.sh --quiet-tick`（前端线见 [frontend/MIGRATION.md](../frontend/MIGRATION.md)）。
-2. 接入审查报告存在且结论为通过：`docs/reviews/{迭代}/REVIEW-ONBOARD-*.md`（§一.7）。
+2. 接入审查报告存在且结论为通过：`docs/reviews/{迭代}/REVIEW-ONBOARD-*.md`（§一.5c）。
 3. 用一张真实小需求走通 `story-splitting → detail-design → test-spec-alignment → feature-coding`；产出路径/命名符合线根 `docs/agile/card-naming-conventions.md`，工件落在**项目根** `docs/{requirements,design,...}/{迭代}/`，并至少有一份代码审查报告落盘。
-4. 在干净目录/新克隆中重跑接入，确认不依赖本机缓存、未提交文件或旧镜像。
+4. 在干净目录/新克隆中确认不依赖本机缓存、未提交文件或旧镜像。

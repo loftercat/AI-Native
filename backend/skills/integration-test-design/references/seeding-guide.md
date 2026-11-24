@@ -36,10 +36,10 @@
 
 | 层 | 内容 | 位置 | 使用方式 |
 |----|------|------|---------|
-| **本服务共享种子** | 跨 Story 复用的**本服务静态主数据**（如库存服务的车场/区域/车位配置） | `{service}-impl/src/test/resources/db/test-data/*.sql` | 本服务集成测试类级 `@Sql(BEFORE_TEST_METHOD)` 或 `TestDataFactory` 引用 |
-| **用例私有数据** | 单用例的业务行（如订单服务的预约单、支付单、占用记录） | 用例内 `@Sql` 脚本或本服务 `TestDataFactory` 构造 | 每用例独立、唯一标识（integration-test-guide §5.2） |
+| **本服务共享种子** | 跨 Story 复用的**本服务静态主数据**（如基础配置、字典或静态资源定义） | `{service}-impl/src/test/resources/db/test-data/*.sql` | 本服务集成测试类级 `@Sql(BEFORE_TEST_METHOD)` 或 `TestDataFactory` 引用 |
+| **用例私有数据** | 单用例的业务行（如业务单据、状态流转记录、流水记录） | 用例内 `@Sql` 脚本或本服务 `TestDataFactory` 构造 | 每用例独立、唯一标识（integration-test-guide §5.2） |
 
-**跨服务依赖数据不写 SQL**：如果被测服务（如订单服务）依赖下游服务（如库存服务）的数据，**绝不在订单库里建库存表或插库存 SQL**——改为通过 WireMock / RPC Stub 模拟下游接口返回！
+**跨服务依赖数据不写 SQL**：如果被测服务（如 `{project}-{domain-a}`）依赖下游服务（如 `{project}-{domain-b}`）的数据，**绝不在本服务测试库里建下游服务的表或插下游 SQL**——改为通过 WireMock / RPC Stub 模拟下游接口返回！
 
 ### 2.1 TestDataFactory 职责
 
@@ -53,7 +53,7 @@
 1. 新 Story 需要本服务主数据 → 先查本服务 `src/test/resources/db/test-data/` 是否已有；没有才新增并登记用途。
 2. 共享种子文件名表意，内容注释标注来源 Story 与用途。
 3. 用例私有数据（状态机流转行）**不得**混入共享种子；共享种子**不得**被单个用例随意改删。
-4. 时间敏感数据（`pay_deadline`、`start_time`）在用例内相对 `LocalDateTime.now()` 生成，避免过期变红。
+4. 时间敏感数据（如截止时间字段、有效时间窗起止时间）在用例内相对 `LocalDateTime.now()` 生成，避免过期变红。
 
 ---
 
@@ -68,7 +68,7 @@
 ## 5. 反模式
 
 ```sql
--- ❌ 在订单服务的测试库里建库存服务的表或插跨服务种子 SQL
+-- ❌ 在当前服务的测试库里建下游微服务的表或插跨服务种子 SQL
 -- ❌ 多个微服务共用同一份 Flyway 迁移目录
 -- ❌ 本服务 test schema.sql 与 Flyway 权威源分叉
 -- ❌ 用例私有数据写进共享种子（跨用例污染）

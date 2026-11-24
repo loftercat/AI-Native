@@ -1,6 +1,6 @@
 # 集成测试设计 Skill（integration-test-design）核心思想
 
-> **规划正文**：`skills/integration-test-design/SKILL.md`（✅ 已落地，STORY-2026-S01-005）  
+> **规划正文**：`skills/integration-test-design/SKILL.md`（✅ 已落地）  
 > **配套指南**：`skills/integration-test-design/references/`（✅ 已落地）  
 > **横切 Rule**：`rules/integration-test-conventions.md`（✅ 已落地）  
 > **测试线全景**：[test-line.md](test-line.md)
@@ -77,8 +77,8 @@
 | 单元测试 | Mockito `@Mock`（Mock 持久化层、下游远程 Client、外部 Client） |
 | 入口 API 测试 | `@MockBean` 下游远程 Client 或 Service |
 | 单服务集成测试 — **进程外下游微服务**（见画像 §3.6） | 画像 P-2 为 HTTP → **优先 WireMock**（对齐下游 OpenAPI）；P-2 为 RPC → RPC 测试 Stub / `@MockBean`；若画像 E-5 选定 SCC/Pact → 按工具生成校验契约桩 |
-| 单服务集成测试 — **第三方外部系统**（支付/车场） | 链路通过用 `@MockBean`，请求格式/签名/回调/错误码保真用 **WireMock** |
-| 外部认证（iam-server） | 测试 JWT 或 Mock 校验组件，不依赖真实认证服务 |
+| 单服务集成测试 — **第三方外部系统**（见画像 §四） | 链路通过用 `@MockBean`，请求格式/签名/回调/错误码保真用 **WireMock** |
+| 外部认证服务（`{外部认证服务}`） | 测试 JWT 或 Mock 校验组件，不依赖真实认证服务 |
 
 **跨服务真实联调补位**：单服务集成测试不启动真实下游进程；多微服务真实串联主链路验收由部署后 `api-blackbox-test` 承担。
 
@@ -100,7 +100,7 @@
 |----|------|------|
 | 横切 | `rules/integration-test-conventions.md` | 集成测试唯一权威 Rule：位置、Mock 边界、触发器、数据隔离、时长红线 |
 | 配套 | `skills/integration-test-design/references/integration-test-guide.md` | 何时写集成测试、上下文复用、`@Sql` 数据准备、隔离清理、超时控制 |
-| 配套 | `skills/integration-test-design/references/mock-strategy.md` | `@MockBean` vs WireMock 判定、iam-server 处理 |
+| 配套 | `skills/integration-test-design/references/mock-strategy.md` | `@MockBean` vs WireMock 判定、`{外部认证服务}` 处理 |
 | 配套 | `skills/integration-test-design/references/seeding-guide.md` | 种子数据来源、单一 schema 事实源、跨 Story 共享数据归属 |
 | 样例 | `docs/design/_golden/` 补集成测试用例 / `docs/test-spec/_golden/` | Few-shot |
 | 执行 | `skills/integration-test-design/SKILL.md` | 步骤 1 点名加载上述资产 + 缺失阻断策略 |
@@ -140,7 +140,7 @@
 | 0 | 三决策成文（本文件 §2 即决策记录） |
 | 1 | Rule 可被 Agent 在写任何持久化/集成测试时自查 |
 | 2 | 三指南成文，Mock 边界与决策 C 一致 |
-| 3 | 在目标微服务中可独立跑通一条最小单服务集成链路（示例：创建预约 → 本服务落库 → 下游库存 WireMock 桩校验） |
+| 3 | 在目标微服务中可独立跑通一条最小单服务集成链路（示例：创建 `{Entity}` → 本服务落库 → 下游服务模拟桩校验） |
 | 4 | Skill 步骤 1 资产清单完整，缺失阻断策略明确 |
 | 5 | `feature-coding` 不再自行发明集成测试规范 |
 

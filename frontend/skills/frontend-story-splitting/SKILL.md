@@ -5,14 +5,13 @@ description: >-
   用于前端需求拆解、迭代规划、写 docs/requirements 时。不改 OpenAPI、不写后端代码。
 ---
 
-> **模板版说明**：本 Skill 自源项目（C 端微信小程序）抽取为通用模板。文中项目专属值（`docs/handoff/openapi/{后端服务标识}.yaml`、页面/组件名、Story 号）均为**示例**，接入时按 [frontend/MIGRATION.md](../../MIGRATION.md) 处理；「本仓库」指接入后的前端项目。
-
-
 # 前端 Story 拆分（frontend-story-splitting）
 
 ## 1. 定位
 
 **把 Epic/PRD/原型 + 后端 OpenAPI 拆成可独立验收的前端 Story（AC/BR + 本卡 operationId 范围），落盘到迭代目录——只做需求语义，不做详设、页面代码。**
+
+项目专属契约路径、baseUrl 与鉴权信息一律从 [architecture/system-landscape.md](../../architecture/system-landscape.md) §四 读取。
 
 ## 2. 何时触发
 
@@ -28,7 +27,7 @@ description: >-
 | 1 | 迭代 | `config/current-sprint` | 询问用户 |
 | 2 | 系统画像 | `architecture/system-landscape.md` | **阻断** |
 | 3 | AGENTS.md | 做什么 / 不做什么 | 必须读 |
-| 4 | 后端 OpenAPI | `docs/handoff/openapi/{后端服务标识}.yaml` | **阻断**（仅含集成层的 Story；纯 UI 卡豁免） |
+| 4 | 后端 OpenAPI | `docs/handoff/openapi/{后端BFF服务标识}.yaml`（见画像 §四） | **阻断**（仅含集成层的 Story；纯 UI 卡豁免） |
 | 5 | 契约版本 | `docs/handoff/VERSION` | **阻断**（随第 4 项豁免；纯 UI 卡不适用） |
 | 6 | Epic/PRD/原型 | Epic 来源路径 | 必须有（至少其一） |
 | 7 | 后端 Story 摘要 | §1 用户故事 + §2.3 前端职责 + 相关 AC/BR | 强烈推荐 |
@@ -42,13 +41,13 @@ description: >-
 2. 在 openapi.yaml 检索本页 paths → 列出 operationId 清单
 3. 读每个 operation 的 examples → 把分支写成可验收 AC（Given/When/Then）
 4. 视觉项在「设计稿」节登记稿件位置与状态（§6）；无稿的项标 `UI: TBD`；不调 API 的 Story 可不绑 operationId
-5. 产出 STORY-FE-*.md，每条 API 相关 AC 附追溯（§4.1 格式）
+5. 产出 STORY-FE-*.md，每条 API 相关 AC 附追溯（§7 格式）
 6. 更新 docs/handoff/stories-index.md（Story ↔ operationId，可选）
 ```
 
 ## 5. 与后端 Story 的分工
 
-- **后端 Story**：域规则、BFF/order 职责、「前端另仓」行为线索
+- **后端 Story**：领域规则、BFF/微服务职责、「前端另仓」行为线索
 - **OpenAPI**：字段名、枚举、错误码、examples——**接口语义只认 YAML**
 - **前端 Story**：页面路由、交互、状态机、错误展示；**不得**重新定义 API 字段
 
@@ -58,9 +57,9 @@ description: >-
 ## 契约
 | 项 | 值 |
 |----|-----|
-| OpenAPI 文件 | docs/handoff/openapi/booking-bff-app.yaml |
-| 契约版本 | tag `2026-S01-rc1` |
-| baseUrl | /api/v1/booking/app |
+| OpenAPI 文件 | docs/handoff/openapi/{后端BFF服务标识}.yaml |
+| 契约版本 | tag `{VERSION}` |
+| baseUrl | {见画像 §四} |
 
 ## 本卡 API 范围
 | AC | operationId | Method | Path | 说明 |
@@ -69,8 +68,7 @@ description: >-
 ## 设计稿
 | 页面/组件 | 稿件位置 | 状态 |
 |-----------|---------|------|
-| 首页-框架 | docs/prototype/home-frame.png | 已定稿 |
-| 首页-弹窗 | docs/prototype/home-dialog.png | 草稿，像素待定 |
+| {页面-区域} | docs/prototype/{稿件文件} | 已定稿 / 草稿 |
 
 - 有稿登记位置与状态；无稿写 `无 → UI: TBD`；纯 UI 卡本节是主要验收依据
 
@@ -81,15 +79,15 @@ description: >-
 ## 7. AC 追溯格式
 
 ```markdown
-- **后端 Story**：STORY-2026-S01-002（摘要：§1 + §2.3 + 相关 AC/BR；完整文件见后端仓）
-- **OpenAPI**：operationId `getActiveReservation`（GET `/api/v1/booking/app/reservations/active`）
-- **契约版本**：booking-bff-app @ tag `2026-S01-rc1`
+- **后端 Story**：STORY-{迭代}-{序号}（摘要：§1 + §2.3 + 相关 AC/BR；完整文件见后端仓）
+- **OpenAPI**：operationId `{operationId}`（{METHOD} `{baseUrl}/{path}`）
+- **契约版本**：{后端BFF服务标识} @ `{VERSION}`
 - **Given/When/Then**：…（视觉项引用 §设计稿 锚点；无稿才标 `UI: TBD`）
 ```
 
 ## 8. 不做
 
-- 改 OpenAPI、写后端 Java
+- 改 OpenAPI、写后端代码
 - 页面详设（组件树、状态机）→ `frontend-detail-design`
 - 页面/组件代码 → `frontend-feature-coding`
 - 重新定义 API 字段或错误码

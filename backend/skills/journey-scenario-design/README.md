@@ -20,5 +20,3 @@
 - **旅程管广度**（路径不缺环）→ HLD §5 关键流程、Story 波次划分的依据
 - **场景管深度**（每步不缺分支）→ Story AC 的直接前身；`story-splitting` 的 AC 完备性检查以场景清单为源头
 - 角色与端须对齐 [system-landscape.md](../../architecture/system-landscape.md)（画像为权威，不在此复述系统清单）
-
-需求卡：STORY-2026-S02-083（源项目需求卡）；详设卡：DD-STORY-2026-S02-083（源项目详设卡）。（本仓库审计链接，跨项目迁移时删除）

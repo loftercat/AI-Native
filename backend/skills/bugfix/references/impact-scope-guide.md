@@ -1,7 +1,7 @@
 # 受影响测试范围分级规则（impact-scope-guide，微服务版）
 
 > bugfix Skill Step 6 使用。按「改动符号的可见性与服务契约边界」判定，不按「文件位置」。
-> 微服务底线：严禁跨服务依赖对方 `*-impl` 内部类；跨服务影响只经 `*-api` 远程契约 / 内部接口契约 / `*-common` 公共库传导。构建命令按画像 `§5.4 P-1`（单仓库多服务 vs 一服务一独立仓库）执行。
+> 微服务底线：严禁跨服务依赖对方 `*-impl` 内部类；跨服务影响只经 `*-api` 远程契约 / 内部接口契约 / `{project}-common` 公共库传导。构建命令按画像 `§5.4 P-1`（单仓库多服务 vs 一服务一独立仓库）执行。
 
 ## 判定决策树
 
@@ -19,14 +19,14 @@
 │    · 一服务一独立仓库：先在本仓跑通 mvn test 并发布新契约制品/同步契约文档，
 │      再在受影响服务仓逐个拉取并执行 mvn test（或触发 CI 验证）
 │
-├─ 改 booking-common（公共横切库，按画像 P-6）
+├─ 改 {project}-common（公共横切库，按画像 §5.4 P-6）
 │  → · 单仓库多服务：跑全量 mvn test
 │    · 一服务一独立仓库：发版后触发所有消费服务仓回归测试
 │
-├─ 改外部公司级公共基础库（如 hema-common）
+├─ 改外部公司级公共基础库（画像 §3.7 公共基础库）
 │  → 停下来，不归当前项目仓，交还人工
 │
-├─ 改持久化查询（如画像 P-3 选 MyBatis 时的 Mapper XML，或 JPA Query/SQL）
+├─ 改持久化查询（如画像 §5.4 P-3 选 MyBatis 时的 Mapper XML，或 JPA Query/SQL）
 │  → 跑本服务测试 + 显式跑对应持久化测试类：
 │    · 单仓库多服务：mvn -pl <service>/<impl> -am test -Dtest=<PersistenceTestClass>
 │    · 一服务一独立仓库：mvn test -Dtest=<PersistenceTestClass>
@@ -40,11 +40,11 @@
 
 | 改动 | 所在服务 | 契约是否变化 | 跑哪些测试 |
 |------|----------|--------------|------------|
-| `ParkingLotQueryService` private 方法或内部逻辑 | `inventory-impl` | 未变 | 仅库存服务（`inventory-impl`） |
-| `ParkingLotQueryService.getLotDetail` 加回 null 守卫 | `inventory-impl` | 未变（内部方法体） | 仅库存服务（上下游通过远程契约隔离） |
-| `InventoryClient` / `InventoryApi`（`inventory-api`）请求/响应 DTO 字段变 | `inventory-api` | **契约变化** | 库存服务 + 所有消费 `inventory-api` 的服务（如 BFF、订单服务） |
-| `BookingErrorCode` 枚举项或横切工具类 | `booking-common` | 横切公共库 | 单仓全量 `mvn test` / 多仓触发消费服务回归 |
-| `ParkingLotMapper.xml` SQL（MyBatis 栈） | `inventory-impl` | 本服务持久层 | 库存服务 + 该 Mapper 所有测试 |
+| `{Entity}QueryService` private 方法或内部逻辑 | `{domain-a}-impl` | 未变 | 仅本领域服务（`{domain-a}-impl`） |
+| `{Entity}QueryService.getDetail` 加回 null 守卫 | `{domain-a}-impl` | 未变（内部方法体） | 仅本领域服务（上下游通过远程契约隔离） |
+| `{Domain}Client` / `{Domain}Api`（`{domain-a}-api`）请求/响应 DTO 字段变 | `{domain-a}-api` | **契约变化** | 本领域服务 + 所有消费 `{domain-a}-api` 的服务（如 BFF、`{project}-{domain-b}`） |
+| `{GuardErrorCode}` 枚举项或横切工具类 | `{project}-common` | 横切公共库 | 单仓全量 `mvn test` / 多仓触发消费服务回归 |
+| `{Entity}Mapper.xml` SQL（MyBatis 栈） | `{domain-a}-impl` | 本服务持久层 | 本领域服务 + 该 Mapper 所有测试 |
 
 ## 跑测试的硬约束
 

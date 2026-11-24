@@ -43,7 +43,7 @@
 | layer | W2 |
 | strategy | smoke |
 | status | automated |
-| coverage | `SpaceQueryController#query` |
+| coverage | `{Entity}QueryController#query` |
 | merged_into | — |
 | blocker | — |
 | 下游 | feature-coding |

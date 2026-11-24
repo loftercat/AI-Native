@@ -1,6 +1,6 @@
 # AI Native 架构说明
 
-> 本文描述**本仓库**（已落地源项目）的 AI Native 工程方法论：Skill 流水线、文档资产、Java 代码分层。  
+> 本文描述后端微服务线的 AI Native 工程方法论：Skill 流水线、文档资产、Java 微服务分层。  
 > 产品域系统画像见 [`architecture/system-landscape.md`](../../architecture/system-landscape.md)。
 
 ---
@@ -10,7 +10,7 @@
 | 主线 | 目的 | 主要目录 |
 |------|------|----------|
 | **方法论流水线** | 用 Agent Skill + Rule + 文档契约，把「需求 → 设计 → 代码 → 测试」做成可重复、可审计的流程 | `skills/`（模板平铺，无镜像）、`docs/*/_golden/`、`docs/agile/` |
-| **可运行后端** | Java 微服务实现预订编排：API 网关 + 独立 BFF + 独立领域微服务 + 南向适配服务 | `booking-*/`（规划）、`docs/api/`、`docs/schema/` |
+| **可运行后端** | Java 微服务实现业务编排：API 网关 + 独立 BFF + 独立领域微服务 + 南向适配服务 | `{project}-*/`、`docs/api/`、`docs/schema/` |
 
 **本仓库不是 Python/FastAPI Demo**；Skill 与 Rule 已按 **Java 21 + Spring Boot 3.2 + Maven 多模块** 特化。方法论精华可迁移到其他 Java 业务仓库；`architecture/system-landscape.md` 为**本项目独有**，勿被其它产品线覆盖。
 
@@ -69,7 +69,7 @@
 
 | 资产 | 路径 | 作用 |
 |------|------|------|
-| 当前迭代 |`config/current-sprint`（模板约定路径） | 单一事实源（如 `2026-S01`） |
+| 当前迭代 |`config/current-sprint`（模板约定路径） | 单一事实源（格式 `{YYYY-Snn}`） |
 | 卡片命名 | `docs/agile/card-naming-conventions.md` | Story / DD / HLD 编号与目录 |
 | 领域词表 | `glossary/domain-glossary.md` | Story / 详设术语一致 |
 | 系统画像 | `architecture/system-landscape.md` | 模块边界、集成、URL、技术栈（**权威**） |
@@ -109,7 +109,7 @@
 ```text
 API 网关（可选）→ 路由转发、清理外部伪造请求头、拦截内部路径
     ↓
-booking-bff-app / booking-bff-admin（独立启动；对外 Controller，无业务库）
+{project}-bff-app / {project}-bff-admin（独立启动；对外 Controller，无业务库）
     ↓ 远程契约调用（协议见画像 §5.4 P-2：OpenFeign / Dubbo / gRPC 等）
 {domain}-impl（独立启动、独立数据库）
     ├── 内部远程入口（内部 Controller 或 RPC Provider，安全隔离见画像 P-5）
@@ -119,8 +119,8 @@ booking-bff-app / booking-bff-admin（独立启动；对外 Controller，无业�
 
 | 层 | 职责 | 典型位置 |
 |----|------|----------|
-| API 网关 | 入口路由、外部头清理、禁止转发内部路径 | `booking-gateway/`（可选） |
-| BFF | 独立启动；对外 HTTP、鉴权、VO 组装（无业务库） | `booking-bff-*/controller/` |
+| API 网关 | 入口路由、外部头清理、禁止转发内部路径 | `{project}-gateway/`（可选） |
+| BFF | 独立启动；对外 HTTP、鉴权、VO 组装（无业务库） | `{project}-bff-*/controller/` |
 | `*-api` | 服务远程契约（客户端/接口、DTO、域错误码） | `*-api/` |
 | 内部入口 | 暴露供服务间互调的内部 HTTP 或 RPC 入口 | `*-impl/interfaces/` 或 `app/provider/` |
 | facade / service | 单服务编排、本地事务与领域规则 | `*-impl/app/facade/`、`app/service/` |
@@ -139,7 +139,7 @@ booking-bff-app / booking-bff-admin（独立启动；对外 Controller，无业�
 
 ## 5. 文档工件与路径契约
 
-迭代标识：`{年}-S{两位序号}`（如 `2026-S01`）。
+迭代标识：`{年}-S{两位序号}`（格式 `{YYYY-Snn}`）。
 
 | 工件 | 路径模式（相对项目根 `docs/`；模板内仅存 `_golden` 样例） |
 |------|----------|
@@ -152,15 +152,15 @@ booking-bff-app / booking-bff-admin（独立启动；对外 Controller，无业�
 | OpenAPI | `docs/api/{服务标识}/openapi.yaml` |
 | schema | `docs/schema/{服务标识}/schema.md` |
 
-**本仓库 OpenAPI 服务标识**（与模块对应）：
+**接口契约服务标识**（对齐画像 §二）：
 
-- `booking-bff-app`、`booking-bff-admin`
-- `booking-order`、`booking-inventory`、`booking-parking-adapter`（内部服务间契约按画像 §5.4 P-2：HTTP 写内部 `openapi.yaml`，RPC 写 `*-api`/`.proto`）
+- 对外 BFF：`{project}-bff-app`、`{project}-bff-admin`
+- 领域微服务：`{project}-{domain-a}`、`{project}-{domain-b}`（内部服务间契约按画像 §5.4 P-2：HTTP 写内部 `openapi.yaml`，RPC 写 `*-api`/`.proto`）
 
 **URL 前缀**（对外 HTTP，见 system-landscape §六）：
 
-- App：`/api/v1/booking/app/...`
-- Admin：`/api/v1/booking/admin/...`
+- C 端：`/api/v1/{project}/app/...`
+- B 端：`/api/v1/{project}/admin/...`
 
 Golden（方法论范本，相对线根 `AI-Native/backend/`；重写后归项目、不随模板覆盖）：
 
@@ -179,7 +179,7 @@ Golden（方法论范本，相对线根 `AI-Native/backend/`；重写后归项�
 | 测试 | pytest | JUnit 5 + Mockito + `mvn test` |
 | 测试规格 Skill | test-spec-alignment（**已落地**）；integration-test-design（**已落地**）；test-quality-audit 未落地；bugfix **已落地**（旁路） | 编码前生成 TS（`docs/test-spec/`）；单服务 `*IT`（各服务独立）+ 部署后 `api-blackbox-test`（跨服务主链路） |
 | 跨服务调用 | 同进程 import | 按画像 §5.4 P-2 选定远程协议（OpenFeign / Dubbo / gRPC 等） |
-| 系统画像实例 | `ai-native-org-project` | `源项目后端仓` / 源项目产品 |
+| 系统画像实例 | `ai-native-org-project` | 接入项目的 `architecture/system-landscape.md` |
 
 ---
 
@@ -207,5 +207,5 @@ Golden（方法论范本，相对线根 `AI-Native/backend/`；重写后归项�
 |------|------|
 | 2026-07-26 | 从 Python Demo 方法论迁移；对齐源项目 Java 单体 + 双 BFF 画像 |
 | 2026-08-14 | 流水线加入 test-spec-alignment 节点；§5 补 TS 路径与 Golden；§6 状态改「已落地」 |
-| 2026-08-29 | integration-test-design 落地：§3 加 Skill 行、§6 状态改「已落地」、§7 加链接（STORY-2026-S01-005） |
-| 2026-10-17 | journey-scenario-design 落地：流水线加最上游节点（原始需求→JSD）；§2 图、§3 表、§5 路径、§7 链接；story-splitting/high-level-design 挂接 JSD 输入（STORY-2026-S02-083） |
+| 2026-08-29 | integration-test-design 落地：§3 加 Skill 行、§6 状态改「已落地」、§7 加链接 |
+| 2026-10-17 | journey-scenario-design 落地：流水线加最上游节点（原始需求→JSD）；§2 图、§3 表、§5 路径、§7 链接；story-splitting/high-level-design 挂接 JSD 输入 |

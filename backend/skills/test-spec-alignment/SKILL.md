@@ -6,9 +6,6 @@ description: >-
   用于测试规格设计、TS 编写、AC 对齐、测试用例拆分、Mock 边界梳理、feature-coding 前置等场景。
 ---
 
-> **模板版说明**：本 Skill 自已落地的源项目抽取为通用模板。文中项目专属值（模块名 `booking-*`、包名 `com.hema`、错误码号段、具体路径与 Story 号）均为**示例**，接入项目时按 [MIGRATION.md](../../MIGRATION.md) 清单替换；「本仓库」指接入后的目标项目。
-
-
 # 测试规格对齐（Story + 详设 → TS）
 
 以 Story 需求卡 + 详设（§9 测试策略）为输入，**在写任何 Java 测试代码之前**产出用例级测试规格
@@ -34,8 +31,8 @@ description: >-
 ### 触发示例
 
 ```text
-/test-spec-alignment 生成 STORY-2026-S01-001 的测试规格
-@docs/requirements/2026-S01/STORY-2026-S01-001-query-allocate-space.md
+/test-spec-alignment 生成 STORY-{YYYY-Snn}-001 的测试规格
+@docs/requirements/{YYYY-Snn}/STORY-{YYYY-Snn}-001-{slug}.md
 @docs/design/_golden/DD-STORY-GOLDEN-001-*.md
 ```
 
@@ -81,7 +78,7 @@ description: >-
 ### 步骤 5：Fixture / 种子数据设计（TS §4）
 
 - 每个场景给 `输入 → Mock/种子返回 → 边界值`
-- 必查边界见 `ac-to-case-guide.md` §4（空串 vs null、恰好阈值、等距、跨日、空配置）
+- 必查边界见 `ac-to-case-guide.md` §4（空串 vs null、恰好阈值、多候选并列、跨日、空配置）
 
 ### 步骤 6：前端-only / N/A 标注（TS §5）
 
