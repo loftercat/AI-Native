@@ -85,6 +85,8 @@ class LotFeeInfo {
 
 ## 6. 路由与宿主配置
 
+命名路由的路径常量和带参数的路径模板统一声明在应用根的 `lib/core/routing/app_routes.dart`，通过 `AppRoutes` 暴露。路由注册、页面跳转和重定向都引用对应的 `AppRoutes` 常量，例如 `Get.toNamed(AppRoutes.orders)`。
+
 路由注册在应用入口，参数校验 ID 与类型，资源由 Repository 加载。处理未登录、资源失效、外部深链、重复跳转。记录登录后的返回目标。底部 Tab 定义各自返回栈，检查 Android 系统返回键和 iOS 返回手势。服务端执行资源授权。
 
 ## 7. Dart 与依赖管理
