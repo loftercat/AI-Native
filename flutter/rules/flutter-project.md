@@ -32,14 +32,18 @@ lib/
     orders/                     订单列表和详情共用订单模块
       presentation/
         orders_page.dart
+        utils/order_display.dart
         view_models/orders_view_model.dart
         widgets/                订单模块的 UI 组件
       data/
         order_detail_bean.dart
+      request/
         orders_repository.dart
+        orders_service.dart
     dispatch/                   调度任务与分派
   core/network/                 多个模块共用的 HTTP 客户端
   common_widgets/               多个业务模块共用的 UI 组件
+  utils/                        多个业务模块共用的工具
 test/features/orders/           订单模块的单元与 Widget 测试
 integration_test/               跨模块或平台的端到端场景
 ```
@@ -48,9 +52,21 @@ integration_test/               跨模块或平台的端到端场景
 
 **何时建独立 package。** 同一 App 内的业务模块默认共用应用的 `pubspec.yaml`。当一项能力需要供多个 App 复用，或已有明确的独立维护和测试需求时，可提取为带自己 `pubspec.yaml`、公开库入口和测试的 Dart/Flutter package。应用在自身 pubspec 中声明依赖；仓内本地包的 `path` 相对该 pubspec 所在目录填写。包的实际位置和使用方登记在画像 §3.2。
 
+### 数据与请求目录
+
+`lib/features/{feature}/data/` 只存放数据 Bean 及其配套文件，例如模型使用的枚举、序列化代码和字段解析。Repository、Service 及其业务请求辅助代码统一放在 `lib/features/{feature}/request/`，与 `data/` 同级。Repository 和 Service 文件分别使用 `xxx_repository.dart` 和 `xxx_service.dart` 命名。
+
+### 展示层目录
+
+`lib/features/{feature}/presentation/` 的直接子文件只放页面和页面级 UI 容器。ViewModel 及页面状态放在 `presentation/view_models/`，模块内的展示格式化和转换工具放在 `presentation/utils/`，例如用于显示订单金额的 `order_display.dart`。
+
 ### UI 组件归属
 
 单个页面拆出的组件和同一业务模块内复用的组件放在 `lib/features/{feature}/presentation/widgets/`。有两个或更多业务模块需要复用的公共 UI 组件统一抽取到 `lib/common_widgets/`，与 `lib/core/` 同级。
+
+### 跨模块工具归属
+
+有两个或更多业务模块需要复用的工具类和工具函数统一抽取到 `lib/utils/`，与 `lib/core/`、`lib/common_widgets/` 同级。
 
 ## 5. 命名规范
 
@@ -60,7 +76,7 @@ Dart 文件用 lower_snake_case，类型用 UpperCamelCase。页面、Widget 和
 
 ### 数据 Bean 命名
 
-`data/` 下的数据 Bean（如请求与响应 DTO、业务数据模型和本地数据模型）统一使用 `XxxBean` 类名，声明文件使用对应的 `xxx_bean.dart` 文件名。例如，`OrderDetailBean` 放在 `order_detail_bean.dart`。Repository、Service 和枚举沿用各自的命名约定。序列化字段名和 OpenAPI schema 名称以契约为准。
+`data/` 下的数据 Bean（如请求与响应 DTO、业务数据模型和本地数据模型）统一使用 `XxxBean` 类名，声明文件使用对应的 `xxx_bean.dart` 文件名。例如，`OrderDetailBean` 放在 `order_detail_bean.dart`。Bean 使用的枚举沿用枚举命名约定。序列化字段名和 OpenAPI schema 名称以契约为准。
 
 ### 工作流文档命名
 

@@ -72,9 +72,14 @@ description: >-
 按 DD 和[工程规则](../../rules/flutter-project.md)落文件。以下是典型目录，具体以画像为准。
 
 ```text
-lib/features/{feature}/presentation/   页面、Widget、ViewModel
-lib/features/{feature}/data/           Repository、服务与模型
+lib/features/{feature}/presentation/              页面和页面级 UI 容器
+lib/features/{feature}/presentation/widgets/      模块内 UI 组件
+lib/features/{feature}/presentation/view_models/  ViewModel 和页面状态
+lib/features/{feature}/presentation/utils/        模块内展示工具
+lib/features/{feature}/data/           数据 Bean 及配套文件
+lib/features/{feature}/request/        Repository、Service 和业务请求辅助代码
 lib/core/network/                      HTTP、鉴权、错误转换
+lib/utils/                             跨模块工具
 android/、ios/                         本卡涉及的原生适配
 test/、integration_test/               单元、Widget、集成用例
 ```
