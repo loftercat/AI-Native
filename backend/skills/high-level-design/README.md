@@ -8,4 +8,4 @@
 
 执行 Skill：`skills/high-level-design/SKILL.md`
 
-写 HLD 时模块边界对齐 [system-landscape.md](../../architecture/system-landscape.md)：`booking-bff-app`、`booking-bff-admin`、`booking-order`、`booking-inventory`、`booking-parking-adapter`。
+写 HLD 时模块边界对齐 [system-landscape.md](../../architecture/system-landscape.md)：`{project}-gateway`（可选）、`{project}-bff-app`、`{project}-bff-admin`、`{project}-{domain-a}`、`{project}-{domain-b}`、`{project}-adapter`。

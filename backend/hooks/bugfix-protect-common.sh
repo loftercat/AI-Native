@@ -1,22 +1,33 @@
 #!/bin/bash
 # bugfix Hook 1: 公共代码保护（preToolUse，写操作前触发）
 # 命中「公共代码」路径 → permission: ask 强制人确认（bugfix BR-05）
-# fail open: 依赖缺失时不阻断
+# fail open: jq、python、python3 都缺失时不阻断
 #
 # ── 接入配置 ─────────────────────────────────────────────
-# PROTECTED 为公共/共享代码的 glob 列表，按目标项目替换。
-# 示例值来自已落地的源项目：公共库、对外 API 模块、公司级 common 包。
+# PROTECTED 为公共/共享代码的 glob 列表，接入时替换为本项目真实路径。
+# 建议保护：项目公共库、各微服务对外契约 *-api、公共基础包目录。
 PROTECTED=(
-  "*{项目}-common/src/main/*"   # 例：*booking-common/src/main/*
-  "*-api/src/main/java/*"        # 对外 API 模块（被多域依赖）
-  "*com/{公司}/*"                # 例：*com/hema/common/*
+  "*{project}-common/src/main/*"
+  "*-api/src/main/java/*"
+  "*com/{company}/common/*"
 )
 # ─────────────────────────────────────────────────────────
 
-command -v jq >/dev/null 2>&1 || { echo '{"permission":"allow"}'; exit 0; }
+if command -v python >/dev/null 2>&1; then
+  PY=python
+elif command -v python3 >/dev/null 2>&1; then
+  PY=python3
+else
+  PY=
+fi
+command -v jq >/dev/null 2>&1 || [[ -n "$PY" ]] || { echo '{"permission":"allow"}'; exit 0; }
 
 input=$(cat)
-path=$(echo "$input" | jq -r '.tool_input.path // empty')
+if command -v jq >/dev/null 2>&1; then
+  path=$(printf '%s' "$input" | jq -r '.tool_input.path // empty')
+else
+  path=$(printf '%s' "$input" | "$PY" -c "import json,sys; d=json.load(sys.stdin); ti=d.get('tool_input') or {}; print(ti.get('path') or '')")
+fi
 
 # 无路径字段 → 放行
 [[ -z "$path" ]] && { echo '{"permission":"allow"}'; exit 0; }

@@ -1,11 +1,11 @@
 # 单元测试质量约定（Java）
 
-> 对应公司级 `unit-test-quality（公司级示例）。与 `rules/tdd-project-conventions.md` 互补：Rule 管原则，本文管可执行检查项。
+> 对应公司级 `unit-test-quality`（公司级示例）。与 `rules/tdd-project-conventions.md` 互补：Rule 管原则，本文管可执行检查项。
 
 ## 命名与追溯
 
-- 测试类：`{被测类名}Test`，与 `src/main/java` 包路径镜像
-- `@DisplayName` 或方法注释标明 `STORY-xxx AC-n`
+- 测试类：`{被测类名}Test`（如 `{Entity}QueryServiceTest`、`{Entity}CommandServiceTest`、`{Resource}ControllerTest`），与 `src/main/java` 包路径镜像
+- `@DisplayName` 或方法注释标明 `STORY-{迭代}-{序号} AC-n`
 - 一条测试方法覆盖一个可判定行为（对齐单条 AC 或 BR 边界）
 
 ## 结构与可读性
@@ -13,13 +13,13 @@
 ```java
 // Given — When — Then 用空行或注释分段
 @Test
-@DisplayName("AC-06: 时段内无可用车位返回 1601")
-void allocate_whenNoAvailableSpace_throwsBizException() {
+@DisplayName("STORY-{迭代}-{序号} AC-06: 条件不满足时抛出对应领域错误码")
+void execute_whenPreconditionUnsatisfied_throwsBizException() {
     // given
-    when(mapper.selectAvailableForAllocate(...)).thenReturn(List.of());
+    when(mapper.selectAvailable(...)).thenReturn(List.of());
     // when / then
-    BizException ex = assertThrows(BizException.class, () -> service.allocate(req));
-    assertEquals(InventoryErrorCode.NO_AVAILABLE_SPACE.getCode(), ex.getCode());
+    {BizException} ex = assertThrows({BizException}.class, () -> service.execute(req));
+    assertEquals({Domain}ErrorCode.{ERR_ENUM}.getCode(), ex.getCode());
 }
 ```
 
@@ -27,15 +27,15 @@ void allocate_whenNoAvailableSpace_throwsBizException() {
 
 | 层 | Mock 什么 | 不 Mock 什么 |
 |----|-----------|--------------|
-| ServiceTest | Mapper、Client、其它 `XxxApi` | — |
-| ControllerTest | `XxxApi` | Mapper、Service（impl 内部） |
-| 集成测试 | `PaymentClient`、`ParkingLotGateway` | 本 Story 核心链路（按需） |
+| `{Entity}QueryServiceTest` / `{Entity}CommandServiceTest` | 持久化层、`{Domain}Client`、`{External}Client` | 被测 Service 自身逻辑 |
+| `{Resource}ControllerTest` | 下游 `{Domain}Client` 或 Service | Controller 守卫与序列化 |
+| 单服务集成测试 `{Scenario}IT` | 进程外下游微服务（WireMock/Stub）、外部系统 `{External}Client` | 本服务完整入口 + 业务 + 真实容器 DB |
 
 ## 断言要求
 
-- BFF：`MockMvc` + `jsonPath`；失败类 AC 断言 `$.message` 全文或关键子串
-- Service：`BizException` 的 code；禁止只断言 `Exception` 类型
-- 成功路径：断言 `Result.code === 200` 等价（BFF 测 `$.code` 为 200）
+- BFF：`MockMvc` + `jsonPath`；失败类 AC 断言错误文案字段（全文或关键子串）
+- Service：`{BizException}` 的错误码与文案；禁止只断言 `Exception` 类型
+- 成功路径：按画像 §3.7（P-4）约定断言（如统一包装体 `{Result<T>}` 断言业务成功码，HTTP 状态码模式断言对应 `2xx`）
 
 ## 禁止
 
@@ -51,7 +51,7 @@ void allocate_whenNoAvailableSpace_throwsBizException() {
 ```java
 /**
  * N/A backend — 前端另仓
- * STORY-xxx AC-0x（地图 UI）
+ * STORY-{迭代}-{序号} AC-0x（纯前端展示 / 交互组件）
  */
 ```
 

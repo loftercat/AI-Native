@@ -6,9 +6,6 @@ description: >-
   提测回归等场景。
 ---
 
-> **模板版说明**：本 Skill 自已落地的源项目抽取为通用模板。文中项目专属值（模块名 `booking-*`、包名 `com.hema`、错误码号段、具体路径与 Story 号）均为**示例**，接入项目时按 [MIGRATION.md](../../MIGRATION.md) 清单替换；「本仓库」指接入后的目标项目。
-
-
 # API 黑盒自动化（execution=blackbox → pytest 部署后脚本）
 
 以 qa-acceptance-case-design 产出 `AC-STORY-*.md` 中 `execution=blackbox` 行 + OpenAPI 为输入，
@@ -60,9 +57,9 @@ description: >-
 ### 触发示例
 
 ```text
-/api-blackbox-test STORY-2026-S01-001
+/api-blackbox-test STORY-{YYYY-Snn}-001
 
-增量：为 STORY-xxx 补 execution=blackbox 行的 pytest
+增量：为 STORY-{迭代}-{序号} 补 execution=blackbox 行的 pytest
 ```
 
 ## 输出
@@ -101,7 +98,7 @@ description: >-
 - 每条 blackbox 行 → 1 个 test 函数
 - import 仅 `requests`/`httpx`；**禁止** Spring Test / Java 进程内启动（AC-04）
 - 断言粗粒度：HTTP 200、`result.code==200`、少量关键字段（BR-04）
-- `@pytest.mark.story("STORY-xxx")` + `@pytest.mark.ac("AC-xx")`（BR-08）
+- `@pytest.mark.story("STORY-{迭代}-{序号}")` + `@pytest.mark.ac("AC-xx")`（BR-08）
 - legacy_tc 用 `@pytest.mark.legacy_tc("TC-xxx")`
 - 失败输出含 URL + status（BR-07）
 

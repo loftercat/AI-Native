@@ -1,10 +1,10 @@
-# 详设：DD-{Story编号}-{slug}
+# 详设：DD-STORY-{迭代}-{序号}-{slug}
 
 | 字段 | 值 |
 |------|-----|
-| Story | [STORY-{迭代}-{序号}-{slug}](../requirements/{迭代}/STORY-*.md) |
-| 迭代 | |
-| 服务标识 | `booking-order` / `booking-inventory` / `booking-bff-app` / `booking-bff-admin`（见 system-landscape） |
+| Story | [STORY-{迭代}-{序号}-{slug}](../requirements/{迭代}/STORY-{迭代}-{序号}-{slug}.md) |
+| 迭代 | `{YYYY-Snn}` |
+| 服务标识 | `{project}-{domain-a}` / `{project}-{domain-b}` / `{project}-bff-app` / `{project}-bff-admin`（见 system-landscape §二） |
 | 状态 | 草稿 / 评审中 / 已确认 |
 | 复杂度 | 简单 / 中等 / 高复杂 |
 
@@ -17,9 +17,9 @@
 
 ### 1.2 架构上下文
 
-- **服务/模块**：`booking-bff-app` / `booking-bff-admin` / `order-api` + `order-impl` / `inventory` / `adapter` / `common`
-- **集成**：V1 同 JVM `XxxApi`；外部：支付系统、iam-server、封闭式车场（见 system-landscape）
-- **分层**：BFF（Controller）→ `*-api`（XxxApi + DTO）→ `*-impl`（Provider → Facade → Service → infrastructure）
+- **服务/模块**：`{project}-gateway` / `{project}-bff-app` / `{project}-bff-admin` / `{domain-a}-api` + `{domain-a}-impl` / `{project}-{domain-b}` / `{project}-adapter` / `{project}-common`
+- **集成与协议**：服务间同步调用按画像 §5.4 P-2 与 §3.6；异步/一致性按 E-2/E-3；外部系统见画像 §四
+- **分层**：网关 → BFF（对外 Controller）→ `*-api`（远程契约 + `{Entity}DTO`）→ `*-impl`（内部远程入口 → `{Entity}Facade` → `{Entity}QueryService`/`{Entity}CommandService` → infrastructure + 独立库）
 - **校验职责落点**（Story §2.3）：见 [bff-domain-boundary-guide.md](../references/bff-domain-boundary-guide.md)
 
 | Story §2.3 | 守卫 / 领域 | §8 落点 |
@@ -30,7 +30,7 @@
 
 | 决策 | 选项 | 结论 | 原因 |
 |------|------|------|------|
-| | | | |
+| 事务与一致性边界 | | | |
 
 ---
 
@@ -67,7 +67,7 @@
 classDiagram
 ```
 
-### 4.3 {业务对象}有哪些状态（{EnglishName}）（若适用）
+### 4.3 {业务对象}有哪些状态（{Entity}）（若适用）
 
 > **§4.3 标题（必读）**  
 > - **主标题用白话问句或陈述**，让读者一眼知道「谁的状态」；英文类名放括号内。  
@@ -76,7 +76,7 @@ classDiagram
 > - 本 Story **只读**状态时，标题加「（本 Story 只读）」；负责迁移时在 §4.3.1 表内写进入/退出条件。  
 > - §4.1 有**查询视图**时，全量状态写 **§4.3.1**，「算不算某业务子集」写 **§4.3.2**（见下方范例）。
 
-> **技术**：{聚合根/实体}；状态枚举 `{EnumName}`；持久化 `{table}.{column}`（若已知）。
+> **技术**：{聚合根/实体}；状态枚举 `{Entity}Status`；持久化 `{table_name}.{status}`（若已知）。
 
 #### 4.3.1 {业务对象}全量状态
 
@@ -98,10 +98,10 @@ classDiagram
 
 | 推荐（主标题） | 不推荐 |
 |----------------|--------|
-| `### 4.3 预约单有哪些状态（BookingOrder）（本 Story 只读）` | `### 4.3 状态与生命周期` |
-| `#### 4.3.2 哪些预约单算「进行中」` | `#### 4.3.2 进行中预约查询过滤（查询视图 · Story BR-01）` |
-| `### 4.3 车位有哪些状态（ParkingSpace）（本 Story 只读）` | `### 4.3 状态与生命周期（本 Story 只读）` |
-| `#### 4.3.2 哪些车位算「可售/可推荐」` | `#### 4.3.2 可售车位筛选规则（查询视图）` |
+| `### 4.3 {主实体}有哪些状态（{Entity}）（本 Story 只读）` | `### 4.3 状态与生命周期` |
+| `#### 4.3.2 哪些{主实体}算「{业务子集A}」` | `#### 4.3.2 {业务子集A}查询过滤（查询视图 · Story BR-01）` |
+| `### 4.3 {子资源}有哪些状态（{ResourceEntity}）（本 Story 只读）` | `### 4.3 状态与生命周期（本 Story 只读）` |
+| `#### 4.3.2 哪些{子资源}算「{业务子集B}」` | `#### 4.3.2 {业务子集B}筛选规则（查询视图）` |
 
 ### 4.4 AC → 领域对象映射
 
@@ -109,7 +109,7 @@ classDiagram
 
 | AC | 领域概念 | 代码落点（§8） | 领域厚度 | 职责 / 不变量 |
 |----|----------|----------------|----------|---------------|
-| AC-01 | 预约单（文档） | `BookingOrderDO` / 可选 `domain.model.BookingOrder` | 薄 | |
+| AC-01 | {业务对象}（文档） | `{Entity}DO` / 可选 `domain.model.{Entity}` | 薄 | |
 
 ---
 
@@ -151,19 +151,21 @@ classDiagram
 - 表 / 索引：
 - **DDL**：每张表须 `CREATE TABLE`（新表）或 `ALTER TABLE`（增量）；见 [schema-conventions.md](../references/schema-conventions.md)
 
-### 6.2 数据访问（ORM 约定）
+### 6.2 数据访问（按画像 §5.4 P-3 ORM 选型填写）
 
-| 场景 | 落点 | 说明 |
+> **选型说明**：下方表格以画像 §5.4 **P-3** 选定 **MyBatis** 为例，主键与删除执行 `rules/mybatis-conventions.md`「项目实现」。若选用 JPA / jOOQ 等其他 ORM，按替换后的持久化 Rule 填写 Repository/Query，主键与删除只执行其文首；文首未写明则阻断。无论何种 ORM，严禁跨服务 SQL JOIN 与外键。
+
+| 场景 | 落点（MyBatis 示例） | 说明 |
 |------|------|------|
-| 新建写入 | `*CommandService` 注入 `SnowflakeIdGenerator` | `INSERT` 前 `do.setId(idGenerator.nextId())`；依赖 `com.hema:common-core`（`${hema-common.version}`，与 hema-common 根 POM 对齐） |
-| 主键查询 | Mapper 继承 `BaseMapper<DO>` | 允许 `selectById` 等；排除已删行须在本表或 XML 写明 |
-| 业务删除 | Mapper XML（如 `softDeleteById`） | `UPDATE ... SET deleted=1, deleted_at=NOW()`；**禁止**业务路径 `deleteById` 物理删 |
-| 条件查询、联表、分页、批量更新 | `resources/mapper/**/*.xml` | Mapper 接口只声明方法签名，SQL **仅** 写 XML；默认 `AND deleted = 0` |
-| 禁止 | `@Select` 等注解 SQL、`QueryWrapper` 条件查询 | 见 `rules/mybatis-conventions.md` |
+| 新建写入 | `{Entity}CommandService` 按「项目实现」主键分支写入 | 应用侧分支：注入 `{IdGenerator}`，`INSERT` 前 `do.setId(...)`。自增分支：不 `setId` |
+| 主键查询 | `{Entity}Mapper` 继承 `BaseMapper<{Entity}DO>` | 允许 `selectById` 等；软删支若要排除已删行，在本表或 XML 写明 |
+| 业务删除 | `{Entity}Mapper` XML | 软删支：`UPDATE ... SET deleted=1, deleted_at=NOW()`。状态作废支：按状态列条件 `UPDATE`。两支都**禁止**把 `deleteById` 当作业务删除 |
+| 条件查询、分页、批量更新 | `resources/mapper/**/*.xml` | Mapper 接口只声明方法签名，SQL **仅** 写 XML。软删支默认 `AND deleted = 0`；状态作废支不追加该条件（严禁跨服务表 JOIN） |
+| 禁止 | `@Select` 等注解 SQL、`QueryWrapper` 条件查询 | 见 `rules/mybatis-conventions.md`（MyBatis 条件规则） |
 
-**标准列 / 主键**：见 [schema-conventions.md](../references/schema-conventions.md) §1.2（雪花 ID、软删除）。
+**标准列 / 主键**：见 [schema-conventions.md](../references/schema-conventions.md) §1.2。
 
-**§8 追溯**：每条涉及持久化的 AC 须列出 Mapper 方法名与 XML `id` 对应关系；写操作须体现 `SnowflakeIdGenerator`。
+**§8 追溯**：每条涉及持久化的 AC 须列出持久化方法（选用 MyBatis 时含 XML `id`）与写路径主键策略。
 
 ---
 
@@ -172,9 +174,9 @@ classDiagram
 ```mermaid
 sequenceDiagram
     participant Client
-    participant BFF as booking-bff-app|admin
-    participant Order as order-impl
-    participant Inv as inventory-impl
+    participant BFF as {project}-bff-app|admin
+    participant DomainA as {domain-a}-impl
+    participant DomainB as {domain-b}-impl
 ```
 
 ---
@@ -186,8 +188,8 @@ sequenceDiagram
 ### 8.1 依赖方向
 
 ```text
-booking-bff-app / booking-bff-admin  →  *-api
-*-impl       →  *-api、booking-common
+{project}-bff-app / {project}-bff-admin  →  *-api
+*-impl                                   →  *-api、{project}-common
 ```
 
 ### 8.2 AC → 代码追溯表
@@ -214,10 +216,11 @@ booking-bff-app / booking-bff-admin  →  *-api
 
 | 测试层 | 测试类 / 关注点 | 覆盖 AC | Mock 边界 | 备注 |
 |--------|----------------|---------|-----------|------|
-| 单元 | `XxxServiceTest` | AC-01, AC-02 | 依赖的 Mapper / 外部 `XxxApi` | |
-| BFF API | `XxxControllerTest`（`@WebMvcTest`） | AC-01 | 下游域 `XxxApi` | 断言 `Result.code` 与 AC 文案 |
-| Mapper | `XxxMapperTest` | AC-03 | 无 | Testcontainers MySQL + 种子数据 |
-| 集成（可选） | `XxxIT` | AC-04 | 外部系统（支付/车场/iam） | 归 `integration-test-design` 消费 |
+| 单元 | `{Entity}ServiceTest` | AC-01, AC-02 | 持久化层 / 下游远程客户端 / 外部 Client | 无 DB |
+| 入口 API | `{Entity}ControllerTest`（`@WebMvcTest`） | AC-01 | 下游远程客户端或 Service | 按画像 §3.7 断言响应与 AC 文案 |
+| 持久化（按需） | `{Entity}MapperTest` / `{Entity}RepositoryTest` | AC-03 | 无 | 按画像 P-3 ORM + 本服务 Testcontainers MySQL |
+| 单服务集成 | `{Entity}IT` | AC-04 | **进程外下游微服务（按 P-2 用 WireMock/Stub）** + 外部系统（第三方接口/认证服务等） | 归 `integration-test-design`；本服务真实 DB |
+| 跨服务主链路 | 部署后黑盒用例（按需） | AC-01~04 | 仅外部环境沙箱 | 归 `api-blackbox-test`（及可选 E-5 契约测试） |
 
 > 填写规则：
 > - 只到**测试类/关注点**粒度，**不写测试方法名**；方法级展开由 `test-spec-alignment` 的 TS 负责。

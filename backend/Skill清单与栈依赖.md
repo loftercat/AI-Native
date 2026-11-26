@@ -23,18 +23,18 @@
 | # | Skill | 触发时机 | 用途 | 主输入 | 主产出 | 栈依赖 |
 |---|-------|----------|------|--------|--------|--------|
 | 1 | `journey-scenario-design` | 原始需求尚无结构化输入 | 原始需求 → 用户旅程与业务场景 | PRD 草稿 / 口头需求 / 原型 | JSD（Persona、旅程图、场景矩阵） | 通用 |
-| 2 | `high-level-design` | Epic/PRD 定稿 | Epic/PRD → 概要设计 | Epic / PRD + 系统画像 | HLD（边界、集成矩阵、粗 API、ADR、建议 Story） | 通用（示例为 Java 单体） |
-| 3 | `story-splitting` | HLD 完成要拆卡 | Epic/PRD/HLD → Story | Epic / PRD / HLD（+ JSD） | Story（AC/BR） | 通用 |
-| 4 | `detail-design` | Story 定稿要写方案 | Story → 详细设计 | Story + 原型 | DD、OpenAPI、schema、Java 骨架 | Java / Spring / MyBatis |
+| 2 | `high-level-design` | Epic/PRD 定稿 | Epic/PRD → 概要设计 | Epic / PRD + 系统画像（含 §5.4 选型） | HLD（微服务边界、通信矩阵、数据归属、粗契约、ADR、建议 Story） | 通用（示例为 Java 微服务） |
+| 3 | `story-splitting` | HLD 完成要拆卡 | Epic/PRD/HLD → Story | Epic / PRD / HLD（+ JSD） | Story（AC/BR + 跨服务依赖波次） | 通用 |
+| 4 | `detail-design` | Story 定稿要写方案 | Story → 详细设计 | Story + 原型 + 画像 §5.4 | DD、对外/对内接口契约、schema/DDL、代码骨架、测试策略 | Java / Spring（ORM 与调用协议读画像 §5.4） |
 | 5 | `test-spec-alignment` | DD 完成、编码前 | 编码前把 AC 拆成测试规格 | Story + DD §9 | TS（AC 追溯、分层矩阵、Fixture、阻断） | Java / JUnit |
-| 6 | `feature-coding` | TS 就绪要写代码 | 按 TDD 实现功能 | Story + DD + TS | `*-api` / `*-impl` / BFF 代码 + 单元/BFF/Mapper 测试 | Java / Spring / MyBatis |
-| 7 | `integration-test-design` | 跨模块/外部链路实现后 | 白盒集成/场景测试 | 已实现 Story + DD（+ TS） | `*IT` / `*ScenarioIT`（真实 HTTP，只 Mock 外部系统） | Java / Spring / Testcontainers |
+| 6 | `feature-coding` | TS 就绪要写代码 | 按 TDD 实现单服务功能 | Story + DD + TS | 目标服务 `*-api` / `*-impl` / BFF 代码 + 单元/入口 API/持久化单测 | Java / Spring（ORM 与调用协议读画像 §5.4） |
+| 7 | `integration-test-design` | 单服务功能实现后 | 单服务白盒集成/场景测试 | 已实现 Story + DD（+ TS） | 本服务 `*IT` / `*ScenarioIT`（独立容器 DB，下游微服务与外部系统模拟隔离） | Java / Spring / Testcontainers / WireMock |
 
 ---
 
 ## QA 专线
 
-提测、发版验收时使用；无 QA 团队可整线裁掉。
+提测、发版验收时使用。无 QA 团队可裁验收用例与造数；微服务下建议保留 `api-blackbox-test`。
 
 | # | Skill | 触发时机 | 用途 | 主输入 | 主产出 | 栈依赖 |
 |---|-------|----------|------|--------|--------|--------|
@@ -93,6 +93,6 @@ QA 专线
 | 非 Java 后端 | 1–3、8、12、13 | 4–7 是 Variant，按目标栈改写；9–11 可保留（Python 栈反而更贴合） |
 | 只做测试自动化 | 5、7、8、9、10、11、12 | 需求侧 Skill 可不装 |
 | 纯后端、无前端线 | 1–12 | 13（交接）可裁掉 |
-| 无 QA 团队 | 8–10 裁掉 | 黑盒冒烟由 `integration-test-design` 承担 |
+| 无 QA 团队 | 1–7、9、12 | 可裁 8、10；**微服务下建议保留 9（`api-blackbox-test`）用于部署后跨服务主链路验证** |
 
 > 裁剪后必须重跑本线校验器；Skill 之间仍有引用，删文件不等于清引用。

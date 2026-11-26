@@ -1,7 +1,6 @@
 # 修复报告模板（fix-report-template）
 
 > bugfix Skill Step 7 使用。
-> 设计依据：DD-STORY-2026-S01-093（源项目 bugfix Skill 设计卡） §6、ADR-4
 
 ## 模板
 
@@ -40,18 +39,18 @@
 ## 示例
 
 ```markdown
-## 修复报告 — BUG-2026-001 车位搜索返回空
+## 修复报告 — BUG-{YYYY}-001 {实体}搜索返回空
 
 | 字段 | 值 |
 |------|-----|
-| Bug | BUG-2026-001 车位搜索返回空 |
-| 根因 | ParkingLotQueryService.searchByKeyword 未过滤 status=ENABLED，DISABLED 车场也被返回导致前端过滤后空 |
+| Bug | BUG-{YYYY}-001 {实体}搜索返回空 |
+| 根因 | {Entity}QueryService.searchByKeyword 未过滤 status=ENABLED，DISABLED 记录也被返回导致过滤异常 |
 | 修复 | 在 searchByKeyword 的 SQL where 加 status = 'ENABLED' |
-| 改动文件 | inventory-impl/.../ParkingLotQueryService.java:45 |
-| 复现测试 | test_bugfix_bug_2026_001_search_return_empty（RED→GREEN） |
-| 影响范围 | 直接影响：App 车位搜索接口；间接影响：预约流程首步；已有测试覆盖：ParkingLotQueryServiceTest 5 条；未覆盖风险：无 |
-| 验证 | mvn -pl booking-inventory-service/inventory-impl -am test → 通过（12 条） |
-| 代码审查 | docs/reviews/2026-S02/REVIEW-CODE-FIX-BUG-2026-001-search-empty.md / L1 / 通过 |
+| 改动文件 | {domain-a}-impl/.../{Entity}QueryService.java:45 |
+| 复现测试 | test_bugfix_bug_001_search_return_empty（RED→GREEN） |
+| 影响范围 | 直接影响：App {实体}搜索接口；间接影响：核心业务流程首步；已有测试覆盖：{Entity}QueryServiceTest 5 条；未覆盖风险：无 |
+| 验证 | mvn -pl {project}-{domain-a}/{domain-a}-impl -am test → 通过（12 条） |
+| 代码审查 | docs/reviews/{迭代}/REVIEW-CODE-FIX-BUG-{YYYY}-001-search-empty.md / L1 / 通过 |
 | 未覆盖风险 | 无 |
 | 建议跟进 | 无 |
 | 循环轮次 | 1 |

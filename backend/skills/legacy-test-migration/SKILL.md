@@ -7,14 +7,10 @@ description: >-
   用于存量测试自动化改造、历史用例治理、老项目测试资产盘点等场景。
 ---
 
-> **模板版说明**：本 Skill 自已落地的源项目抽取为通用模板。文中项目专属值（模块名 `booking-*`、包名 `com.hema`、错误码号段、具体路径与 Story 号）均为**示例**，接入项目时按 [MIGRATION.md](../../MIGRATION.md) 清单替换；「本仓库」指接入后的目标项目。
-
-
 # legacy-test-migration Skill — 历史测试用例迁移（存量改造前段）
 
 > 核心原则：**先归一化，再门禁，再分层；不可判定不猜；只产规格不产代码；批量分批人工确认。**
 > 不靠 AI 猜断言，不强行落层，不按用例条数 1:1 补脚本。
-> 设计依据：DD-STORY-2026-S01-095（源项目 legacy 迁移 Skill 设计卡）
 
 ## 定位与边界
 
@@ -71,7 +67,7 @@ description: >-
 ```text
 /legacy-test-migration
 用例文件：docs/qa/legacy/{project}/export.csv
-目标模块：order
+目标模块：{domain-a}
 ```
 
 ## 输出
@@ -117,7 +113,7 @@ description: >-
 |------|------|------|
 | B1 | 部署态 HTTP API（网关/鉴权链/契约） | `api-blackbox-test` |
 | B2 | UI 端到端 | 前端另仓 `e2e-test` |
-| B3 | 真实第三方联调（IAM/支付/车场） | `api-blackbox-test` |
+| B3 | 真实第三方联调（认证服务/外部支付/第三方渠道） | `api-blackbox-test` |
 | B4 | 性能/压力 | `performance-test`（规划） |
 | B5 | 数据批处理/定时/对账 | `integration-test-design` + `test-data-design` |
 
@@ -193,7 +189,7 @@ description: >-
 
 ```csv
 legacy_tc_id,title,gate,layer,strategy,status,coverage,merged_into,blocker
-TC-0001,查询车位-正常返回,ok,W2,smoke,automated,SpaceQueryController#query,,
+TC-0001,查询{实体}-正常返回,ok,W2,smoke,automated,{Entity}QueryController#query,,
 ```
 
 | 字段 | 取值域 | 必填 | 规则 |
@@ -284,8 +280,6 @@ TC-0001,查询车位-正常返回,ok,W2,smoke,automated,SpaceQueryController#que
 
 ## 延伸阅读
 
-- DD-STORY-2026-S01-095（源项目 legacy 迁移 Skill 设计卡）（详设）
-- STORY-2026-S01-095（源项目 legacy 迁移 Skill 需求卡）
 - [legacy-test-case-migration.marp.md](../../docs/training/legacy-test-case-migration.marp.md)（存量改造策略）
 - [whitebox-layers-qa-boundary.marp.md](../../docs/training/whitebox-layers-qa-boundary.marp.md)（白盒层义）
 - [blackbox-test-case-selection.marp.md](../../docs/training/blackbox-test-case-selection.marp.md)（黑盒漏斗）

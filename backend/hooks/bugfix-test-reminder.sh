@@ -1,11 +1,18 @@
 #!/bin/bash
 # bugfix Hook 3: 测试兜底提示（stop）
 # 有 .java 改动但未跑匹配模块 mvn test → followup_message 提示（非阻断）
-# fail open: 依赖缺失或字段缺失 → 无输出
+# fail open: 依赖缺失或字段缺失 → 无输出（jq、python、python3 都没有时直接返回）
 
 command -v git >/dev/null 2>&1 || exit 0
 command -v grep >/dev/null 2>&1 || exit 0
-command -v jq >/dev/null 2>&1 || exit 0
+if command -v python >/dev/null 2>&1; then
+  PY=python
+elif command -v python3 >/dev/null 2>&1; then
+  PY=python3
+else
+  PY=
+fi
+command -v jq >/dev/null 2>&1 || [[ -n "$PY" ]] || exit 0
 
 # 改动模块集合（取顶层 Maven 模块名）
 changed_modules=$(git diff --name-only -- '*.java' | sed 's|/src/.*||' | sort -u)
@@ -15,7 +22,11 @@ changed_modules=$(git diff --name-only -- '*.java' | sed 's|/src/.*||' | sort -u
 
 # 会话历史中的 mvn test 命令（按 create-hook 约定，输入含 session_commands）
 input=$(cat)
-ran_test=$(echo "$input" | jq -r '.session_commands[]? // empty' 2>/dev/null | grep -E 'mvn.*test' || true)
+if command -v jq >/dev/null 2>&1; then
+  ran_test=$(printf '%s' "$input" | jq -r '.session_commands[]? // empty' 2>/dev/null | grep -E 'mvn.*test' || true)
+else
+  ran_test=$(printf '%s' "$input" | "$PY" -c "import json,sys; d=json.load(sys.stdin); cmds=d.get('session_commands') or []; print('\n'.join(c for c in cmds if isinstance(c, str)))" | grep -E 'mvn.*test' || true)
+fi
 
 # 全量 mvn test 视为覆盖所有模块
 if echo "$ran_test" | grep -qE 'mvn\s+test($|\s)'; then

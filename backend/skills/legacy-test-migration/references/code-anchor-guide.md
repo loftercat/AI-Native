@@ -23,20 +23,20 @@
 
 | 层 | `coverage` 示例 |
 |----|-----------------|
-| W1 | `SpaceQueryService#query` |
-| W2 | `SpaceQueryController#query` |
-| W3/W4 | `SpaceQueryIT#searchAndAllocate` |
-| W5 | `SpaceMapper#selectAvailable` |
-| B1/B3 | `/api/v1/booking/app/spaces` |
-| B5 | `SettlementJob#run` |
+| W1 | `{Entity}QueryService#query` |
+| W2 | `{Entity}QueryController#query` |
+| W3/W4 | `{Entity}QueryIT#searchAndProcess` |
+| W5 | `{Entity}Mapper#selectAvailable` |
+| B1/B3 | `/api/v1/{project}/app/{resources}` |
+| B5 | `{Domain}BatchJob#run` |
 
 > `coverage` 是**占位**，最终测试方法名由下游生成 Skill 决定；本 Skill 只给锚点，不建文件。
 
 ## 3. 锚定信号提取
 
 从用例文字提取：
-- 业务名词（车位/订单/支付/结算）→ 对应 DTO / 表
-- 动词（查询/预约/退款/回调）→ 对应 Controller/Service 方法
+- 业务名词（{实体}/单据/支付/结算）→ 对应 DTO / 表
+- 动词（查询/创建/退款/回调）→ 对应 Controller/Service 方法
 - 数值/文案（错误码、提示语）→ 对应错误码枚举 / OpenAPI
 
 ## 4. 断言一致性检查（BR-16）

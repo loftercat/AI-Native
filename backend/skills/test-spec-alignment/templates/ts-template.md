@@ -5,7 +5,7 @@
 | 迭代 | {迭代} |
 | 状态 | 草稿 / 评审中 / 已确认 |
 | 来源 | `STORY-{迭代}-{序号}-{slug}.md` · `DD-STORY-{迭代}-{序号}-{slug}.md` §9 · OpenAPI |
-| 服务/模块 | {如 booking-bff-app / booking-inventory / booking-order} |
+| 服务/模块 | {如 {project}-bff-app / {project}-{domain-a} / {project}-{domain-b}} |
 | 复杂度 | 简单 / 中等 / 高复杂 |
 
 > **模板说明**：由 `test-spec-alignment` Skill 在编码前根据 Story + 详设 §9 生成。删除本说明块。命名与落盘：`docs/test-spec/{迭代}/TS-STORY-{迭代}-{序号}-{slug}.md`（见 [card-naming-conventions.md](../../../docs/agile/card-naming-conventions.md)）。
@@ -29,14 +29,15 @@
 
 | 层 | 测试类 | 覆盖 AC / BR | Mock 什么 | 不 Mock 什么 | 备注 |
 |----|--------|--------------|-----------|--------------|------|
-| 单元 | `XxxServiceTest` | | 依赖的 Mapper/外部 `XxxApi` | 被测 Service 自身逻辑 | |
-| BFF API | `XxxControllerTest`（`@WebMvcTest`） | | 下游域 `XxxApi` | 无 DB | |
-| Mapper | `XxxMapperTest`（真实 H2） | | 无 | H2 真库 + 种子数据 | 主键查询可走 MP |
-| 集成（可选） | `@SpringBootTest` | | 外部系统（支付/车场/iam） | 真 DB | 归 `integration-test-design` 消费 |
+| 单元 | `{Entity}QueryServiceTest` / `{Entity}CommandServiceTest` | | 持久化层 / 下游远程客户端 / 外部 Client | 被测 Service 自身逻辑 | 无 DB |
+| 入口 API | `{Resource}ControllerTest`（`@WebMvcTest`） | | 下游远程客户端或 Service | Controller 守卫与序列化 | 无 DB |
+| 持久化（按需） | `{Entity}MapperTest` / `{Entity}RepositoryTest` | | 无 | 本服务 Testcontainers MySQL + 种子 | 按画像 §5.4 P-3 ORM 选型 |
+| 单服务集成 | `{Scenario}IT`（`@SpringBootTest`） | | **进程外下游微服务（按 P-2 用 WireMock/Stub）** + 第三方外部系统（支付/外部平台/外部认证） | 本服务入口 + 业务 + 真实容器 DB | 归 `integration-test-design` 消费 |
+| 跨服务主链路 | 部署后黑盒用例（按需） | | 仅外部环境沙箱 | 多微服务真实联调 | 归 `api-blackbox-test`（及可选 E-5 契约测试） |
 
 ## 4. Fixture / 种子数据设计
 
-> 给定什么输入、DB/Mapper Mock 返回什么、边界值（空串 vs `null`、等距、临界阈值等）。
+> 给定什么输入、DB/Mapper Mock 返回什么、边界值（空串 vs `null`、多候选并列、临界阈值等）。
 
 | 场景 | 输入 | Mock / 种子返回 | 边界值 |
 |------|------|----------------|--------|

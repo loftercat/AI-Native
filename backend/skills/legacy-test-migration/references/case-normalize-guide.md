@@ -7,14 +7,14 @@
 
 ```yaml
 legacy_tc_id: TC-0001        # 原编号，不改
-title: 查询车位-正常返回       # 摘要（展示列）
+title: 查询{实体}-正常返回     # 摘要（展示列）
 source_text: |               # 原文片段（保留，供回溯）
   ...
 given: ...                   # 前置条件
 when: ...                    # 操作步骤（触发动作）
 then:                        # 预期结果（可多条）
   - ...
-anchor_hint: 车位查询接口      # 业务对象/动作，供 Step 4 锚定
+anchor_hint: {实体}查询接口    # 业务对象/动作，供 Step 4 锚定
 missing: []                  # 缺失字段
 ```
 
@@ -44,7 +44,7 @@ missing: []                  # 缺失字段
 
 ## 5. 数据依赖标注
 
-- 归一化时识别用例的数据需求（如「存在 ENABLED 车场」）→ 保留在 Given。
+- 归一化时识别用例的数据需求（如「存在 ENABLED 状态的{实体}」）→ 保留在 Given。
 - 下游交 `test-data-design` 时用 `seed_key` 命名（见 `test-data-design` Skill）。
 
 ## 6. 反模式（禁止）
@@ -58,20 +58,20 @@ missing: []                  # 缺失字段
 
 原文：
 ```
-前置：测试环境有 ENABLED 车场「万象城」，含 1 个 AVAILABLE 车位
-步骤：小程序搜索「万象城」并发起预约
-预期：预约成功，返回订单号
+前置：测试环境有 ENABLED 状态的{主实体}「{demo-keyword}」，含 1 条 AVAILABLE {子实体}
+步骤：C 端搜索「{demo-keyword}」并提交业务操作
+预期：操作成功，返回单号
 ```
 
 归一化：
 ```yaml
 legacy_tc_id: TC-0001
-title: 搜索车场并发起预约
-given: 存在 ENABLED 车场「万象城」+ ≥1 AVAILABLE 车位
-when: 搜索「万象城」并提交预约
+title: 搜索{主实体}并提交业务操作
+given: 存在 ENABLED 状态的{主实体}「{demo-keyword}」+ ≥1 AVAILABLE {子实体}
+when: 搜索「{demo-keyword}」并提交业务操作
 then:
-  - 预约成功
-  - 返回订单号非空
-anchor_hint: 预约下单接口
+  - 操作成功
+  - 返回单号非空
+anchor_hint: 业务提交接口
 missing: []           # 「成功」的具体 code 待补 → 若下游要求可标 G1
 ```

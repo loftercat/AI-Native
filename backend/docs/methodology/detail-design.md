@@ -10,7 +10,7 @@
 
 **把 Story 里的 AC/BR 转成可编码、可测的技术契约：领域模型、OpenAPI、schema、Java 类骨架、时序图，并汇总为详设文档。**
 
-本 Skill 继承公司级 **十一步流程**（加载 → 解析 → 架构 → 缺口 → 接口 → 专项 → schema → 时序 → 骨架 → 落盘 → 汇总），按 **Java 21 + Spring Boot 3.2 单体（V1）+ 双 BFF + `*-api`/`*-impl`** 特化。
+本 Skill 继承公司级 **十一步流程**（加载 → 解析 → 架构 → 缺口 → 接口 → 专项 → schema → 时序 → 骨架 → 落盘 → 汇总），按 **Java 21 + Spring Boot / Spring Cloud 微服务架构**（仓库模式、调用协议、ORM、响应格式与内部鉴权由画像 §5.4 驱动）特化。
 
 ---
 
@@ -31,14 +31,14 @@
 | 时序图 | 详设 §7 |
 | Java 骨架 | 详设 §8（签名 + 修改清单，无方法体） |
 
-### 2.3 双层 API（本仓库固定）
+### 2.3 微服务契约分层
 
-| 层 | 模块 | HTTP |
-|----|------|------|
-| 对外 | `booking-bff-app` / `booking-bff-admin` | `/api/v1/booking/app|admin/...` |
-| 域边界 | `*-api` 的 `XxxApi` | 无 HTTP（V1 同 JVM 注入） |
+| 层 | 服务 | 契约形态 |
+|----|------|----------|
+| 对外入口 | API 网关 → `{project}-bff-app` / `{project}-bff-admin` | 对外 HTTP：`/api/v1/{project}/{end}/...` + BFF OpenAPI |
+| 领域微服务 | `{project}-{domain-a}` / `{project}-{domain-b}`（`*-api` + `*-impl`） | 按画像 §5.4 P-2：内部 HTTP OpenAPI 或 RPC 契约（`*-api`/`.proto`）；防外泄按 P-5 |
 
-含 HTTP 的 Story：**OpenAPI 写 BFF**；域能力写 `XxxApi` + Service 骨架。跨 BFF→order→inventory 的 AC **须画时序图**。
+跨服务调用的 AC **须画时序图**，并标注各服务本地事务边界与跨服务一致性方案（按画像 E-3，严禁跨域本地 `@Transactional`）。
 
 ### 2.4 AC→API 五步推导
 
@@ -80,7 +80,7 @@ OpenAPI：**diff 摘要 → 用户确认 → 合并**；同名 DD 不静默覆�
  3. 架构上下文（双 BFF、存量契约/代码扫描）
  4. 缺口评估（阻断集中提问）
  5. 接口 §5 + OpenAPI（openapi-conventions 自检）
- 6. 专项场景（支付/库存/车场/大文件 IO，见 special-scenarios.md）
+ 6. 专项场景（幂等/外部集成/异步消息/跨服务一致性/定时任务/大文件 IO，见 special-scenarios.md）
  7. 持久化 §6 + schema（字段表 + CREATE TABLE DDL）
  8. 时序图 §7
  9. Java 骨架 §8 + §9 测试策略
@@ -137,7 +137,7 @@ story-splitting ──► detail-design ──► feature-coding
 | 数据模型 Rule | `database-model.md` | `rules/mybatis-conventions.md` + schema.md |
 | 架构 Rule | `architecture.md` | `rules/java-project.md` |
 | 产品背景 | `product-overview.md` | system-landscape + Epic/HLD |
-| OpenAPI 路径 | `docs/api/openapi.yaml` | `docs/api/booking-bff-app/openapi.yaml` 等 |
+| OpenAPI 路径 | `docs/api/openapi.yaml` | `docs/api/{服务标识}/openapi.yaml` |
 | 专项指南 | `reference/idempotency-guide.md` 等 | [special-scenarios.md](../../skills/detail-design/references/special-scenarios.md) + 已落地 reference |
 
 ---
@@ -149,7 +149,7 @@ story-splitting ──► detail-design ──► feature-coding
 | [README.md](../../skills/detail-design/README.md) | 配套清单与公司级映射 |
 | [ac-to-contract-guide.md](../../skills/detail-design/references/ac-to-contract-guide.md) | AC→API / XxxApi |
 | [code-skeleton-guide.md](../../skills/detail-design/references/code-skeleton-guide.md) | §8 骨架推导 |
-| [special-scenarios.md](../../skills/detail-design/references/special-scenarios.md) | 支付/库存/车场/定时任务/大文件 IO 专项 |
+| [special-scenarios.md](../../skills/detail-design/references/special-scenarios.md) | 幂等/异步/跨服务一致性/定时任务/大文件 IO 专项 |
 | [scheduled-task-guide.md](../../reference/scheduled-task-guide.md) | 定时任务高可靠设计 |
 | [memory-safe-io-guide.md](../../reference/memory-safe-io-guide.md) | 上传/导出流式 IO（Java） |
 | [openapi-conventions.md](../../skills/detail-design/references/openapi-conventions.md) | OpenAPI 质量 |

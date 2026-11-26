@@ -6,9 +6,6 @@ description: >-
   按详设编码、按 AC 写测试与实现等场景。不改 OpenAPI、不直连后端域。
 ---
 
-> **模板版说明**：本 Skill 自源项目（C 端微信小程序）抽取为通用模板。文中项目专属值（`docs/handoff/openapi/{后端服务标识}.yaml`、页面/组件名、Story 号）均为**示例**，接入时按 [frontend/MIGRATION.md](../../MIGRATION.md) 处理；「本仓库」指接入后的前端项目。
-
-
 # 前端功能编码（Story + 详设 → 小程序 + 测试）
 
 以 STORY-FE + 详设 + OpenAPI 为输入，在 Story 范围内**一体化 TDD**（先写/补测试，再写/修页面/组件），
@@ -31,9 +28,9 @@ description: >-
 ### 触发示例
 
 ```text
-/frontend-feature-coding 实现 STORY-FE-2026-S01-002
-@docs/requirements/2026-S01/STORY-FE-2026-S01-002-*.md
-@docs/design/2026-S01/DD-FE-2026-S01-002-*.md
+/frontend-feature-coding 实现 STORY-FE-{迭代}-{序号}
+@docs/requirements/{迭代}/STORY-FE-{迭代}-{序号}-*.md
+@docs/design/{迭代}/DD-FE-{迭代}-{序号}-*.md
 ```
 
 ## 3. 流程

@@ -46,7 +46,7 @@ strategy ∈ {smoke, regression, contract, perf, uat, —}   # 横切标签
 |-------|------|------|
 | B1 | 真实部署 HTTP API（网关/鉴权链/契约） | api-blackbox-test |
 | B2 | UI 端到端 | 前端另仓 e2e-test |
-| B3 | 真实第三方联调（IAM/支付/车场） | api-blackbox-test |
+| B3 | 真实第三方联调（认证服务/外部支付/第三方渠道） | api-blackbox-test |
 | B4 | 性能/压力 | performance-test（规划） |
 | B5 | 数据批处理/定时/对账 | integration-test-design + test-data-design |
 

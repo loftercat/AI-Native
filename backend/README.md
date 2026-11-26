@@ -1,6 +1,6 @@
-# backend：后端 AI 原生工作流模板
+# backend：后端 AI 原生工作流模板（微服务版）
 
-从已落地的源项目后端仓抽取。包含 **13 个 Skill、16 条 Rule、项目画像、QA 专线、交接（前端 handoff）、旁路（bugfix / 存量迁移）**。
+纯通用抽象模板（零全局锚点替换，项目事实单点收拢至 `architecture/system-landscape.md`）。包含 **13 个 Skill、16 条 Rule、项目画像（含两档 13 项选型占位）、QA / 跨服务验证专线、交接（前端 handoff）、旁路（bugfix / 存量迁移）**。
 
 ## 快速导航
 
@@ -8,7 +8,7 @@
 |--------|----|
 | 日常使用 | [USAGE.md](USAGE.md) |
 | 接入新项目 | [MIGRATION.md](MIGRATION.md) |
-| 替换公共基础库 | [common-foundation-migration.md](docs/methodology/common-foundation-migration.md) |
+| 登记项目公共基础库 | [common-foundation-migration.md](docs/methodology/common-foundation-migration.md) |
 | 查 Skill 与栈依赖 | [Skill清单与栈依赖.md](Skill清单与栈依赖.md) |
 | 看 Golden 约定 | [docs/methodology/golden.md](docs/methodology/golden.md) |
 | 看 Skill 治理 | [docs/methodology/skill-governance.md](docs/methodology/skill-governance.md) |

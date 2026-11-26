@@ -22,7 +22,7 @@
 
 开工前确认迭代号与环境凭据。
 
-> 一次性接入（画像、锚点替换、Golden 重写、分发、裁剪）见 [MIGRATION.md](MIGRATION.md)；公共基础库替换见 [任务书](docs/methodology/common-foundation-migration.md)。
+> 一次性接入（迭代号、画像与两档 13 项选型、条件 Rule 与 Hook 配置、Golden 重写、分发与裁剪）见 [MIGRATION.md](MIGRATION.md)；公共基础库登记见 [指南](docs/methodology/common-foundation-migration.md)。
 
 ### 迭代切换
 
@@ -55,12 +55,13 @@
 | Story 卡 | `detail-design` |
 | DD（含 §9 测试策略） | `test-spec-alignment` |
 | Story + DD + TS | `feature-coding` |
-| 代码完成且跨模块/外部链路 | `integration-test-design` |
+| 代码完成需验证本服务真实 DB 与下游契约 | `integration-test-design`（单服务 `*IT`，下游微服务模拟隔离） |
+| 部署后需验证跨微服务完整主链路 | `api-blackbox-test`（测试环境真实多服务联调） |
 | 契约定稿、前端要开工（或 operation 语义变了） | `api-handoff`（交接，前后端分离时） |
 | 线上/联调缺陷 | `bugfix`（旁路，不走主线） |
 | 存量项目无 Story 的老用例 | `legacy-test-migration`（旁路） |
 
-QA 专员另有一条专线（同源 Story，非上下游）：Story + OpenAPI 齐备后 → `qa-acceptance-case-design` 产验收用例，其中 `execution=blackbox` 的行 → 部署后 `api-blackbox-test` 跑黑盒，需要环境数据时 → `test-data-design` 造数。无 QA 团队可整线裁掉（黑盒冒烟由集成测试承担）。
+QA 专员另有一条专线（同源 Story，非上下游）：Story + OpenAPI 齐备后 → `qa-acceptance-case-design` 产验收用例，其中 `execution=blackbox` 的行 → 部署后 `api-blackbox-test` 跑黑盒，需要环境数据时 → `test-data-design` 造数。**微服务架构下，即使没有独立 QA 团队也建议保留 `api-blackbox-test`**，用于部署后跨微服务主链路验证（单服务 `*IT` 仅守单服务边界）。
 
 前后端分离时另有一条**交接线**：前端要开工、或 operation 语义变了（新增端点/改字段/改错误码）→ `api-handoff` 把契约冻结成 handoff 包（快照 + VERSION + Story↔operationId 索引），前端只读快照、不读后端仓。纯后端项目可整线裁掉。
 
@@ -80,9 +81,9 @@ QA 专员另有一条专线（同源 Story，非上下游）：Story + OpenAPI �
 
 5. 对 Agent 说：*「用 detail-design 做 STORY-2026-S03-001」* → 产出 DD + OpenAPI + schema。
 6. 对 Agent 说：*「用 test-spec-alignment 给 STORY-2026-S03-001 出 TS」*。
-7. 对 Agent 说：*「用 feature-coding 实现 STORY-2026-S03-001，跑 Story 范围测试（`mvn test -pl <module> -am`）」*。
+7. 对 Agent 说：*「用 feature-coding 实现 STORY-2026-S03-001，跑目标微服务测试（单仓库用 `mvn test -pl <service-module> -am`，多仓用 `mvn test`）」*。
 8. **代码审查**：独立审查人按 [rules/code-review.md](rules/code-review.md) 审本次 diff（各实现 Skill 验证通过后会提示触发；档位与闭环见规则）。
-9. 跨模块/含外部链路的卡，追加：*「用 integration-test-design 给这张卡补集成测试」*；IT 合入前的审查由该 Skill 按 [rules/code-review.md](rules/code-review.md) 提示触发。
+9. 涉及本服务持久化/事务/下游契约保真的卡，追加：*「用 integration-test-design 给这张卡补单服务集成测试」*；IT 合入前的审查由该 Skill 按 [rules/code-review.md](rules/code-review.md) 提示触发。
 10. 单卡完成后，提测前 QA 线三件（均以 Story 编号为入口）：*「用 qa-acceptance-case-design 为 STORY-2026-S03-001 出验收用例」* → 部署后 *「用 api-blackbox-test 为 STORY-2026-S03-001 生成黑盒脚本」* → 需要环境数据时 *「用 test-data-design 为 STORY-2026-S03-001 造数」*。
 11. 前后端分离时，前端开工前（或 operation 语义变更后）：*「用 api-handoff 把 love-app 的契约发一版给前端，tag 用 2026-S01-rc1」*。发布前契约必须已提交——有未提交改动会阻断；无 tag 时 VERSION 标「未打 tag」，自检会给 WARN。
 

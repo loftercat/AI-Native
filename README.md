@@ -1,8 +1,8 @@
 # AI-Native-template
 
-AI 原生开发工作流模板：**后端线（12 Skill）+ 前端线（3 Skill）+ Rule + 项目画像 + Golden 样例 + 校验脚本**，把「需求 → 设计 → 代码 → 测试 → QA 验收」做成可重复、可审计的流程。
+AI 原生开发工作流模板：**后端线（13 Skill）+ 前端线（3 Skill）+ Rule + 项目画像 + Golden 样例 + 校验脚本**，把「需求 → 设计 → 代码 → 测试 → QA 验收」做成可重复、可审计的流程。
 
-> 新项目 / 存量项目均可接入；AI 负责执行，人只在画像拍板、映射确认、审查放行等固定介入点决策。
+> 新项目 / 存量项目均可接入；AI 负责执行，人只在画像定稿、条件配置确认、分发裁剪等固定介入点决策。
 
 ---
 
@@ -15,7 +15,7 @@ AI 原生开发工作流模板：**后端线（12 Skill）+ 前端线（3 Skill�
 | 查某个 Skill 的触发/产出 | [Skill 体系](#skill-体系) |
 | 查 EPIC / JSD / DD / TS 等工件 | [工件速查](#工件速查) |
 | 看目录结构 | [目录职责](#目录职责) |
-| 准备或替换公共基础库 | [公共基础库替换任务书](backend/docs/methodology/common-foundation-migration.md) |
+| 准备或登记公共基础库 | [公共基础库登记与适配指南](backend/docs/methodology/common-foundation-migration.md) |
 | 日常使用（后端） | [backend/USAGE.md](backend/USAGE.md) |
 | 日常使用（前端） | [frontend/USAGE.md](frontend/USAGE.md) |
 
@@ -30,14 +30,14 @@ AI 原生开发工作流模板：**后端线（12 Skill）+ 前端线（3 Skill�
 - 在模板仓内启动 AI：*「读取 AGENTS.md，按「接入引导」引导我接入，目标项目：`<项目路径>`」*
 - 在目标项目内启动 AI：*「从 `<模板仓路径>` 按 AGENTS.md「接入引导」把工作流接入到本项目」*
 
-AI 会读取模板仓的接入引导，带你走完手动步骤；你只在画像拍板、映射确认、验收等介入点做决策。
+AI 会读取模板仓的接入引导，带你走完手动步骤；你只在画像定稿、条件配置确认、分发裁剪等介入点做决策。
 
 ### 方式二：手动接入
 
 新项目与存量项目同法：
 
 1. **引入**：把 AI-Native 工程放到项目的根目录下、**不带 `.git`**，放入后目录名保持为 `AI-Native/`。存量项目原有代码与目录不动，用 [templates/AGENTS.template.md](templates/AGENTS.template.md) 生成项目根 `AGENTS.md`（填完占位符）；存量项目已有 `AGENTS.md` 时进行整合。
-2. **接入**：后端按 [backend/MIGRATION.md](backend/MIGRATION.md) §一（填画像 → 替换锚点 → 重写 Golden → 分发到 Agent → 工作流裁剪，每步 AI 执行、人审定稿）；前端按 [frontend/MIGRATION.md](frontend/MIGRATION.md)。
+2. **接入（零全局替换，只填配置层）**：通用 `skills/` 与通用 `rules/` 均已抽象化，**无需对工作流正文做全局字符串替换**。后端按 [backend/MIGRATION.md](backend/MIGRATION.md) §一（设迭代号 → 填画像与 13 项选型 → 适配条件 Rule 与 Hook 路径 → 重写 Golden → 分发与接入审查）；前端按 [frontend/MIGRATION.md](frontend/MIGRATION.md)。
 
 > 模板仓根 [AGENTS.md](AGENTS.md) 是模板仓入口，**不要直接复制**到目标项目；目标项目用 `templates/AGENTS.template.md` 生成自己的入口。
 
@@ -56,21 +56,21 @@ AI 会读取模板仓的接入引导，带你走完手动步骤；你只在画�
 
 ## 工作流全景
 
-把「需求 → 设计 → 代码 → 测试 → 验收」拆成一组按序衔接的 Skill 流水线：每个环节的产出落盘为文档契约（Story / DD / TS / OpenAPI），作为下一环节的输入；流程由 AI 执行，人在固定介入点把关（映射确认、审查放行），Story / 文档工件 / 代码三道独立审查守住质量。后端线与前端线各一套完整流水线，经 handoff 契约衔接。
+把「需求 → 设计 → 代码 → 测试 → 验收」拆成一组按序衔接的 Skill 流水线：每个环节的产出落盘为文档契约（Story / DD / TS / OpenAPI），作为下一环节的输入；流程由 AI 执行，人在 Story、阶段工件与代码三道独立审查把关。后端线与前端线各一套完整流水线，经 handoff 契约衔接。
 
 ```text
 ── backend/（后端线，消费业务需求）──────────────────────────
 业务原始需求 / PRD
   → journey-scenario-design   → JSD（用户旅程 + 场景矩阵，AC 完备性源头）
   → EPIC 卡                   → 来源：PRD 提炼，或由 JSD 起草（人确认）；两条入口见下
-  → high-level-design         → HLD（模块边界/集成矩阵/建议 Story）
-  → story-splitting           → STORY 卡（AC/BR + 依赖拓扑 + 迭代计划）
-  → detail-design             → DD + OpenAPI + schema/DDL + 代码骨架 + 测试策略
+  → high-level-design         → HLD（微服务边界/通信矩阵/数据归属/建议 Story）
+  → story-splitting           → STORY 卡（AC/BR + 跨服务依赖拓扑 + 迭代计划）
+  → detail-design             → DD + 对外/内部接口契约 + schema/DDL + 代码骨架 + 测试策略
   → test-spec-alignment       → TS（用例级测试规格，编码前）
-  → feature-coding            → 代码 + 测试（TDD，全绿）
+  → feature-coding            → 目标微服务代码 + 测试（TDD，全绿）
   → 代码审查（rules/code-review.md）→ REVIEW-CODE-IMPL-*（commit/IT 前）
-  → integration-test-design   → *IT / *ScenarioIT（跨模块/外部链路）
-  QA 专线：qa-acceptance-case-design → api-blackbox-test → test-data-design
+  → integration-test-design   → 单服务 *IT / *ScenarioIT（独立容器 DB，下游微服务模拟隔离）
+  QA / 跨服务验证专线：qa-acceptance-case-design → api-blackbox-test（跨服务主链路） → test-data-design
   旁路：bugfix（七步闭环） / legacy-test-migration（存量用例改造）
 
         │  detail-design 定稿 OpenAPI → api-handoff 发布 handoff 包

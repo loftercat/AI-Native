@@ -1,67 +1,79 @@
-# Java 项目约束
+# Java 微服务项目约束
 
-读代码或改代码前，先扫一眼 [AGENTS.md](../../AGENTS.md) 与 [architecture/system-landscape.md](../architecture/system-landscape.md)。
+读代码或改代码前，先扫一眼 [AGENTS.md](../../AGENTS.md) 与 [architecture/system-landscape.md](../architecture/system-landscape.md)（重点看 §二 服务清单、§3.6 通信矩阵、§5.4 两档技术选型）。
 
-## 依赖方向（V1 单体：双 BFF + 单包）
+## 服务分层与依赖方向
 
 ```text
-booking-app（@SpringBootApplication，可执行 jar）
-    └── 依赖 booking-bff-app、booking-bff-admin、order-impl、inventory-impl、parking-adapter-impl、iot-impl
+统一入口（API 网关，可选模块）
+    └── 路由转发至 BFF、清理外部伪造请求头、拦截内部路径
 
-booking-bff-app / booking-bff-admin  →  @Autowired XxxApi（order / inventory 等）；依赖 hema-common-web
-order-impl / inventory-impl        →  parking-adapter-api、iot-api、hema-common-core、booking-common（按需）
+对外 HTTP（独立启动服务）
+    {project}-bff-app / {project}-bff-admin
+        └── 仅依赖各领域服务 *-api（远程契约）与通用公共库；无业务库
+
+领域微服务（每服务独立启动、独立数据库）
+    {domain-a}-impl / {domain-b}-impl / ...
+        ├── 依赖本服务 *-api + 下游服务 *-api（远程契约）+ 通用公共库
+        └── 严禁依赖任何其他服务的 *-impl
 ```
 
-域间调用：同 JVM 直调 `XxxApi`，经 `app/client` 封装；**V1 不用 OpenFeign**。
+**服务间同步调用**：严格按画像 §5.4 **P-2** 选定的远程协议（如 OpenFeign / Dubbo / gRPC 等）通过 `*-api` 契约经 `app/client` 封装调用；**严禁假设服务同进程直调**。若画像 P-2 仍为 `[TBD]`，编码与详设前必须阻断请用户拍板。
 
-## 必守
+## 必守底线
 
-> 布局与域聚合模块约定见 [project-layout.md](project-layout.md)。
+> 仓库组织与聚合模块约定见 [project-layout.md](project-layout.md)。
 
-1. **App/Admin BFF 分离**：App HTTP 只在 `booking-bff-app`；Admin HTTP 只在 `booking-bff-admin`
-2. **唯一启动类**：`booking-app`；BFF 模块 **不得**含 `main`
-3. **api/impl 分离**：`*-api` 仅契约 + DTO；业务在 `*-impl`；**`*-impl` 无 Controller**
-4. 车场厂商 API **仅**在 `booking-parking-adapter`（`ParkingLotGateway`）；**硬件 IoT（地锁/摄像头）仅在 `booking-iot`（`IotDeviceGateway`，经 EMQX）**；order/inventory 不直连车场/设备
-5. **数据访问**：ORM 为 MyBatis；主键查询允许 MyBatis Plus `BaseMapper`，**其余 SQL 仅 XML**（见 [mybatis-conventions.md](./mybatis-conventions.md)）
-6. **领域模型**：默认 **Service + DO + DTO**；复杂可选 **贫血** `domain/model`；状态迁移优先 **Mapper 条件 `UPDATE`**，非「查聚合 → 内存改 → 全量 save」（见 [domain-model-guide.md](../skills/detail-design/references/domain-model-guide.md)）
+1. **API 网关 + BFF + 领域服务职责分离**：
+   - 对外 C 端 / B 端 HTTP 只在对应 BFF（`{project}-bff-*`）暴露，由 API 网关统一路由；
+   - 领域微服务只暴露供服务间互调的**内部远程接口**（按画像 P-2：HTTP 内部 Controller 或 RPC Provider），不直接对外网用户开放。
+2. **每服务独立启动与独立数据库**：
+   - 每个 BFF 与每个领域服务的 `*-impl` 各自持有独立启动类、独立配置与独立数据源（BFF 通常无业务库）；
+   - **严禁跨服务连表查询（JOIN）、严禁跨服务外键、严禁把跨服务调用包进本地 `@Transactional`**；跨服务写一致性按画像 §5.4 **E-3** 执行（未定则阻断）。
+3. **契约与实现分离（`*-api` / `*-impl`）**：
+   - `*-api` 仅放远程契约接口/客户端、DTO、枚举、域错误码（及按需事件对象）；
+   - 严禁跨服务依赖对方 `*-impl` 内部类；外部南向适配（第三方平台/硬件接入）须收拢在各自专属适配微服务中，业务域不直连外部厂商。
+4. **内部接口防外泄与鉴权底线**：
+   - 拆成微服务后内部接口经网络可达，**严禁依赖单体的进程内不可达假设**；
+   - 严禁直接信任来自公网客户端的身份/内部请求头；具体隔离方式、内部鉴权机制与透传头名严格按画像 §5.4 **P-5** 执行（未定则阻断）。
+5. **公共库防膨胀（`{project}-common`）**：
+   - 严格遵守画像 §5.4 **P-6** 边界；仅放通用横切工具与基础抽象，**严禁放入业务 DTO/DO、业务枚举或具体领域逻辑**，避免微服务退化为紧耦合单体。
+6. **数据访问（ORM）**：
+   - 按画像 §5.4 **P-3** 选型执行（未定则阻断）；若选用 MyBatis，须遵守 [mybatis-conventions.md](./mybatis-conventions.md)；若选用 JPA/jOOQ 等，按接入时替换的持久化 Rule 执行。
+7. **领域模型**：
+   - 默认 **Service + DO + DTO**；复杂场景可选 **贫血** `domain/model`；状态迁移优先条件更新，非「查聚合 → 内存改 → 全量覆盖」（见 [domain-model-guide.md](../skills/detail-design/references/domain-model-guide.md)）。
 
 ## 依赖注入写法
 
-- 纯 Bean 依赖：`@RequiredArgsConstructor` + `private final` 字段（Controller / Service / Facade 的主流写法，参照各 Controller）
-- 带 `@Value` 配置注入、或需构造期归一化/校验：**手写显式构造器** + `private final` 字段；**禁止 `@Value` 字段注入**（非 final 可变字段，不可测）；把 `@Value` 挪到 `final` 字段也不行——Lombok 生成构造器**不携带** `@Value`（仓库无 `lombok.config`），Spring 按类型解析失败、启动即报错
-- 同前缀多个 `@Value` 优先收拢为 `@ConfigurationProperties` 配置类（先例：`inventory-impl/.../config/DeviceMonitorProperties.java`）
-- 范本：`inventory-impl/.../app/client/Wxb3dIndoorNavigationClient.java`（手写构造器 + `@Value` 回退 + 构造期归一化）
+- 纯 Bean 依赖：`@RequiredArgsConstructor` + `private final` 字段（Controller / Provider / Service / Facade 主流写法）。
+- 带 `@Value` 配置注入、或需构造期归一化/校验：**手写显式构造器** + `private final` 字段；**禁止 `@Value` 字段注入**（非 final 可变字段，不可测）；把 `@Value` 挪到 `final` 字段也不行——Lombok 生成构造器**不携带** `@Value`，Spring 按类型解析失败。
+- 同前缀多个 `@Value` 优先收拢为 `@ConfigurationProperties` 配置类。
 
-## 目录归属
+## 典型目录归属（以画像 §二 为准）
 
 | 路径 | 归属 |
 |------|------|
-| `booking-bff-app/` | App Controller、车主鉴权 Filter、`converter/`（DTO↔VO MapStruct） |
-| `booking-bff-admin/` | Admin Controller、运营 Token 校验（iam-server）、`converter/`（DTO↔VO MapStruct） |
-| `booking-app/` | `SpringBootApplication`、全局配置、可执行打包 |
-| `booking-*-service/*-api/` | `XxxApi`、DTO |
-| `booking-*-service/*-impl/app/provider/` | `XxxApiImpl` |
-| `booking-*-service/*-impl/app/facade|service|client/` | 编排、域逻辑、跨域/外部 Client |
-| `booking-*-service/*-impl/domain/model/` | 可选贫血领域类（复杂 Story）；**写库仍走 Mapper XML** |
-| `booking-*-service/*-impl/infrastructure/` | DO、Mapper、Repository、`converter/`（DO↔DTO MapStruct） |
-| `booking-parking-adapter/` | 车场系统南向适配 |
-| `booking-iot-service/` | 硬件 IoT 南向（EMQX 直连） |
-| `booking-common/` | `BookingErrorCode`（BFF 守卫）；缓存/MQ 等横向抽象；**Result/BizException → `hema-common`** |
-| `docs/api/booking-bff-app/`、`docs/api/booking-bff-admin/` 等 | OpenAPI 契约 |
+| `{project}-gateway/`（可选） | API 网关路由、外部不可信头剥离、内部路径拦截 |
+| `{project}-bff-app/`（如有） | 独立启动；C 端对外 Controller、鉴权、DTO↔VO 转换、下游远程调用封装 |
+| `{project}-bff-admin/`（如有） | 独立启动；B 端对外 Controller、鉴权、DTO↔VO 转换、下游远程调用封装 |
+| `{project}-{domain}/{domain}-api/` | 远程契约客户端/接口、DTO、域错误码（及按 E-4 约定的事件对象） |
+| `{project}-{domain}/{domain}-impl/interfaces/` 或 `app/provider/` | 独立启动类 + 内部远程服务入口（HTTP 内部 Controller 或 RPC Provider，按 P-2） |
+| `{project}-{domain}/{domain}-impl/app/facade\|service\|client/` | 编排、域逻辑、下游微服务/外部系统 Client 封装 |
+| `{project}-{domain}/{domain}-impl/domain/model/` | 可选贫血领域类（复杂 Story） |
+| `{project}-{domain}/{domain}-impl/infrastructure/` | 数据实体 DO、持久化访问层（Mapper/Repository）、DO↔DTO 转换 |
+| `{project}-{domain}/{domain}-impl/src/main/resources/db/migration/` | 本服务独立数据库迁移脚本（每服务各自维护） |
+| `{project}-common/` | 横切通用工具（严格受画像 P-6 约束；响应/异常公共基建按画像 §3.7） |
+| `docs/api/{服务标识}/` | 对外 BFF OpenAPI + 内部服务间接口契约（按 P-2） |
 
-## URL
+## URL 与接口文档约定
 
-- App：`/api/v1/booking/app/`
-- Admin：`/api/v1/booking/admin/`
-- BFF 统一 `com.hema.common.core.result.Result<T>`；业务成败看 `code === 200`（见 `rules/exception-and-result.md`）
+- 对外 BFF URL 前缀以画像 §六 为准（格式：`/api/v1/{project}/{end}/`）；内部接口前缀与防外泄策略以画像 §5.4 P-5 为准（如 `/internal/v1/{service}/...`）。
+- 响应格式与业务成败判据以画像 §3.7（P-4）与 [exception-and-result.md](exception-and-result.md) 为准。
+- HTTP Controller / VO（含对外 BFF 与内部 HTTP 入口）：**中文 JavaDoc** + `@Tag` / `@Operation` / `@Schema`（`swagger-annotations-jakarta`），文案对齐 OpenAPI（细则见 [layer-guides.md](../skills/feature-coding/references/layer-guides.md) §5.1）。
 
-## BFF 文档注解
+## 严禁事项
 
-- 契约权威：`docs/api/**/openapi.yaml`
-- Controller / VO：**中文 JavaDoc** + `@Tag` / `@Operation` / `@Schema`（`swagger-annotations-jakarta`），文案对齐 OpenAPI
-- 细则：[layer-guides.md](../skills/feature-coding/references/layer-guides.md) §5.1
-
-## 不做
-
-- V1 不引入 Nacos / OpenFeign / 独立域进程
-- 不在 booking-bff-app 暴露 Admin 接口；不在 booking-bff-admin 暴露 App 车主接口（除双端评审过的共用回调）
+- 严禁跨服务依赖对方 `*-impl` 或绕过远程契约直接读取他服务数据库表。
+- 严禁在未拍板画像 §5.4 第一档（P-1 ~ P-6）或命中未定第二档（E-1 ~ E-7）时，由 AI 自行猜测具体中间件或协议写法。
+- 严禁在 C 端 BFF 暴露 B 端接口，或在 B 端 BFF 暴露 C 端接口（除双端评审过的共用回调）。
+- 严禁将领域服务内部远程路径暴露到公网 API 网关路由。

@@ -6,9 +6,6 @@ description: >-
   用于部署环境造数、提测前置数据准备、黑盒 pytest 数据依赖等场景。
 ---
 
-> **模板版说明**：本 Skill 自已落地的源项目抽取为通用模板。文中项目专属值（模块名 `booking-*`、包名 `com.hema`、错误码号段、具体路径与 Story 号）均为**示例**，接入项目时按 [MIGRATION.md](../../MIGRATION.md) 清单替换；「本仓库」指接入后的目标项目。
-
-
 # 测试数据设计（AC Given → 数据画像 + 造数/清理脚本）
 
 以 qa-acceptance-case-design 产出 `AC-STORY-*.md` 中 **Given** + OpenAPI 为输入，生成 **数据画像（DP）+ 造数/清理脚本**，为 `api-blackbox-test` 的 `execution=blackbox` 行提供**环境级前置数据**。
@@ -18,7 +15,8 @@ description: >-
 
 ## 定位与边界
 
-- **做什么**：从 blackbox 行 Given + OpenAPI 生成 DP（YAML）+ seed 脚本（Python，生成 SQL 文本）；标 `seed_key` 幂等可重跑
+- **做什么**：从 blackbox 行 Given + OpenAPI 生成 DP（YAML）+ seed 脚本（Python，按服务独立数据源生成 SQL 或 API 造数脚本）；标 `seed_key` 幂等可重跑
+- **微服务造数原则**：遵循每服务独立数据库边界——每个服务的 SQL 造数脚本只操作该服务独占的表（环境变量按服务区分，如 `SEED_{DOMAIN_A}_DB_URL`、`SEED_{DOMAIN_B}_DB_URL`）；**涉及跨服务强关联的前置数据，优先通过调用对应微服务的 API 准备**，禁止跨库直插绕过业务状态机
 - **不做**：写 Java 测试（归 `feature-coding` / `integration-test-design`）
 - **不做**：进程内 `@Sql`/`TestDataFactory`（归 `integration-test-design`，MR 进程内）
 - **不做**：直连 DB 执行造数（首版生成 SQL 文本，执行由运维/CI）
@@ -62,9 +60,9 @@ description: >-
 ### 触发示例
 
 ```text
-/test-data-design STORY-2026-S02-007
+/test-data-design STORY-{YYYY-Snn}-001
 
-增量：为 STORY-xxx 补 regression-charger 画像
+增量：为 STORY-{迭代}-{序号} 补 regression-{variant} 画像
 ```
 
 ## 输出
@@ -87,7 +85,7 @@ description: >-
 - 无 `AC-STORY-*.md` → **阻断**，提示提供 qa-acceptance-case-design 产出
 - 解析 AC-STORY「来源」字段取 OpenAPI 路径并加载
 - **只处理 `execution=blackbox` 行**的 Given；`ci_covered`/`manual`/`frontend_only`/`obsolete` 行 **跳过**（不造数）
-- 读业务表 DDL 核对字段名（如 `support_charge` 非 `has_charger`；`project.latitude/longitude` 非 `parking_lot`）
+- 读业务表 DDL 核对字段名（避免凭 OpenAPI 字段名猜测物理表列名与归属表）
 
 ### 步骤 3：展开 AC Given → 数据画像（DP）
 
@@ -95,7 +93,7 @@ description: >-
 - 每个 `profile` 含：`profile_id` / `ac_ids` / `entities`（表、字段、状态、`seed_key`）/ `cleanup_order` / `env_vars`
 - **不造数**的 AC（如 AC-2 无匹配、AC-7 空关键字）标 `smoke-empty` profile，仅校验 skip 行为
 - 字段名严格按 DDL；不确定时查 `docs/schema/{服务}/ddl/*.sql`
-- **身份列按测试账号约定表写**：若 AC 涉及数据权限（scope / 创建人 / 车主本人），seed 里的 `partner_id`/`created_by`/`owner_id` 等身份列按 [system-landscape §4.3.4](../../architecture/system-landscape.md#434-测试账号约定供-test-data-design-skill-消费) 测试账号约定表写死，**不在 DP 里展开 identity 契约**
+- **身份列按测试账号约定表写**：若 AC 涉及数据权限（scope / 创建人 / 用户本人），seed 里的 `{scope_id}`/`created_by`/`owner_id` 等身份列按 [system-landscape §4.3.4](../../architecture/system-landscape.md#434-测试账号约定供-test-data-design-skill-消费) 测试账号约定表写死，**不在 DP 里展开 identity 契约**
 - **功能权限不靠造数**：403 / 权限码类 AC 不改 seed；黑盒挑对应 Token（如 `ADMIN_TOKEN_DENIED`）
 - 详见 [identity-and-permission-guide.md](references/identity-and-permission-guide.md)
 
@@ -104,14 +102,14 @@ description: >-
 - 每个画像 → `generate_sql(profile_id)` + `generate_cleanup_sql(profile_id)`
 - 幂等：`DELETE WHERE seed_key=?` + `INSERT` 带 `seed_key`（BR-3）
 - 清理：按 `cleanup_order` 反序 `DELETE WHERE seed_key=?`（BR-4）
-- `seed_key` 命名：`{迭代缩写}-{Story序号}-{profile_id}`（如 `s02-007-smoke-main`），一 profile 一 key，**不**嵌 AC 编号；详见 [seed-channel-guide §2.4](references/seed-channel-guide.md#24-seed_key-命名约定br-04)
+- `seed_key` 命名：`{迭代缩写}-{Story序号}-{profile_id}`（如 `{snn}-{seq}-smoke-main`），一 profile 一 key，**不**嵌 AC 编号；详见 [seed-channel-guide §2.4](references/seed-channel-guide.md#24-seed_key-命名约定br-04)
 - 入口校验 `SEED_DB_URL`：缺失 → `sys.exit(0)` + 提示（AC-05 skip 非 fail）
 - **不嵌入 DB 驱动**：仅 `print(sql)` 输出文本；执行由运维/CI 重定向
 
 ### 步骤 5：与 blackbox 衔接
 
 - DP 的 `env_vars` 节定义 blackbox pytest 读的环境变量（如 `BLACKBOX_SEARCH_KEYWORD`）
-- 身份列已按 [system-landscape §4.3.4](../../architecture/system-landscape.md#434-测试账号约定供-test-data-design-skill-消费) 约定写死；黑盒按 AC 挑对应 Token 环境变量（如 `ADMIN_TOKEN_PARTNER` / `APP_TOKEN`），Token 值由运维/CI 注入
+- 身份列已按 [system-landscape §4.3.4](../../architecture/system-landscape.md#434-测试账号约定供-test-data-design-skill-消费) 约定写死；黑盒按 AC 挑对应 Token 环境变量（如 `ADMIN_TOKEN_{SCOPE}` / `APP_TOKEN`），Token 值由运维/CI 注入
 - 更新 `tests/data/README.md` 说明执行顺序：seed → blackbox → cleanup
 
 ### 步骤 6：落盘 + 产出汇总

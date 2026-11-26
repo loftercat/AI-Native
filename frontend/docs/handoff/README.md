@@ -4,16 +4,16 @@
 
 ## 目录约定（接入后由 handoff 流程写入）
 
-| 文件 | 作用 | 示例（源项目） |
-|------|------|---------------|
-| `openapi/{后端服务标识}.yaml` | 后端发布的 OpenAPI 契约快照 | `openapi/booking-bff-app.yaml` |
-| `VERSION` | 契约版本 pin（tag 或 commit SHA + 播种时间 + 变更摘要） | `booking-bff-app @ tag 2026-S02-rc2` |
-| `stories-index.md` | Story ↔ operationId 索引（拆卡时按页面选相关 operation） | 主流程 001→007 有序索引 |
+| 文件 | 作用 | 命名格式 |
+|------|------|----------|
+| `openapi/{后端BFF服务标识}.yaml` | 后端发布的 OpenAPI 契约快照 | `openapi/{project}-bff-app.yaml` |
+| `VERSION` | 契约版本 pin（tag 或 commit SHA + 同步时间 + 变更摘要） | `{后端BFF服务标识} @ tag {YYYY-Snn}-rc1` |
+| `stories-index.md` | Story ↔ operationId 索引（拆卡时按页面选相关 operation） | 按主流程有序索引 |
 | `story 摘要`（可选） | 后端每张卡的接口语义摘要，供前端拆卡对齐 | — |
 
 **模板未随附契约文件**——接入时从你的后端仓库复制 OpenAPI 与版本 pin 到本目录。`openapi/` 子目录留空待用。
 
-## 工作方式（源自源项目的实践）
+## 工作方式
 
 1. 后端 OpenAPI 定稿并打 tag → 用后端 `api-handoff` Skill 发布 handoff 包（openapi + VERSION + stories-index）；三件套一致性由后端 `validate-skills.sh` 第 5 段守住。
 2. 前端把包同步进本目录（整文件替换，不改内容）。

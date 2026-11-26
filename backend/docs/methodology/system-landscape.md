@@ -4,7 +4,7 @@
 >
 > **本文性质**：方法论——说明系统画像**必须体现的内容**与 Skill 消费关系。
 >
-> **本仓库实例**：[`architecture/system-landscape.md`](../../architecture/system-landscape.md)（源项目）。
+> **模板实例**：[`architecture/system-landscape.md`](../../architecture/system-landscape.md)。
 
 ---
 
@@ -29,7 +29,7 @@
 | 模块清单 | 全部 Skill | Story「服务/模块」、详设服务标识 |
 | 架构与分层 | detail-design、feature-coding | BFF vs 域、`*-api`/`*-impl`、依赖方向 |
 | 外部集成 | HLD、详设 | Client、时序图、Mock 边界 |
-| 技术栈 / 部署形态 | feature-coding | V1 单体 vs V2+ 微服务约束 |
+| 技术选型与部署形态（§5.4） | 全部主线 Skill | 两档 13 项微服务选型占位（6 项开工前必选 + 7 项用到再定）；命中 `[TBD]` 时阻断拍板 |
 | URL 前缀 | detail-design、feature-coding | OpenAPI path、Controller `@RequestMapping` |
 | 错误码号段 | detail-design | 业务码分段 |
 
@@ -40,71 +40,71 @@
 ### 3.1 文档头（必备）
 
 - 声明：AI Skill 上下文资产、约定路径、维护者。
-- 本文件描述的范围（如「源项目 V1 单体后端」）。
+- 本文件描述的范围（如「XX 项目微服务后端」）。
 
 ### 3.2 产品全景（建议）
 
 - 用户可见端（C 端小程序、B 端运营后台前端等）。
-- **本仓库职责**与**不做什么**（另仓前端、外部支付/鉴权等）。
+- **本系统职责**与**不做什么**（另仓前端、外部支付/鉴权等）。
 
-### 3.3 模块清单（必备）
+### 3.3 服务清单与数据归属（必备）
 
 | 子节 | 必备字段 |
 |------|----------|
-| **本仓库模块** | 模块名、路径、职责、对外 URL（若 BFF） |
-| **外部系统** | 系统名、集成方式、本仓库调用方 |
+| **本系统微服务** | 服务名、服务标识、仓库/路径、职责与独占表（数据归属）、端口、对外/对内契约路径 |
+| **外部系统** | 系统名、集成方式、归属调用微服务 |
 
-**服务标识**与 OpenAPI 目录 `docs/api/{服务标识}/` 一致（如 `booking-bff-app`、`booking-order`）。
+**服务标识**与 `docs/api/{服务标识}/`、`docs/schema/{服务标识}/` 一致（如 `{project}-bff-app`、`{project}-{domain-a}`）。
 
 ### 3.4 架构与分层（必备）
 
 **体现什么**
 
-- V1 部署形态（本仓库：**单体单 jar + 双 BFF 子模块**）。
-- `*-api`（契约）与 `*-impl`（实现）分工。
-- 对外 HTTP 是否仅 BFF；域间 V1 如何调用（同 JVM `XxxApi`）。
+- 微服务部署形态（API 网关 + 独立 BFF + 独立领域微服务，每服务独立启动与独立数据库）。
+- `*-api`（远程契约）与 `*-impl`（独立服务实现）分工；严禁跨服务依赖 `*-impl` 或跨库 JOIN/外键。
+- 跨服务通信矩阵（§3.6）：列出所有同步调用与异步消息的调用方、被调方与失败处理。
 
-**Skill 结论（强烈建议写死一句）**，例如本仓库：
+### 3.5 两档微服务技术选型占位（§5.4，必备）
 
-> 对外 HTTP 仅 `booking-bff-app` / `booking-bff-admin`；域逻辑在 `*-impl`；V1 跨域 `@Autowired XxxApi`，不用 OpenFeign。
+把尚未定型或不同项目差异大的 13 项技术选型集中放在画像 `§5.4`，分为两档：
+- **第一档（开工前必选，P-1~P-6）**：仓库组织模式、服务间同步调用协议、ORM、响应与跨服务错误码规则（同步写入 `§3.7`）、内部接口防外泄与鉴权、公共库边界。
+- **第二档（用到再定，E-1~E-7）**：服务注册配置、异步 MQ、跨服务数据一致性、异步消息结构约定、自动化契约测试、多实例定时任务防重、调用链追踪。
 
-### 3.5 集成关系（必备，可渐进）
-
-- 关系示意图 + 集成表（方向、协议、鉴权、MVP 优先级）。
+接入时由 AI 引导补全第一档、快速确认第二档（未定显式标 `[TBD]`）；开发期命中 `[TBD]` 时由 Skill 强制阻断拍板并按 `rules/system-landscape-change.md` 回刷派生规范。
 
 ### 3.6 技术栈基线（必备）
 
-| 维度 | 本仓库示例 |
-|------|-----------|
+| 维度 | 示例 |
+|------|------|
 | 语言 | Java 21 |
-| 框架 | Spring Boot 3.2.x |
-| ORM | MyBatis + MyBatis Plus（仅主键 CRUD）；其余 SQL 在 XML |
-| 缓存 / 消息（V1） | Redis（分布式缓存/锁/序列）/ Spring Event |
-| 测试 | JUnit 5、Mockito、Maven |
-| 构建 | Maven 多模块 |
+| 框架 | Spring Boot / Spring Cloud（每服务独立启动） |
+| 数据库 | MySQL 8（每服务独立实例/库） |
+| ORM / 调用协议 / MQ / 注册中心 | 见画像 `§5.4` 选型结果 |
+| 测试 | JUnit 5、Mockito、Testcontainers、WireMock |
+| 构建 | Maven（单仓库多服务或多仓按 P-1） |
 
 ### 3.7 URL 基线（Web/API 项目必备）
 
-本仓库对外前缀：
+对外前缀（以画像 §六 为准）：
 
 ```text
-/api/v1/booking/app/...      → booking-bff-app
-/api/v1/booking/admin/...    → booking-bff-admin
+/api/v1/{project}/app/...      → {project}-bff-app
+/api/v1/{project}/admin/...    → {project}-bff-admin
 ```
 
-BFF 统一返回 `com.hema.common.core.result.Result<T>`（`hema-common`）；业务成败看 `code === 200`。
+响应格式、成功判据与错误码号段以画像 `§3.7`（`§5.4 P-4`）为准。
 
 ---
 
 ## 4. OpenAPI / schema 路径规则
 
 ```text
-读 system-landscape 模块清单
+读 system-landscape 服务清单
   → OpenAPI: docs/api/{服务标识}/openapi.yaml
   → schema:  docs/schema/{服务标识}/schema.md
 ```
 
-本仓库典型服务标识：`booking-bff-app`、`booking-bff-admin`、`booking-order`、`booking-inventory`、`booking-parking-adapter`。
+服务标识模式：`{project}-bff-app`、`{project}-bff-admin`、`{project}-{domain-a}`、`{project}-{domain-b}`。
 
 ---
 

@@ -1,55 +1,50 @@
-# 受影响测试范围分级规则（impact-scope-guide）
+# 受影响测试范围分级规则（impact-scope-guide，微服务版）
 
-> bugfix Skill Step 6 使用。按"改动符号的可见性"判定，不按"文件位置"。
-> 设计依据：DD-STORY-2026-S01-093（源项目 bugfix Skill 设计卡） §5、ADR-7
+> bugfix Skill Step 6 使用。按「改动符号的可见性与服务契约边界」判定，不按「文件位置」。
+> 微服务底线：严禁跨服务依赖对方 `*-impl` 内部类；跨服务影响只经 `*-api` 远程契约 / 内部接口契约 / `{project}-common` 公共库传导。构建命令按画像 `§5.4 P-1`（单仓库多服务 vs 一服务一独立仓库）执行。
 
 ## 判定决策树
 
 ```text
-改动的符号是什么？改的是签名还是方法体内部逻辑？
+改动的符号是什么？是否改变了对外/对内服务契约或公共库？
 │
-├─ 改方法体内部逻辑（非签名，契约没变）
-│  ├─ private / package-private（仅本类内部）
-│  │  → 跑该模块：mvn -pl <module>/<impl> -am test
-│  └─ public 方法体内部（无论是否被跨模块调用，跨模块方通过 api mock 不受影响）
-│     → 跑该 impl 模块：mvn -pl <module>/<impl> -am test
+├─ 改本服务 *-impl 内部逻辑或内部类签名（未改变 *-api 远程契约 / 内部接口路径与报文）
+│  → 仅跑本服务测试：
+│    · 单仓库多服务（画像 P-1）：mvn -pl <service>/<impl> -am test
+│    · 一服务一独立仓库（画像 P-1）：本仓执行 mvn test
 │
-├─ 改方法签名 / 类签名（契约变）
-│  ├─ public 方法/类，仅在本 *-impl 内被调用（Grep 确认）
-│  │  → 跑该模块：mvn -pl <module>/<impl> -am test
-│  └─ public 方法/类，被跨模块 @Autowired 调用（Grep 确认）
-│     → 跑所有依赖该模块的模块：
-│       mvn -pl <依赖模块1>,<依赖模块2> -am test
+├─ 改 *-api 远程契约接口 / DTO / 内部 OpenAPI 或 .proto（跨服务契约变）
+│  → 跑本服务 + 所有消费该契约的下游/上游服务测试：
+│    · 单仓库多服务：mvn -pl <本服务>,<消费服务1>,<消费服务2> -am test
+│    · 一服务一独立仓库：先在本仓跑通 mvn test 并发布新契约制品/同步契约文档，
+│      再在受影响服务仓逐个拉取并执行 mvn test（或触发 CI 验证）
 │
-├─ *-api 接口 / DTO（签名/字段变）
-│  → 跑所有依赖该 api 的模块：
-│    mvn -pl <依赖模块1>,<依赖模块2> -am test
+├─ 改 {project}-common（公共横切库，按画像 §5.4 P-6）
+│  → · 单仓库多服务：跑全量 mvn test
+│    · 一服务一独立仓库：发版后触发所有消费服务仓回归测试
 │
-├─ booking-common
-│  → 跑全量：mvn test
+├─ 改外部公司级公共基础库（画像 §3.7 公共基础库）
+│  → 停下来，不归当前项目仓，交还人工
 │
-├─ hema-common
-│  → 停下来，不归本仓库，交还人工
+├─ 改持久化查询（如画像 §5.4 P-3 选 MyBatis 时的 Mapper XML，或 JPA Query/SQL）
+│  → 跑本服务测试 + 显式跑对应持久化测试类：
+│    · 单仓库多服务：mvn -pl <service>/<impl> -am test -Dtest=<PersistenceTestClass>
+│    · 一服务一独立仓库：mvn test -Dtest=<PersistenceTestClass>
 │
-├─ MyBatis XML
-│  → 跑该 Mapper 对应模块 + 额外跑该 Mapper 所有测试方法：
-│    mvn -pl <module>/<impl> -am test -Dtest=<MapperTestClass>
-│
-└─ OpenAPI 文档（docs/api/）
-   → 跑 tests/blackbox 下相关黑盒脚本：
+└─ 改对外/对内接口契约（docs/api/）或跨服务联动逻辑
+   → 额外跑 tests/blackbox 下相关黑盒脚本：
      pytest tests/blackbox/ -k <相关用例>
 ```
 
 ## 边界判定示例
 
-| 改动 | 表面位置 | 改的是签名还是方法体 | 跑哪些测试 |
-|------|----------|-------------------|-----------|
-| `ParkingLotQueryService` private 方法 | `inventory-impl` | 方法体 | 仅 inventory-impl |
-| `ParkingLotQueryService.getLotDetail` 加回 null 守卫 | `inventory-impl` | 方法体内部逻辑（签名没变） | 仅 inventory-impl（BFF mock api 不受影响） |
-| `ParkingLotQueryService.searchLots` 改方法签名（加参数） | `inventory-impl` | 签名变 | inventory-impl + 所有调用方（BFF） |
-| `InventoryApi` 接口方法签名变 | `inventory-api` | 签名变 | 所有依赖 inventory-api 的模块 |
-| `BookingErrorCode` 枚举项 | `booking-common` | 平台横切 | 全量 mvn test |
-| `ParkingLotMapper.xml` SQL | `inventory-impl` | XML 反射调用 | inventory-impl + 该 Mapper 所有测试 |
+| 改动 | 所在服务 | 契约是否变化 | 跑哪些测试 |
+|------|----------|--------------|------------|
+| `{Entity}QueryService` private 方法或内部逻辑 | `{domain-a}-impl` | 未变 | 仅本领域服务（`{domain-a}-impl`） |
+| `{Entity}QueryService.getDetail` 加回 null 守卫 | `{domain-a}-impl` | 未变（内部方法体） | 仅本领域服务（上下游通过远程契约隔离） |
+| `{Domain}Client` / `{Domain}Api`（`{domain-a}-api`）请求/响应 DTO 字段变 | `{domain-a}-api` | **契约变化** | 本领域服务 + 所有消费 `{domain-a}-api` 的服务（如 BFF、`{project}-{domain-b}`） |
+| `{GuardErrorCode}` 枚举项或横切工具类 | `{project}-common` | 横切公共库 | 单仓全量 `mvn test` / 多仓触发消费服务回归 |
+| `{Entity}Mapper.xml` SQL（MyBatis 栈） | `{domain-a}-impl` | 本服务持久层 | 本领域服务 + 该 Mapper 所有测试 |
 
 ## 跑测试的硬约束
 
@@ -57,8 +52,8 @@
 - 禁止 `@Disabled` 跳过失败测试（BR-11）
 - 循环计数器 > 3 → 交还人工（AC-08）
 
-## 如何确认跨模块调用
+## 如何确认受影响的消费服务
 
-1. Grep 改动符号的类名/方法名，看是否在其它模块 `import` 或 `@Autowired`
-2. 或用 `mvn dependency:tree` 看模块依赖关系
-3. 不确定时按"跨模块"处理（跑更多测试，宁可多跑不可漏跑）
+1. 查画像 [system-landscape.md](../../../architecture/system-landscape.md) §3.6 跨服务通信矩阵，列出所有调用本服务的上游方
+2. 单仓库多服务下可 Grep 契约接口/DTO 类名或运行 `mvn dependency:tree` 确认消费模块
+3. 不确定影响面时按「涉及跨服务契约」处理（宁可多跑不可漏跑，必要时走部署后 `api-blackbox-test`）

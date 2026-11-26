@@ -11,7 +11,7 @@
 |------|-------|------|
 | **研发线（已落地）** | `high-level-design` / `story-splitting` / `detail-design` / `feature-coding` | ✅ |
 | **测试线（已落地）** | `test-spec-alignment` | ✅ → 产出 `docs/test-spec/{迭代}/TS-STORY-*.md` |
-| **测试线（已落地）** | `integration-test-design` | ✅（STORY-2026-S01-005）→ `booking-app` `*IT` / `*ScenarioIT` |
+| **测试线（已落地）** | `integration-test-design` | ✅ → 各微服务独立单服务 `*IT` / `*ScenarioIT`（下游微服务模拟隔离） |
 | **测试线（已落地）** | `bugfix` | ✅（旁路）→ 复现测试 + 修复报告 |
 | **测试线（未落地）** | `test-quality-audit` / `regression-guard` / `contract-test` | 规划中 |
 | **QA 专线（部分落地）** | `qa-acceptance-case-design` ✅（S01-090）/ `api-blackbox-test` ✅（S01-091）/ `test-data-design` ✅（S01-092，SQL 通道骨架）/ `performance-test` | 有 QA 团队再落地 |
@@ -59,14 +59,13 @@
 
 | 测试类型 | 测什么 | Mock | 路径 | 何时跑 | Skill | 位置 | 类名 |
 |----------|--------|------|------|--------|-------|------|------|
-| 单元测试 | 单方法逻辑 | 全 Mock | Java 进程内 | 每次 PR | `feature-coding` | `*-impl/src/test/` | `*ServiceTest` |
-| BFF API | 单 HTTP 接口 | Mock 域层 | Java 进程内 | 每次 PR | `feature-coding` | `booking-bff-*/src/test/` | `*ControllerTest` |
-| 集成测试 | 单链路真实编排 | 只 Mock 系统外依赖 | Java 进程内 | 每次 PR | `integration-test-design` | `booking-app/src/test/` | `*IT` |
-| 场景测试 | 多 API 串联 | 只 Mock 系统外依赖 | Java 进程内 | 每次 PR | `integration-test-design` | 同上 | `*ScenarioIT` |
-| API 黑盒 | 部署后接口/主流程 | 环境级假 | Python | 发版后 | `api-blackbox-test`（可选） | 独立 Python 套件 | `test_*.py` |
+| 单元测试 | 单方法逻辑 | 全 Mock | Java 进程内 | 每次 PR | `feature-coding` | 各服务 `*-impl/src/test/` | `*ServiceTest` |
+| 入口 API | 单 HTTP 入口守卫 | Mock 下游远程客户端 | Java 进程内 | 每次 PR | `feature-coding` | 各 BFF/服务 `src/test/` | `*ControllerTest` |
+| 单服务集成测试 | 本服务真实入口 + 真实容器 DB | **模拟所有进程外下游微服务与第三方** | Java 进程内 | 每次 PR | `integration-test-design` | 各微服务 `src/test/` | `*IT` / `*ScenarioIT` |
+| API 黑盒（跨服务主链路） | **部署后跨微服务真实联调主流程** | 环境级沙箱（第三方） | Python | 集成/发版（微服务必补位） | `api-blackbox-test` | 独立 Python 套件 `tests/blackbox/` | `test_*.py` |
 | E2E | 小程序/UI 全流程 | 几乎不 Mock | 前端另仓 | 发版/定时 | `e2e-test`（另仓） | — | — |
 
-> **Mock 边界**：集成/场景测**本系统内**真实编排（BFF → 域 → Mapper/DB），只 Mock **系统边界外**出站依赖（`PaymentClient`、`ParkingLotGateway`、iam）。BFF API 用 MockMvc，**不算**集成测试；集成必须 `RANDOM_PORT` + 真实 HTTP（见 `rules/integration-test-conventions.md`）。
+> **微服务 Mock 与验证边界**：单服务 `*IT` 只验证**本服务内部**真实链路与独立容器 DB，所有进程外下游微服务（见画像 §3.6）必须用 WireMock / RPC Stub 模拟隔离；**真正的跨微服务串联主流程**由部署后的 `api-blackbox-test`（及画像 §5.4 E-5 可选契约测试）守卫，微服务架构下不再把 `api-blackbox-test` 视为纯可选项（见 `rules/integration-test-conventions.md`）。
 
 ### 2.4 怎么选
 

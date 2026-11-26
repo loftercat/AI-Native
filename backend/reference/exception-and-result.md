@@ -1,113 +1,62 @@
-# 异常处理与统一响应（最佳实践）
+# 异常处理与统一响应（实践指南）
 
-> **实现来源**：`hema-common`（源项目公司级公共库，另仓未随模板；接入项目替换为本项目公共库），本仓库只约定用法与域错误码号段。  
-> AI 编码约束见 [`rules/exception-and-result.md`](../rules/exception-and-result.md)。
-
----
-
-## 1. 为何不在 `booking-common` 重复实现
-
-`Result`、`BizException`、`ErrorCode`、`BizErrorCode`、`PageResult` 已在 **`hema-common/common-core`** 定义；`GlobalExceptionHandler` 在 **`hema-common/common-web`**。
-
-本仓库 `booking-common` 承载**源项目横切**抽象（如 BFF 守卫错误码 `BookingErrorCode`、缓存/MQ 等），**不**重复定义 `Result` / `BizException` / `GlobalExceptionHandler`。
+> **选型驱动**：本指南只沉淀微服务下的异常处理通用实践；具体对外/对内返回结构、跨服务错误码传递策略与公共基础库坐标，一律以 [system-landscape.md](../architecture/system-landscape.md) §3.7（及 §5.4 **P-4**）和 [rules/exception-and-result.md](../rules/exception-and-result.md) 为准。
 
 ---
 
-## 2. Maven 依赖
+## 1. 为何不在各微服务里重复造轮子
 
-```xml
-<!-- *-api / *-impl：域错误码与抛异常 -->
-<dependency>
-    <groupId>com.hema</groupId>
-    <artifactId>common-core</artifactId>
-</dependency>
-
-<!-- BFF / booking-app：全局异常处理 -->
-<dependency>
-    <groupId>com.hema</groupId>
-    <artifactId>common-web</artifactId>
-</dependency>
-```
-
-父 POM 通过 `dependencyManagement` 锁定 `hema-common` 版本；本地开发可先 `mvn install` 安装 `hema-common` 至本地仓库。
+若项目已引入公司级或团队级公共基础库（见画像 §3.7），各微服务与 `{project}-common` 只负责复用其统一响应、业务异常、错误码接口与全局异常处理器，**禁止**新建同名封装类导致跨服务反序列化与错误识别分裂。
 
 ---
 
-## 3. 类型与包名速查
+## 2. 依赖分层原则
 
-| 类型 | 包 |
-|------|-----|
-| `Result<T>` | `com.hema.common.core.result` |
-| `PageResult<T>` | `com.hema.common.core.result` |
-| `BizException` | `com.hema.common.core.exception` |
-| `ErrorCode` | `com.hema.common.core.exception` |
-| `BizErrorCode` | `com.hema.common.core.exception` |
-| `GlobalExceptionHandler` | `com.hema.common.web.handler` |
+- **`*-api` 契约模块**：仅引入核心契约依赖（`{groupId}:{common-core}`），用于定义服务错误码枚举与分页/响应 DTO，不引入 Web 容器或数据库依赖。
+- **独立启动服务（各 BFF 与各领域服务 `*-impl`）**：引入 Web/协议异常处理依赖（`{groupId}:{common-web}`），确保各自的全局异常处理器与远程解包拦截器独立生效。
 
 ---
 
-## 4. 分层职责
+## 3. 分层职责
 
 | 层级 | 成功 | 失败 |
 |------|------|------|
-| **BFF Controller** | `return Result.success(dto)` | 不 catch；异常上浮 |
-| **域 `XxxApi`** | 返回 DTO / `void` | `throw new BizException(XxxErrorCode.…)` |
-| **全局处理** | — | `GlobalExceptionHandler` → `Result.fail` |
-
-**业务成败**：响应 JSON 中 `code === 200`（与 HTTP 状态码解耦，多数失败仍为 HTTP 200）。
-
----
-
-## 5. 本仓库错误码号段
-
-| 区间 | 枚举（路径） | 用途 |
-|------|--------------|------|
-| 200 / 401 / 403 / 404 / 500 / 502 | `ErrorCode`（`hema-common/common-core`） | 系统级：鉴权、未找到、内部错误等 |
-| BFF 守卫（OpenAPI `code=400`） | `booking-common/.../BookingErrorCode` | 空参、时段格式、关键词非法等 |
-| 1500~1599 | `order-api/.../OrderErrorCode` | 预订订单域 |
-| 1600~1699 | `inventory-api/.../InventoryErrorCode` | 库存占用域 |
-| 1700~1799 | `adapter-api/.../AdapterErrorCode` | 车场南向对接 |
-
-新增业务码：域规则 → 对应 `*-api`；BFF 守卫 → `BookingErrorCode`；Story AC 失败文案与枚举 `message` 对齐。
-
-```java
-// BFF Controller 守卫
-throw new BizException(BookingErrorCode.INCOMPLETE_BOOKING_INFO);
-
-// AppAuthFilter — 系统级
-Result.fail(ErrorCode.UNAUTHORIZED.getCode(), ErrorCode.UNAUTHORIZED.getMessage());
-```
+| **BFF 对外 Controller** | 按画像 §3.7 包装或返回 VO | 不 `try/catch` 业务异常；异常上浮给全局处理器 |
+| **领域微服务内部入口** | 按画像 §3.7（P-4）与 §5.4（P-2）返回 | 抛 `{BizException}({Domain}ErrorCode.…)` |
+| **远程调用封装层（`client/`）** | 统一解包下游响应 | 统一将下游失败还原为 `{BizException}`（透传或映射按 P-4） |
+| **全局异常处理器** | — | 统一转换为标准失败响应，屏蔽内部堆栈 |
 
 ---
 
-## 6. V1 与 V2+ 差异
+## 4. 微服务错误码号段治理（画像 §3.7）
 
-| 场景 | 约定 |
-|------|------|
-| **V1 单体** | 同 JVM 调 `XxxApi`，`BizException` 直接传播；BFF 无需 RPC 异常解包 |
-| **V2+ Feign** | 下游 HTTP 返回 `Result` 失败体时，由 `common-web` 侧 Feign Decoder（按需启用）还原为 `BizException` |
-| **i18n** | V1 不做；`message` 中文写死在域错误码枚举；多语言由前端按 `code` 映射（若未来需要） |
+| 层级 | 定义位置 | 说明 |
+|------|----------|------|
+| 系统级错误码 | 公共基础库 `{SystemErrorCode}` | 鉴权失败、无权限、参数非法、内部错误、远程服务不可用 |
+| 入口守卫错误码 | `{project}-common` `{GuardErrorCode}` | BFF 参数守卫，禁止 Controller 硬编码数字或文案 |
+| 领域服务业务码 | 各 `{domain}-api` `{Domain}ErrorCode` | 按画像 §3.7 分配的独立号段，严禁跨服务抢号段 |
 
----
-
-## 7. 反模式
-
-- 在 `booking-common` 再写一套 `Result` / `BizException`
-- 域 `XxxApi` 返回 `Result<T>`
-- Controller 内 `catch (BizException e) { return Result.fail(...); }`
-- 在 `ErrorCode` 枚举中增加 `1501` 等业务码
-- 用 `new BizException("自定义字符串")` 代替域错误码（会落 `SYSTEM_ERROR` 的 code）
+Story AC 的失败提示文案必须与错误码枚举的默认文案或映射规则保持一致。
 
 ---
 
-## 7. 相关专项
+## 5. 微服务跨服务错误传播参考（按画像 §3.7 / §5.4 P-4 选定）
 
-写操作幂等（支付回调、下单、占库存）见 [idempotency-guide.md](./idempotency-guide.md)。
+| 选型模式 | 实践要点 |
+|----------|----------|
+| **统一包装体 + 透传下游码**（参考方案 A） | 对外 BFF 与内部 HTTP 均返回统一包装体 `{Result<T>}`；下游失败时由调用方统一 Decoder / Filter 还原为 `{BizException}(code, message)` 并默认透传下游业务码，必要时按场景映射 |
+| **裸 DTO + HTTP 状态码**（参考方案 B） | 内部接口成功直接返回 DTO，失败返回 `4xx/5xx` + 标准错误体；由调用方 `ErrorDecoder` 解析并转为本服务或下游 `{BizException}` |
+| **RPC 异常传播**（若画像 P-2 选 Dubbo/gRPC） | 由统一 RPC Filter 序列化业务错误码与消息，调用方还原为 `{BizException}` |
+| **网络/超时/5xx 故障** | 统一归入远程调用失败类错误（如 `REMOTE_SERVICE_ERROR`），禁止伪装成业务成功 |
 
 ---
 
-## 变更记录
+## 6. 反模式
 
-| 日期 | 变更 |
-|------|------|
-| 2026-07-26 | 初版：约定依赖 `hema-common`，明确 `booking-common` 边界与号段 |
+- 在 `{project}-common` 或各服务中重复造与公共基础库同名的响应/异常类
+- Controller / 内部远程入口内 `catch (BizException e)` 手工拼失败响应
+- 在业务 Service 中散落手写解析下游 HTTP 状态码或 JSON 错误体（应统一收拢到远程客户端解包层）
+- 在系统级错误码枚举中硬塞各微服务的业务码
+- 用纯字符串消息抛业务异常而不指定明确错误码枚举
+
+写操作幂等与防重见 [idempotency-guide.md](./idempotency-guide.md)。

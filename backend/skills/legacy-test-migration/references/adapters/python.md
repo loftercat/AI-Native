@@ -31,7 +31,7 @@
 
 | 用例线索 | Python 锚点 |
 |----------|-------------|
-| 接口路径 | `APIRouter` 路由函数（`@router.get("/spaces")`） |
+| 接口路径 | `APIRouter` 路由函数（`@router.get("/{resources}")`） |
 | operationId | 路由函数名 |
 | 请求/响应字段 | Pydantic model 字段 |
 | 错误码/文案 | 错误码常量 / `HTTPException.detail` |

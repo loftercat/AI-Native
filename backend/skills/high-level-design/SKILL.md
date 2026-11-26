@@ -5,9 +5,6 @@ description: >-
   Epic 已明确后、story-splitting 之前使用。不写 Story AC、不写全字段 OpenAPI、不改 Java 业务代码。
 ---
 
-> **模板版说明**：本 Skill 自已落地的源项目抽取为通用模板。文中项目专属值（模块名 `booking-*`、包名 `com.hema`、错误码号段、具体路径与 Story 号）均为**示例**，接入项目时按 [MIGRATION.md](../../MIGRATION.md) 清单替换；「本仓库」指接入后的目标项目。
-
-
 # 概设（high-level-design）
 
 ## 1. 定位
@@ -15,14 +12,14 @@ description: >-
 **把 Epic / PRD 转成可评审、可拆 Story 的概要设计（HLD）**，汇总为 `HLD-EPIC-*.md`。
 
 本 Skill 是流水线**上游**；下游 `story-splitting`。  
-**本仓库**：Java **V1 单体**（`booking-app` 单 jar + 双 BFF + `*-api`/`*-impl`），边界以 [system-landscape.md](../../architecture/system-landscape.md) 为准。
+**本仓库**：**微服务架构**（API 网关 + 独立 BFF + 独立领域微服务，每服务独立启动与独立数据库），服务边界、通信矩阵与两档技术选型以 [system-landscape.md](../../architecture/system-landscape.md)（§二、§3.6、§5.4）为准。
 
 ---
 
 ## 2. 何时触发
 
 - 新 Epic / 能力域立项，拆 Story 之前
-- 跨模块改造（order ↔ inventory ↔ adapter ↔ 双 BFF）
+- 跨模块改造（`{project}-{domain-a}` ↔ `{project}-{domain-b}` ↔ `{project}-adapter` ↔ 双 BFF）
 - 用户要求产出/更新 `docs/design/epics/`
 
 **不触发**：拆 Story、单 Story 详设、写 Java 实现。
@@ -55,20 +52,27 @@ description: >-
 
 ---
 
-## 5. 本仓库模块语境（写 HLD 时必对齐）
+## 5. 本仓库微服务语境（写 HLD 时必对齐）
 
-| 模块 | 概设中如何描述 |
+> 下表为标准微服务拓扑抽象模板，实际服务清单与职责以 [system-landscape.md](../../architecture/system-landscape.md) §二 为准。
+
+| 服务 / 外部系统 | 概设中如何描述 |
 |------|----------------|
-| `booking-bff-app` | C 端 HTTP；`/api/v1/booking/app/` |
-| `booking-bff-admin` | B 端 HTTP；`/api/v1/booking/admin/`；Token 来自 iam-server |
-| `booking-order` | 预约单、支付编排、取消/退款状态机 |
-| `booking-inventory` | 车位可售、锁定、占用 |
-| `booking-parking-adapter` | 南向：新伯乐、德立云等 |
-| 外部：支付系统 | order 编排，不实现渠道 |
-| 外部：iam-server | 仅 admin BFF 校验 |
-| 外部：B 端运营后台前端 | 另仓，不在本仓库 |
+| `{project}-gateway`（可选） | 统一入口路由、剥离外部伪造请求头、拦截内部路径 |
+| `{project}-bff-app` | C 端独立 BFF；`/api/v1/{project}/app/...`（无业务库） |
+| `{project}-bff-admin` | B 端独立 BFF；`/api/v1/{project}/admin/...`；Token 来自 `{外部认证服务}` |
+| `{project}-{domain-a}` | 核心领域微服务 A：承载 `{Entity}` 生命周期、`{StateA}`→`{StateB}` 状态机与编排（独占业务库） |
+| `{project}-{domain-b}` | 核心领域微服务 B：承载 `{Resource}` 可用性、占用/释放等核心能力（独占业务库） |
+| `{project}-adapter` | 南向适配微服务：对接 `{南向第三方系统}`，隔离外部协议差异 |
+| 外部：`{外部系统A}` | 领域服务编排调用，本仓库不实现其内部逻辑 |
+| 外部：`{外部认证服务}` | 仅 `{project}-bff-admin` / 网关校验 |
+| 外部：独立前端仓（C 端 / B 端） | 另仓维护，不在本仓库 |
 
-**V1 约束**：单体单 jar；域间 sync 调用，不用 MQ 做核心事务（Spring Event 仅进程内）；**不写** Nacos/OpenFeign 为当前方案。
+**微服务架构约束（读画像 §5.4）**：
+- **数据归属唯一**：每张表只能归属一个微服务写入，禁止跨服务连表 JOIN、跨服务外键与跨域本地 `@Transactional`。
+- **服务间同步调用**：按画像 §5.4 **P-2** 选定的远程协议（如 OpenFeign / Dubbo / gRPC）描述集成矩阵，不假设进程内直调。
+- **未定选型阻断**：当本 Epic 涉及**服务注册发现（E-1）**、**异步消息队列（E-2）**或**单操作跨 ≥2 个微服务写库（E-3 跨服务一致性）**，而画像 §5.4 对应项仍为 `[TBD]` 时，**严禁 AI 自行猜测选型**——必须在步骤 4 缺口评估中**阻断**并请用户拍板回写画像后再定稿 HLD。
+- **回写画像**：HLD 定稿后，新增或调整的服务边界与跨服务通信矩阵须同步回写画像 §二 / §3.6（参见 [rules/system-landscape-change.md](../../rules/system-landscape-change.md)）。
 
 ---
 
@@ -90,12 +94,12 @@ description: >-
 
 ### 6.3 粗契约原则
 
-- **概设**：`POST /api/v1/booking/app/reservations` 级 + 集成方向
-- **详设**：OpenAPI 全字段、错误码、幂等键、Java 骨架
+- **概设**：对外 BFF 粗路径（如 `POST /api/v1/{project}/app/{resources}`）+ 内部服务间同步/异步调用方向与一致性模式
+- **详设**：对外/对内完整接口契约（按画像 §5.4 P-2 / E-4）、全字段、错误码、幂等键与代码骨架
 
 ### 6.4 建议 Story 列表
 
-只写序号 + 标题 + 一句话意图 + **建议模块**（bff-app / order / inventory 等）；**不写 AC 正文**。
+只写序号 + 标题 + 一句话意图 + **主责微服务与协同服务**（`{project}-bff-app` / `{project}-{domain-a}` / `{project}-{domain-b}` 等）；**不写 AC 正文**。
 
 ---
 

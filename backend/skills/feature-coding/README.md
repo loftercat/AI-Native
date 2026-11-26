@@ -15,13 +15,13 @@
 | [code-review-report.md](../../templates/code-review-report.md) | 代码审查报告模板 | 步骤 8 前必读 |
 | [docs/design/summaries/](../../docs/design/summaries/) | 实现汇总可选落盘目录 | — |
 
-## 本仓库要点
+## 本仓库要点（微服务架构）
 
-- **V1 单体**：`booking-app` 启动；对外 HTTP **仅** `booking-bff-app` / `booking-bff-admin`
-- **域逻辑**：`*-api` 契约 + `*-impl`（Provider → Facade → Service → Mapper）；默认 **贫血 + 条件 UPDATE**，见 [layer-guides.md](references/layer-guides.md) 与 [domain-model-guide.md](../detail-design/references/domain-model-guide.md)
-- **跨域 V1**：`app/client` 注入 `XxxApi`，不用 OpenFeign
-- **验证**：`mvn test -pl {module} -am` 或根目录 `mvn test`
-- **响应/异常**：`hema-common` `Result` + `BizException`（见 `rules/exception-and-result.md`）
+- **服务独立**：API 网关 + 独立 BFF（对外 HTTP）+ 独立领域微服务（每服务独立启动与独立数据库）
+- **契约与实现分离**：`*-api` 远程契约 + `*-impl`（内部远程入口 → Facade → Service → 持久化）；默认 **贫血 + 条件 UPDATE**，见 [layer-guides.md](references/layer-guides.md) 与 [domain-model-guide.md](../detail-design/references/domain-model-guide.md)
+- **跨服务调用与技术选型**：同步调用协议（P-2）、ORM（P-3）、响应/错误码（P-4）、内部防护（P-5）等一律读 `architecture/system-landscape.md` §5.4，未拍板则阻断
+- **验证**：单仓库多服务用 `mvn test -pl {service-module} -am`；独立仓库直接 `mvn test`
+- **异常与响应**：通用异常纪律见 `rules/exception-and-result.md`，具体封装以画像 §3.7（P-4）为准
 
 ## 前置加载（按序）
 
@@ -32,7 +32,7 @@
 | 3 | 测试质量 | [test-quality.md](references/test-quality.md) |
 | 4 | Golden 测试参考 | `docs/design/_golden/DD-STORY-GOLDEN-001-*.md` §9 |
 | 5 | Story + 详设 | `docs/requirements/{迭代}/STORY-*.md`、`docs/design/{迭代}/DD-*.md` |
-| 6 | OpenAPI | `docs/api/{服务标识}/`、`docs/api/booking-bff-admin/` |
+| 6 | OpenAPI | `docs/api/{服务标识}/` |
 | 7 | schema | `docs/schema/{服务}/schema.md` |
 | 8 | 系统画像 | `architecture/system-landscape.md` |
 | 9 | 代码审查 | [rules/code-review.md](../../rules/code-review.md)、[code-review-report.md](../../templates/code-review-report.md) |
@@ -55,14 +55,14 @@
 
 | 公司级（Python Demo） | 本仓库（Java） |
 |----------------------|----------------|
-| `app/modules/{module}/` | `*-api`/`*-impl`、`booking-bff-*` |
+| `app/modules/{module}/` | `*-api`/`*-impl`、`{project}-bff-*` |
 | `tests/unit/{module}/` | `*/src/test/java/` |
 | `pytest` | `mvn test` |
 |  `rules` | `rules/` |
 | 公司级 rules/unit-test-quality | [test-quality.md](references/test-quality.md) |
 | `api-layer` / `service-layer` 等 Rule | [layer-guides.md](references/layer-guides.md) |
 | `tests/_golden/` | `docs/design/_golden/` §9 + 同模块 `*Test.java` |
-| `/{product}/api/v1/{module}/` | `/api/v1/booking/app|admin/` |
+| `/{product}/api/v1/{module}/` | `/api/v1/{project}/app/`、`/api/v1/{project}/admin/` |
 | `test-quality-audit` / `bugfix` | `test-quality-audit` 未落地；`bugfix` 已落地（旁路） |
 
 ## 边界
