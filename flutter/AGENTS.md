@@ -4,7 +4,7 @@
 
 从项目根启动时，读取项目根 AGENTS.md 和本入口。本线文档中的 `skills/`、`rules/`、`templates/`、Golden、handoff、方法论和原型资料、`config/`、`architecture/`、`glossary/` 相对 `AI-Native/flutter/`；迭代 Story、DD 和审查报告写入应用根的 `docs/{requirements,design,reviews}/{迭代}/`。应用代码、测试及 Flutter 命令使用画像 §3.2 登记的应用根。
 
-本线用于新项目，统一采用 MVVM。接入时按[接入指南](MIGRATION.md#2-填写-flutter-画像)将[技术栈配置](config/tech-stack.md)写入项目画像。开发时以项目的[画像 §3.1](architecture/system-landscape.md#31-技术栈)为技术基线，业务 ViewModel 命名遵循[工程规则](rules/flutter-project.md#5-命名规范)。
+本线用于新项目，统一采用 MVVM。接入时按[接入指南](MIGRATION.md#2-填写-flutter-画像)将[技术栈配置](config/tech-stack.md)写入项目画像。开发时以项目的[画像 §3.1](architecture/system-landscape.md#31-技术栈)为技术基线，业务 ViewModel 与数据 Bean 命名遵循[工程规则](rules/flutter-project.md#5-命名规范)。UI 组件按[目录归属规则](rules/flutter-project.md#ui-组件归属)放置。
 
 生成文档遵循[工程规则的文档命名约定](rules/flutter-project.md#工作流文档命名)，端标识统一使用完整名称 `Flutter`。
 

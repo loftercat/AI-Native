@@ -33,10 +33,13 @@ lib/
       presentation/
         orders_page.dart
         view_models/orders_view_model.dart
+        widgets/                订单模块的 UI 组件
       data/
+        order_detail_bean.dart
         orders_repository.dart
     dispatch/                   调度任务与分派
   core/network/                 多个模块共用的 HTTP 客户端
+  common_widgets/               多个业务模块共用的 UI 组件
 test/features/orders/           订单模块的单元与 Widget 测试
 integration_test/               跨模块或平台的端到端场景
 ```
@@ -45,11 +48,19 @@ integration_test/               跨模块或平台的端到端场景
 
 **何时建独立 package。** 同一 App 内的业务模块默认共用应用的 `pubspec.yaml`。当一项能力需要供多个 App 复用，或已有明确的独立维护和测试需求时，可提取为带自己 `pubspec.yaml`、公开库入口和测试的 Dart/Flutter package。应用在自身 pubspec 中声明依赖；仓内本地包的 `path` 相对该 pubspec 所在目录填写。包的实际位置和使用方登记在画像 §3.2。
 
+### UI 组件归属
+
+单个页面拆出的组件和同一业务模块内复用的组件放在 `lib/features/{feature}/presentation/widgets/`。有两个或更多业务模块需要复用的公共 UI 组件统一抽取到 `lib/common_widgets/`，与 `lib/core/` 同级。
+
 ## 5. 命名规范
 
 业务模块目录优先使用团队日常称呼该功能的简短英文词，多词用下划线连接。同一业务在目录、详设和画像中使用同一个名称。
 
 Dart 文件用 lower_snake_case，类型用 UpperCamelCase。页面、Widget 和 ViewModel 名称与项目词表一致。承载业务页面状态与操作的类统一命名为 `XxxViewModel`，对应文件命名为 `xxx_view_model.dart`，例如 `OrdersViewModel` 放在 `orders_view_model.dart`。`ScrollController`、`TextEditingController` 等框架控件类沿用 SDK 类型名。
+
+### 数据 Bean 命名
+
+`data/` 下的数据 Bean（如请求与响应 DTO、业务数据模型和本地数据模型）统一使用 `XxxBean` 类名，声明文件使用对应的 `xxx_bean.dart` 文件名。例如，`OrderDetailBean` 放在 `order_detail_bean.dart`。Repository、Service 和枚举沿用各自的命名约定。序列化字段名和 OpenAPI schema 名称以契约为准。
 
 ### 工作流文档命名
 
@@ -75,8 +86,8 @@ Dart 文件用 lower_snake_case，类型用 UpperCamelCase。页面、Widget 和
 
 ```dart
 /// 车场详情页展示的收费说明。
-class LotFeeInfo {
-  const LotFeeInfo({required this.parkingFeeDescription});
+class LotFeeInfoBean {
+  const LotFeeInfoBean({required this.parkingFeeDescription});
 
   /// 车场停车费用的说明文案，供用户在选择预约时段前查看。
   final String parkingFeeDescription;

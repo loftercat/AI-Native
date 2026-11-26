@@ -452,7 +452,8 @@ Story：@docs/requirements/2026-S01/STORY-Flutter-2026-S01-002-active-booking-ho
 | 设计稿 | `docs/prototype/…`（位置登记在 STORY-Flutter「设计稿」节） |
 | 代码审查报告 | `docs/reviews/{迭代}/REVIEW-CODE-Flutter-STORY-Flutter-{迭代}-{序号}-{slug}.md` |
 | 页面代码 | `lib/features/{feature}/presentation/{page}_page.dart` |
-| 组件代码 | `lib/features/{feature}/presentation/widgets/{name}.dart` |
+| 模块内 UI 组件 | `lib/features/{feature}/presentation/widgets/{name}.dart` |
+| 跨模块公共 UI 组件 | `lib/common_widgets/{name}.dart` |
 | 业务封装 | `lib/features/{feature}/data/{name}_repository.dart` |
 | 请求层 | `lib/core/network/` |
 | 单测 | `test/{feature}/{name}_test.dart` |
