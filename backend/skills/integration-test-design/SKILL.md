@@ -80,7 +80,7 @@ description: >-
    - 每用例独立数据，@Sql 后置或 @AfterEach 清理；禁止依赖 @Transactional 回滚（RANDOM_PORT 下失效）
 5. 写断言（对齐 AC）：
    - 响应：状态码、业务码与关键返回字段（对齐画像 §3.7）
-   - DB：查本服务真实容器库断言落库结果（状态、金额、deleted）
+   - DB：查本服务真实容器库断言落库结果（状态、金额，以及「项目实现」删除分支规定的列；仅软删支断言 `deleted`）
    - 下游交互：必要时断言 WireMock/Stub 收到符合契约的请求路径、透传头（P-5）与入参
    - 禁止只 assert 未抛异常
 6. 命名：{Scenario}IT / {链路}ScenarioIT；@DisplayName 标 STORY-{迭代}-{序号} AC-n

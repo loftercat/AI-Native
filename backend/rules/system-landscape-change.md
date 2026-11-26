@@ -23,7 +23,7 @@
 |----------|--------|-------------------|
 | **P-1** | 仓库组织模式（单仓多服务 / 多仓） | 项目根 `AGENTS.md`（若选多仓，确认总文档仓、契约同步与各仓校验路径已落文档） |
 | **P-2** | 服务间同步调用协议（OpenFeign / Dubbo / gRPC 等） | 使用期各 Skill 直接读取画像 P-2；若需补充项目级框架细则，记录到画像 §3.6 或新增项目补充 Rule |
-| **P-3** | 数据库访问框架（ORM） | 选 MyBatis → 启用 `rules/mybatis-conventions.md`；选 JPA/jOOQ 等 → 删除并替换为对应 ORM 持久化 Rule |
+| **P-3** | 数据库访问框架（ORM），含主键与删除策略 | 选 MyBatis → 保留 `rules/mybatis-conventions.md`，文首「项目实现」与画像 P-3 的主键、删除结论保持一致；选 JPA/jOOQ 等 → 删除并替换为对应 ORM 持久化 Rule，同样写明主键与删除 |
 | **P-4** | 响应格式与跨服务错误码规则 | 画像 §3.7、`rules/exception-and-result.md` 项目实现速查节 |
 | **P-5** | 内部接口防外泄与服务间鉴权 | 项目根 `AGENTS.md` 摘要；细则由各 Skill 直接读画像 §5.4 P-5 |
 | **P-6** | 公共库边界（`*-common`） | 项目根 `AGENTS.md`、`hooks/bugfix-protect-common.sh` 保护路径 |

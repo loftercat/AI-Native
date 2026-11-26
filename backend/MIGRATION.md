@@ -44,7 +44,7 @@
    - **P-1 仓库组织模式**：单仓库多服务 vs 一服务一独立仓库 vs 按业务域分仓。
      - **若选一服务一独立仓库（多仓）**，AI 必须追加确认 **3 件事** 写入画像 §5.4 P-1：① 跨服务文档（EPIC/JSD/HLD/迭代索引）总仓位置；② `*-api` 契约包或接口文档跨仓发布与同步方式；③ 各服务仓复用校验脚本方式。
    - **P-2 服务间同步调用协议**：OpenFeign（HTTP）/ Dubbo / gRPC / RestClient / 混合。同步明确领域服务入口形态、内部契约载体与单服务 `*IT` 下游模拟方式。
-   - **P-3 数据库访问框架（ORM）**：MyBatis + XML / MyBatis-Plus / JPA / jOOQ 等（含主键与软删策略）。
+   - **P-3 数据库访问框架（ORM）**：MyBatis + XML / MyBatis-Plus / JPA / jOOQ 等（含主键策略，以及删除策略：软删 / 状态作废）。
    - **P-4 响应格式与跨服务错误码规则**：对外/对内返回结构、跨服务报错透传或映射策略、公共基础库坐标与微服务号段（同步填进画像 §3.7；公共库登记细则见 [common-foundation-migration.md](docs/methodology/common-foundation-migration.md)）。
    - **P-5 内部接口防外泄与服务间鉴权**：防外泄方式、内部鉴权机制、外部伪造头清理与透传头约定。
    - **P-6 公共库边界（`*-common`）**：允许放哪些通用工具、严禁放业务 DTO/DO。
@@ -61,8 +61,8 @@
 通用 `skills/` 与通用 `rules/` **无需批量替换**，仅处理以下 3 处与目标项目选型强相关的配置落点（**人工介入点 2**，无换栈项时合并确认）：
 
 1. **ORM 条件规则（按画像 P-3）**：
-   - 选 MyBatis → 直接保留 `rules/mybatis-conventions.md`；
-   - 选 JPA / jOOQ 等其他 ORM → 删除 `rules/mybatis-conventions.md`，按目标 ORM 编写一份持久化 Rule 并在 `AGENTS.md` / 相关指引登记。
+   - 选 MyBatis / MyBatis-Plus → 保留 `rules/mybatis-conventions.md`，把文首「项目实现」的主键、删除两格写成画像 P-3 的结论（应用侧 ID 或数据库自增；软删或状态作废）。介入点 2 给人看这两格。
+   - 选 JPA / jOOQ 等其他 ORM → 删除 `rules/mybatis-conventions.md`，按目标 ORM 编写一份持久化 Rule，文首同样写明主键与删除方式，并在 `AGENTS.md` / 相关指引登记。
 2. **公共基础库 API 速查（按画像 P-4 / §3.7）**：
    - 按 [common-foundation-migration.md](docs/methodology/common-foundation-migration.md) 把本项目实际公共基础库（或自建封装）的坐标、响应体、异常与分页 API 登记到 `rules/exception-and-result.md`「项目实现速查」节。
 3. **Hook 保护路径（若启用 `hooks/`）**：
@@ -107,7 +107,7 @@
 1. **画像完整与自洽**：服务清单无未填占位符 `{项目名}` / `{project}` / `{service}` / `{domain-*}` 残留（`§5.4` 显式 `[TBD]` 除外）；`-api`/`-impl` 配对完整；外部系统表与依据材料一致；
    - **画像 §5.4 第一档 6 项（P-1 ~ P-6）均已定稿**（或有书面豁免理由）；若 P-1 选多仓模式，3 项多仓配套约定均已填实；
    - **画像 §5.4 第二档 7 项（E-1 ~ E-7）** 已定项与规则一致，未定项均显式标注 `[TBD]`。
-2. **配置落点一致**：`config/current-sprint`、项目根 `AGENTS.md`、条件 Rule（ORM / 公共库速查）与 Hook `PROTECTED` 路径均与画像一致且无 `{project}` / `{company}` 等字面量占位残留。
+2. **配置落点一致**：`config/current-sprint`、项目根 `AGENTS.md`、条件 Rule（ORM / 公共库速查）与 Hook `PROTECTED` 路径均与画像一致且无 `{project}` / `{company}` 等字面量占位残留。选 MyBatis 时，`rules/mybatis-conventions.md`「项目实现」的主键与删除方式必须与画像 §5.4 P-3 为同一结论，两格都不得仍为 `[TBD]`。选 JPA / jOOQ 等时，替换后的持久化 Rule 文首必须写明与画像 P-3 相同的主键与删除方式，未写明或与画像不一致即不通过。两种情况下，必守条款都不得覆盖画像（画像为状态作废时，不得再把 `deleted = 0` 写成必守）。
 3. **Golden 抽样（若已重写）**：抽 2 份，业务场景来自本项目画像而非模板搬运。
 
 **闭环**（审查人只读，不修文件；每条 finding 打标签）：

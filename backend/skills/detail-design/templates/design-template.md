@@ -153,14 +153,14 @@ classDiagram
 
 ### 6.2 数据访问（按画像 §5.4 P-3 ORM 选型填写）
 
-> **选型说明**：下方表格以画像 §5.4 **P-3** 选定 **MyBatis** 为例；若选用 JPA / jOOQ 等其他 ORM，按对应持久化 Rule 填写 Repository/Query 方法与主键策略。无论何种 ORM，严禁跨服务 SQL JOIN 与外键。
+> **选型说明**：下方表格以画像 §5.4 **P-3** 选定 **MyBatis** 为例，主键与删除执行 `rules/mybatis-conventions.md`「项目实现」。若选用 JPA / jOOQ 等其他 ORM，按替换后的持久化 Rule 填写 Repository/Query，主键与删除只执行其文首；文首未写明则阻断。无论何种 ORM，严禁跨服务 SQL JOIN 与外键。
 
 | 场景 | 落点（MyBatis 示例） | 说明 |
 |------|------|------|
-| 新建写入 | `{Entity}CommandService` 按 P-3 主键策略生成 ID | 示例：注入 `{IdGenerator}`，`INSERT` 前 `do.setId(...)` |
-| 主键查询 | `{Entity}Mapper` 继承 `BaseMapper<{Entity}DO>` | 允许 `selectById` 等；排除已删行须在本表或 XML 写明 |
-| 业务删除 | `{Entity}Mapper` XML（如 `softDeleteById`） | `UPDATE {table_name} SET deleted=1, deleted_at=NOW()`；**禁止**业务路径 `deleteById` 物理删 |
-| 条件查询、分页、批量更新 | `resources/mapper/**/*.xml` | Mapper 接口只声明方法签名，SQL **仅** 写 XML；默认 `AND deleted = 0`（严禁跨服务表 JOIN） |
+| 新建写入 | `{Entity}CommandService` 按「项目实现」主键分支写入 | 应用侧分支：注入 `{IdGenerator}`，`INSERT` 前 `do.setId(...)`。自增分支：不 `setId` |
+| 主键查询 | `{Entity}Mapper` 继承 `BaseMapper<{Entity}DO>` | 允许 `selectById` 等；软删支若要排除已删行，在本表或 XML 写明 |
+| 业务删除 | `{Entity}Mapper` XML | 软删支：`UPDATE ... SET deleted=1, deleted_at=NOW()`。状态作废支：按状态列条件 `UPDATE`。两支都**禁止**把 `deleteById` 当作业务删除 |
+| 条件查询、分页、批量更新 | `resources/mapper/**/*.xml` | Mapper 接口只声明方法签名，SQL **仅** 写 XML。软删支默认 `AND deleted = 0`；状态作废支不追加该条件（严禁跨服务表 JOIN） |
 | 禁止 | `@Select` 等注解 SQL、`QueryWrapper` 条件查询 | 见 `rules/mybatis-conventions.md`（MyBatis 条件规则） |
 
 **标准列 / 主键**：见 [schema-conventions.md](../references/schema-conventions.md) §1.2。

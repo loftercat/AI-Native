@@ -17,13 +17,13 @@
 
 | 项 | 约定（MyBatis 示例） |
 |----|------|
-| DO | `*-impl/infrastructure/dataobject/*DO.java`（含 `deleted` / `deletedAt`） |
+| DO | `*-impl/infrastructure/dataobject/*DO.java`（仅软删支含 `deleted` / `deletedAt`） |
 | Mapper | 接口在 `infrastructure/mapper/`；XML 在 `resources/mapper/` |
-| 主键 | 按画像 §5.4 **P-3** 主键策略（示例：`BIGINT` 雪花，无 `AUTO_INCREMENT`，写前赋值） |
-| 主键查询 | 允许 `BaseMapper<DO>`；排除已删行按详设 §6.2 |
-| 其它 SQL | **仅 XML**；禁止 `@Select` 复杂查询；条件查询默认 `AND deleted = 0` |
-| 业务删除 | XML 软删 `UPDATE deleted=1`；禁止业务路径 `deleteById` |
-| **状态迁移写库** | **条件 `UPDATE`**：`WHERE id=? AND status=?`（及 `deleted=0`）；`affected_rows=0` 抛业务异常 |
+| 主键 | 按 schema-conventions §1.2：应用侧 ID 无 `AUTO_INCREMENT` 且写前赋值；自增则 `AUTO_INCREMENT` 且应用不 `setId`。其他 ORM 以替换规则文首为准 |
+| 主键查询 | 允许 `BaseMapper<DO>`；软删支排除已删行按详设 §6.2 |
+| 其它 SQL | **仅 XML**；禁止 `@Select` 复杂查询。软删支条件查询默认 `AND deleted = 0`；状态作废支不追加 |
+| 业务删除 | 软删支 XML `UPDATE deleted=1`；状态作废支按状态列更新。两支都禁止把 `deleteById` 当作业务删除 |
+| **状态迁移写库** | **条件 `UPDATE`**：`WHERE id=? AND status=?`；软删支再加 `deleted=0`。`affected_rows=0` 抛业务异常 |
 | **禁止默认** | 查整行 → 改 DO 字段 → 全量覆盖（除非详设明确） |
 | 测试 | Service 层 Mock 持久化层；复杂 SQL 可选容器持久化单测（Testcontainers MySQL） |
 

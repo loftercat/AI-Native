@@ -101,7 +101,7 @@ Java 类/方法骨架、关键时序图，汇总为 `DD-STORY-{迭代}-{序号}-
 
 | 类型 | 示例 |
 |------|------|
-| **阻断** | 服务归属无依据、鉴权方式不明、状态机关键转换未定义、AC/BR 歧义、详设与接口契约业务字段冲突、**同一 BR 在 BFF 与领域服务重复实现且无分工**、**画像 §5.4 第一档（P-1~P-6）任一项仍为 `[TBD]`**、**本 Story 命中异步消息/跨服务写一致性/事件契约/定时任务/链路追踪但画像 §5.4 对应第二档（E-1~E-7）仍为 `[TBD]`** |
+| **阻断** | 服务归属无依据、鉴权方式不明、状态机关键转换未定义、AC/BR 歧义、详设与接口契约业务字段冲突、**同一 BR 在 BFF 与领域服务重复实现且无分工**、**画像 §5.4 第一档（P-1~P-6）任一项仍为 `[TBD]`**、**本 Story 命中异步消息/跨服务写一致性/事件契约/定时任务/链路追踪但画像 §5.4 对应第二档（E-1~E-7）仍为 `[TBD]`**、**已选 MyBatis 但 `rules/mybatis-conventions.md`「项目实现」的主键或删除仍为 `[TBD]`**、**已选 JPA/jOOQ 等但替换后的持久化 Rule 文首未写明主键或删除** |
 | **可补充** | 常规 DTO 类型、审计字段、分页默认值、`[AI推断]` 标注 |
 
 > **选型占位禁令**：画像 §5.4 处于 `[TBD]` 时，**严禁** AI 用 `[AI推断]` 擅自选定 RPC 协议、ORM、响应格式、鉴权或分布式事务方案；必须阻断请用户拍板并回写画像后再继续。
@@ -142,15 +142,15 @@ Java 类/方法骨架、关键时序图，汇总为 `DD-STORY-{迭代}-{序号}-
 按 [schema-conventions.md](references/schema-conventions.md) 与画像 §5.4 **P-3（ORM 选型）**落盘；**每张表须字段说明表 + 可执行 DDL**，禁止仅写字段表。
 
 1. **数据归属红线**：每张表只归属一个领域微服务写入（对齐画像 §二）；**严禁跨服务 SQL JOIN、严禁跨服务建外键**。
-2. 表结构：业务字段 + **标准列**（权威见 [schema-conventions.md](references/schema-conventions.md) **§1.2**，主键与软删策略对齐画像 §5.4 P-3）。
+2. 表结构：业务字段 + **标准列**（权威见 [schema-conventions.md](references/schema-conventions.md) **§1.2**）。主键与删除：MyBatis / MyBatis-Plus 只执行 `rules/mybatis-conventions.md`「项目实现」里已填写的那一支；JPA / jOOQ 等只执行替换后的持久化 Rule 文首。文首未写明主键或删除则阻断。
 3. **命名**：表名 snake_case；DO/Entity 在本服务 `infrastructure/dataobject/`（或对应 ORM 目录）。
 4. **DDL**（`docs/schema/{服务标识}/schema.md` 每张表必写）：
    - 新表 → 完整 `CREATE TABLE`（含标准列、索引、`COMMENT`、`ENGINE=InnoDB`）
    - 增量 → `ALTER TABLE` + 变更摘要表
    - 索引说明表与 DDL 内 `KEY`/`UNIQUE KEY` 一致
 5. **数据访问**（详设 §6.2 必写，按画像 §5.4 P-3 选型）：
-   - 若选用 MyBatis：遵守 `rules/mybatis-conventions.md`（主键 CRUD、XML 软删、条件查询 XML only 默认 `AND deleted = 0`）；
-   - 若选用其他 ORM（JPA/jOOQ 等）：按接入时替换的持久化 Rule 写明 Repository/Query 方法签名。
+   - 若选用 MyBatis：遵守 `rules/mybatis-conventions.md`。先读文首「项目实现」；该节仍为 `[TBD]` 则阻断。业务 SQL 仅 XML。软删支才使用 `deleted` 条件与软删 `UPDATE`；状态作废支不追加 `deleted = 0`。
+   - 若选用其他 ORM（JPA/jOOQ 等）：按替换后的持久化 Rule 写 Repository/Query，并只执行其文首已写明的主键与删除。文首未写明则阻断。
 6. 增量：变更字段/索引 + 存量数据影响说明
 7. 产出「请求/DTO 字段 → 表字段」映射
 8. 验收种子数据（若有）单独一节 `INSERT`，**不能替代** `CREATE TABLE`
@@ -296,7 +296,7 @@ Java 类/方法骨架、关键时序图，汇总为 `DD-STORY-{迭代}-{序号}-
 |------|------|
 | 步骤 5 接口 | `rules/java-project.md` URL；`rules/exception-and-result.md` `{Result<T>}`/错误码 |
 | 步骤 5 OpenAPI | `openapi-conventions.md` |
-| 步骤 7 持久化 | `rules/mybatis-conventions.md`；[schema-conventions.md](references/schema-conventions.md) §1.2（雪花 / 软删） |
+| 步骤 7 持久化 | MyBatis 读 `rules/mybatis-conventions.md`「项目实现」；其他 ORM 读替换规则文首。[schema-conventions.md](references/schema-conventions.md) §1.2 |
 | 步骤 9 骨架 | `rules/java-project.md`、`rules/bff-domain-boundary.md` 分层、依赖方向 |
 | 步骤 6 大文件 IO | `rules/memory-safe-io.md`；[memory-safe-io-guide.md](../../reference/memory-safe-io-guide.md) |
 | 步骤 9 测试策略 | `rules/tdd-project-conventions.md`（编码阶段执行） |

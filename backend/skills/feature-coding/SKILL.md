@@ -60,7 +60,7 @@ description: >-
    - `rules/bff-domain-boundary.md`（改 BFF 或 `*-impl` 时）
    - `rules/tdd-project-conventions.md`
    - `rules/exception-and-result.md`（含 HTTP 或域错误码时）
-   - `rules/mybatis-conventions.md`（含持久化且画像 §5.4 P-3 选定 MyBatis 时）
+   - `rules/mybatis-conventions.md`（含持久化且画像 §5.4 P-3 选定 MyBatis 时；文首「项目实现」仍为 `[TBD]` 则阻断）。选定 JPA / jOOQ 等时改为读取替换后的持久化 Rule，文首未写明主键或删除则阻断
    - `rules/memory-safe-io.md`（详设命中上传/导出/ZIP 时）；[memory-safe-io-guide.md](../../reference/memory-safe-io-guide.md)
 3. `references/test-quality.md`（单元测试质量，对应公司级 `unit-test-quality`）
 4. `docs/design/_golden/DD-STORY-GOLDEN-001-*.md` §9 测试策略（缺失则读同服务已有 `*Test.java`，汇总注明）
@@ -147,7 +147,7 @@ description: >-
 
 | 类型 | 动作 |
 |------|------|
-| **阻断** | 错误码未定义；AC 与接口契约业务语义冲突；详设与契约字段/错误码不一致；权限不明；无 schema 且无 §8 持久化设计；含对外/内部 HTTP 但 OpenAPI 缺失 → 提问或建议 detail-design；**详设 §8 在 BFF 与领域服务重复同职责工具类** → 回溯 detail-design；**画像 §5.4 第一档（P-1~P-6）或本 Story 命中的第二档（E-1~E-7）仍为 `[TBD]`** → 阻断请用户拍板回写画像；**重复造公共库已有的响应/异常/工具类**（对齐画像 §3.7）→ 阻断；**不写实现代码** |
+| **阻断** | 错误码未定义；AC 与接口契约业务语义冲突；详设与契约字段/错误码不一致；权限不明；无 schema 且无 §8 持久化设计；含对外/内部 HTTP 但 OpenAPI 缺失 → 提问或建议 detail-design；**详设 §8 在 BFF 与领域服务重复同职责工具类** → 回溯 detail-design；**画像 §5.4 第一档（P-1~P-6）或本 Story 命中的第二档（E-1~E-7）仍为 `[TBD]`** → 阻断请用户拍板回写画像；**已选 MyBatis 但 `rules/mybatis-conventions.md`「项目实现」的主键或删除仍为 `[TBD]`，或已选其他 ORM 但替换规则文首未写明主键或删除** → 阻断；**重复造公共库已有的响应/异常/工具类**（对齐画像 §3.7）→ 阻断；**不写实现代码** |
 | **整改** | URL 不合规 → 列入增量计划，不阻断，步骤 6 同步改 |
 | **可补充** | Demo 鉴权、测试 Fixture → `[AI推断]` 并实现 |
 

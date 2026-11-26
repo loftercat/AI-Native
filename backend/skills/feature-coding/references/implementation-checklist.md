@@ -25,7 +25,7 @@
 - [ ] DO/Entity 字段与 `docs/schema/{服务标识}/schema.md`（含 DDL）或详设 §6 一致
 - [ ] Flyway：`docs/schema/{服务标识}/ddl/V{序号}__{Story}.sql` 已落盘到**本服务** `{service}-impl/src/main/resources/db/migration/`；**禁止修改已合并的** `V{n}__*.sql`
 - [ ] 若本服务持久化单测另维护 `src/test/resources/schema.sql`，已与本服务 Flyway 结果逐表同构
-- [ ] ORM 实现严格遵循画像 §5.4 **P-3**（若选 MyBatis：遵守 `rules/mybatis-conventions.md`，非主键 SQL 仅 XML、条件查询含 `deleted = 0`、软删用 `UPDATE` 不用 `deleteById`、主键策略按 P-3 执行）
+- [ ] ORM 实现严格遵循画像 §5.4 **P-3** 与 schema-conventions §1.2 的执行口径（若选 MyBatis：非主键 SQL 仅 XML，只执行「项目实现」已填写的主键分支与删除分支；若选其他 ORM：只执行替换规则文首，未写明主键或删除则阻断。软删支条件查询含 `deleted = 0` 且软删用 `UPDATE`；状态作废支不追加 `deleted = 0`；两支都不用 `deleteById` 做业务删除）
 
 ### 测试
 

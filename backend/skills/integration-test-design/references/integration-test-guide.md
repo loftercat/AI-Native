@@ -134,7 +134,7 @@ class {Scenario}IT extends AbstractIntegrationTest {
 | 层 | 断言 |
 |----|------|
 | 服务响应 | 状态码、业务码（对齐画像 §3.7）与关键返回字段 |
-| 本服务 DB | 持久化层/`jdbcTemplate` 查库断言状态、金额、`deleted` 等真实落库结果 |
+| 本服务 DB | 持久化层/`jdbcTemplate` 查库断言状态、金额，以及「项目实现」删除分支规定的列（软删支含 `deleted`）等真实落库结果 |
 | 下游交互 | 校验对下游微服务的调用路径、关键入参、内部透传头（画像 §5.4 P-5）与下游错误码处理（P-4） |
 
 `@DisplayName` 或注释标明 `STORY-xxx AC-n`；失败类 AC 必须断言具体文案/错误码，禁止只断言「抛异常」。

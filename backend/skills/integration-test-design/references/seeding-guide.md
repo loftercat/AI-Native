@@ -27,7 +27,7 @@
 |------|------|
 | 权威源 | 本服务所有表 DDL **只写在** `{service}-impl/src/main/resources/db/migration/`（**禁止修改已发布脚本**） |
 | 持久化单测资源 | 若本服务持久化单测（按画像 §5.4 P-3 ORM 选型）另维护 `{service}-impl/src/test/resources/schema.sql`，必须与本服务 Flyway 迁移结果**逐表同构**（或直接由 Flyway 初始化容器库） |
-| 主键与软删 | 遵循画像 §5.4 P-3 约定（如选用雪花 `BIGINT` 主键，DDL 无 `AUTO_INCREMENT`） |
+| 主键与删除 | 遵循画像 §5.4 P-3 与 schema-conventions §1.2（应用侧 ID 则 DDL 无 `AUTO_INCREMENT`；自增则使用 `AUTO_INCREMENT`；仅软删支断言 `deleted`） |
 | 变更顺序 | 先更新设计权威 `docs/schema/{服务标识}/schema.md` + `ddl/V{n}__*.sql`，再同步本服务 `db/migration/`（见 [schema-conventions.md](../../detail-design/references/schema-conventions.md) §1.4） |
 
 ---

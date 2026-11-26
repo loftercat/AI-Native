@@ -76,7 +76,8 @@
 ```sql
 UPDATE {table_name}
 SET status = #{targetStatus}, updated_at = NOW()
-WHERE id = #{id} AND status = #{expectedStatus} AND deleted = 0;
+WHERE id = #{id} AND status = #{expectedStatus};
+-- 软删支再加 AND deleted = 0；状态作废支不加
 ```
 
 通过受影响行数 `affectedRows == 1` 判定是否由本次请求完成状态迁移；`0` 行时查询当前状态区分「已达目标态（幂等返回）」与「非法前置状态（抛业务异常）」。

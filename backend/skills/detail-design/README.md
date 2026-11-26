@@ -11,7 +11,7 @@
 | [ac-to-contract-guide.md](references/ac-to-contract-guide.md) | AC → OpenAPI / `{Domain}Api` | **阻断** |
 | [code-skeleton-guide.md](references/code-skeleton-guide.md) | §8 Java 类/方法推导 | **阻断** |
 | [domain-model-guide.md](references/domain-model-guide.md) | §4 领域模型；务实领域（贫血 + SQL 条件更新）；§4.4 代码落点 | **阻断** |
-| [schema-conventions.md](references/schema-conventions.md) | `docs/schema/{服务标识}/schema.md` 字段表 + DDL；**§1.2** 分布式主键 / 软删除 | 含持久化 **阻断** |
+| [schema-conventions.md](references/schema-conventions.md) | `docs/schema/{服务标识}/schema.md` 字段表 + DDL；**§1.2** 标准列，主键与删除按「项目实现」分支 | 含持久化 **阻断** |
 | [bff-domain-boundary-guide.md](references/bff-domain-boundary-guide.md) | BFF guard vs 域规则、§8 单点归属 | 含 BFF + 域 **阻断** |
 | [openapi-conventions.md](references/openapi-conventions.md) | OpenAPI / Swagger / 自动化测试 | 含 HTTP **阻断** |
 | [special-scenarios.md](references/special-scenarios.md) | 外部回调/资源锁定/第三方适配/定时任务/大文件 IO | 降级 |

@@ -33,16 +33,16 @@
 | 域内部远程接口 | 按画像 §5.4 P-2：`*-api` 远程客户端/接口 + `{Entity}DTO`（HTTP 协议同步维护内部 OpenAPI；RPC 协议维护接口/`.proto`），`*-impl` 提供内部远程入口（内部 Controller 或 RPC Provider） |
 | 域规则 / 状态机 / 匹配算法 | `*-impl` `{Entity}QueryService`/`{Entity}CommandService`、可选 `domain/model/{Entity}`（贫血）、`*Validator`、`util/*` |
 | 状态迁移落库 | 按画像 §5.4 P-3（ORM）：条件更新（非查聚合全量覆盖）；见 domain-model-guide |
-| 新建实体落库 | `{Entity}CommandService`：按画像 P-3 主键策略赋值后写入 |
-| 业务删除实体 | `{Entity}CommandService` → 软删（`UPDATE deleted=1`）；禁止业务路径物理删 |
+| 新建实体落库 | `{Entity}CommandService`：按 schema-conventions §1.2 主键分支写入（应用侧赋值，或自增由库生成） |
+| 业务删除实体 | `{Entity}CommandService` 按 §1.2 删除分支（软删 `UPDATE deleted=1`，或状态作废）；禁止把 `deleteById` 当作业务删除 |
 | 编排多服务 | `{Entity}Facade`（不跨服务包本地事务；跨服务写一致性按画像 §5.4 E-3） |
 | 跨服务调用 | `*-impl/app/client/*Client` → 封装下游服务的远程客户端（按画像 §5.4 P-2 与 §3.6）+ 请求头透传（按 P-5） |
 | 外部系统对接 | `{domain-a}-impl/app/client/{External}Client` |
 | 第三方南向适配 | `adapter-api` `{External}Gateway`；实现在 `adapter-impl` |
-| 落库 | `{Entity}DO` + `{Entity}Mapper` 接口 + XML `id`；DO 含 `deleted`/`deletedAt` |
+| 落库 | `{Entity}DO` + `{Entity}Mapper` 接口 + XML `id`；仅软删支的 DO 含 `deleted`/`deletedAt` |
 | 前端-only | §8.2 追溯表标 **N/A** |
 
-**主键生成**：按画像 §5.4 P-3 执行（示例：`{basePackage}.common.core.util.{IdGenerator}`，来自 `{groupId}:{common-core}`，版本与 `{company-common}` 根 POM 对齐）。**禁止** BFF 生成业务主键；选用应用侧 ID 生成器时**禁止** DDL `AUTO_INCREMENT`。
+**主键生成**：按 schema-conventions §1.2 的执行口径。应用侧分支使用 `{basePackage}.common.core.util.{IdGenerator}`（来自 `{groupId}:{common-core}`，版本与 `{company-common}` 根 POM 对齐），DDL **禁止** `AUTO_INCREMENT`。自增分支由数据库生成主键，应用不 `setId`。**禁止** BFF 生成业务主键。JPA / jOOQ 以替换后的持久化 Rule 文首为准，文首未写明主键则阻断。
 
 **AC 影响层含 BFF + domain**：端到端验收；guard 落 BFF、算法落 domain，**禁止**两层各建同名工具类。见 [bff-domain-boundary-guide.md](./bff-domain-boundary-guide.md)。
 
@@ -55,12 +55,12 @@
 | 后缀 | 含义 | 典型方法 |
 |------|------|----------|
 | `{Entity}QueryService` | **无副作用**读（含只读推荐/统计） | `getActive{Entity}`、`queryAvailable`、`findBestCandidate` |
-| `{Entity}CommandService` | **改库**写（INSERT、条件 UPDATE、软删） | `createPending{Entity}`、`lockResource`、`softDelete{Entity}` |
+| `{Entity}CommandService` | **改库**写（INSERT、条件 UPDATE、以及「项目实现」删除分支） | `createPending{Entity}`、`lockResource`、`softDelete{Entity}` 或状态作废方法 |
 
 **决策树**（详设 §8 命名须与此一致）：
 
 ```text
-该方法是否会改库（INSERT / UPDATE / 软删）？
+该方法是否会改库（INSERT / UPDATE / 「项目实现」规定的删除）？
 ├─ 否 → {Entity}QueryService
 └─ 是 → {Entity}CommandService
 

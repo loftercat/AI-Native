@@ -1,6 +1,6 @@
 # Hooks：机制化强制（不依赖 AI 自觉）
 
-源项目验证过的三个 bugfix 配套 Hook。**理念**：质量约束写在 Rule/Skill 里靠 AI 自觉遵守，Hook 在工具层强制——「公共代码写入必须人确认」「diff 超限提示」「漏跑测试提醒」。全部 fail-open（依赖缺失时放行，不阻断开发）。
+源项目验证过的三个 bugfix 配套 Hook。**理念**：质量约束写在 Rule/Skill 里靠 AI 自觉遵守，Hook 在工具层强制——「公共代码写入必须人确认」「diff 超限提示」「漏跑测试提醒」。全部 fail-open（依赖缺失时放行，不阻断开发）。`bugfix-protect-common.sh` 与 `bugfix-test-reminder.sh` 优先用 `jq` 解析输入，没有 `jq` 时用 `python` 或 `python3`；都没有才放行。
 
 | Hook | 触发时机 | 作用 | 强度 |
 |------|----------|------|------|

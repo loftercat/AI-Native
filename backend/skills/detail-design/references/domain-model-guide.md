@@ -147,7 +147,7 @@ public boolean canTransitToConfirmed(String externalBizNo) {
 ### 域 Service 命名（与 code-skeleton-guide §3.1 一致）
 
 - **`{Entity}QueryService`**：只读（SELECT、统计、**只读推荐**如 `findBestCandidate`）
-- **`{Entity}CommandService`**：写库（INSERT、条件 UPDATE、软删）；动作在**方法名**（`lockResource`、`createPending{Entity}`）
+- **`{Entity}CommandService`**：写库（INSERT、条件 UPDATE，以及「项目实现」删除分支规定的删除）；动作在**方法名**（`lockResource`、`createPending{Entity}`）
 - **禁止** `{动作}Service`（如 `ResourceLockService`、`CandidateAllocateService`）— 易与 `{Entity}Facade` 职责混淆
 
 | 概念（§4） | 常见代码落点（§8） |
@@ -208,8 +208,8 @@ public boolean canTransitToConfirmed(String externalBizNo) {
 - §6 schema 定义表字段，引用 §4 概念名  
 - `docs/schema/{服务标识}/schema.md`：**字段说明表 + `CREATE TABLE`/`ALTER TABLE` DDL**（见 [schema-conventions.md](./schema-conventions.md) §1.2 标准列）  
 - §6.2 定义 `{Entity}Mapper` 方法 + XML `id`；主键查询可用 MyBatis Plus，其余 SQL 仅 XML  
-- **写操作主键**：按画像 §5.4 P-3 主键策略执行（示例：`{IdGenerator}.nextId()` 在 Service 编排层生成，再 `INSERT`，禁止库端自增）  
-- **软删除**：业务删用条件 `UPDATE deleted=1`；条件查询默认 `deleted=0`；条件状态 `UPDATE` 亦须带 `deleted=0`（若适用）  
+- **写操作主键**：按 [schema-conventions.md](./schema-conventions.md) §1.2 的执行口径。应用侧分支在 Service 编排层 `{IdGenerator}.nextId()` 后 `INSERT`，DDL 无自增；自增分支由数据库生成 id，应用不 `setId`
+- **删除**：只执行 §1.2 选定的一支。软删支用条件 `UPDATE deleted=1`，条件查询与状态 `UPDATE` 默认 `deleted=0`；状态作废支不建 `deleted` 列，删除改为状态更新，查询与状态 `UPDATE` 不带 `deleted=0`  
 - 状态枚举（如 `{Entity}Status`）须在 §4.3.1 与 schema §2、BR 对齐  
 
 ## 词表
