@@ -77,15 +77,14 @@ lib/features/{feature}/presentation/widgets/      模块内 UI 组件
 lib/features/{feature}/presentation/view_models/  ViewModel 和页面状态
 lib/features/{feature}/presentation/utils/        模块内展示工具
 lib/features/{feature}/data/           数据 Bean 及配套文件
-lib/features/{feature}/request/        Repository、Service 和业务请求辅助代码
-lib/core/network/api.dart              统一网络接口
-lib/core/network/                      HTTP 客户端配置、鉴权、错误转换
+lib/features/{feature}/request/        Repository、Service、业务接口及请求辅助代码
+lib/core/network/                      HTTP 客户端配置、鉴权、日志、错误转换
 lib/utils/                             跨模块工具
 android/、ios/                         本卡涉及的原生适配
 test/、integration_test/               单元、Widget、集成用例
 ```
 
-View 绑定 ViewModel 状态并转发事件，Repository 协调数据源。网络接口集中定义在 `api.dart`，Service 直接调用。按[请求层规则](../../rules/api-client-conventions.md#接口定义与中文注释)逐项核对接口参数、响应和 Bean 字段的中文注释。按[状态与事件规则](../../rules/state-storage-events.md)实现共享、存储与订阅。视觉实现引用 Story 登记的稿件与 DD 中的组件映射。
+View 绑定 ViewModel 状态并转发事件，Repository 协调数据源。各业务 Service 定义和实现本模块的网络接口，直接使用注入的统一 HTTP 客户端。按[请求层规则](../../rules/api-client-conventions.md#接口定义与中文注释)逐项核对接口参数、响应和 Bean 字段的中文注释。按[状态与事件规则](../../rules/state-storage-events.md)实现共享、存储与订阅。视觉实现引用 Story 登记的稿件与 DD 中的组件映射。
 
 涉及图片或静态文案时，按[设计交付规则](../../rules/ui-design.md)从 DD 对应的 Figma 节点导出所需素材，登记资源并通过逻辑路径加载；页面使用全局文案键。验证时运行文案生成并检查目标页面，对宿主资源检查对应平台构建。
 

@@ -6,19 +6,19 @@
 
 从 [handoff](../docs/handoff/README.md) 的 OpenAPI + VERSION 确定 operationId、方法、路径、字段、分页、空值、时间单位及错误语义。仅调用本卡列出的公开服务。示例里的业务成功码仅适用于该契约。
 
-Widget → ViewModel → Repository → Service → `lib/core/network/api.dart` → HTTP 客户端。每个信任域使用独立配置。统一 HTTPS、超时、请求关联 ID、取消和错误转换；业务 Token 仅向允许的主机发送，重定向也需校验目的地。生产构建验证证书。
+Widget → ViewModel → Repository → 业务 Service → 统一 HTTP 客户端。每个信任域使用独立配置。统一 HTTPS、超时、请求关联 ID、取消和错误转换；业务 Token 仅向允许的主机发送，重定向也需校验目的地。生产构建验证证书。
 
 ### 接口定义与中文注释
 
-应用使用的网络接口统一维护在 `lib/core/network/api.dart`。每个请求方法对应 handoff 中的一个 `operationId`，集中定义 HTTP 方法、路径、参数绑定和请求配置。业务 Service 直接调用这里的方法，按业务需要处理数据和结果。
+业务网络接口按模块在 `lib/features/{feature}/request/*_service.dart` 定义和实现。Service 直接使用注入的统一 HTTP 客户端，在各自的请求方法中维护与 handoff `operationId` 对应的 HTTP 方法、路径、参数绑定和接口专属请求配置。应用入口装配 HTTP 客户端；`lib/core/network/` 负责客户端配置、日志、鉴权等跨模块请求策略。接口总览沿用 handoff 的 OpenAPI 和 operationId 索引。
 
 为每个接口方法用 Dart 文档注释记录用途、`operationId`、HTTP 方法、路径、每个请求参数及响应含义。逐项核对当前 handoff 的路径、查询、请求头、请求体和响应 schema。接口参数及请求、响应 Bean 字段都须带对应的中文注释，保留契约描述中的必填性、空值、单位、格式、枚举等有定义的语义。字段缺少独立描述时，按 schema 和已说明的接口语义补注释，待确认的业务含义向上游核实。
 
 ### 骨架示例
 
 ```text
-ViewModel → Repository → Service → api.dart（operationId、方法、路径、参数）
-                                 → 统一客户端（baseUrl、认证、超时、取消）
+ViewModel → Repository → 业务 Service（operationId、方法、路径、参数）
+                         → 统一客户端（baseUrl、认证、超时、日志）
 ```
 
 ## 2. OpenAPI Client（可选）
@@ -29,7 +29,7 @@ ViewModel → Repository → Service → api.dart（operationId、方法、路�
 
 ### 封装
 
-采用生成客户端时，由 `api.dart` 统一封装生成的接口方法，Service 调用该入口，Repository 接收类型化数据。Bean 字段的中文注释随契约更新，生成模型的注释维护方式见[工程规范](flutter-project.md#中文业务注释写法)。
+采用生成客户端时，由各业务 Service 调用本模块对应的生成方法，Repository 接收类型化数据。Bean 字段的中文注释随契约更新，生成模型的注释维护方式见[工程规范](flutter-project.md#中文业务注释写法)。
 
 ## 3. 鉴权流程
 

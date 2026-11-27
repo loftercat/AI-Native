@@ -460,8 +460,7 @@ Story：@docs/requirements/2026-S01/STORY-Flutter-2026-S01-002-active-booking-ho
 | 跨模块工具 | `lib/utils/{name}.dart` |
 | 数据 Bean | `lib/features/{feature}/data/{name}_bean.dart` |
 | Repository | `lib/features/{feature}/request/{name}_repository.dart` |
-| Service | `lib/features/{feature}/request/{name}_service.dart` |
-| 网络接口 | `lib/core/network/api.dart` |
+| Service 与业务网络接口 | `lib/features/{feature}/request/{name}_service.dart` |
 | HTTP 客户端配置 | `lib/core/network/` |
 | 单测 | `test/{feature}/{name}_test.dart` |
 

@@ -42,7 +42,7 @@ lib/
         orders_service.dart
     dispatch/                   调度任务与分派
   core/network/                 多个模块共用的请求层
-    api.dart                    统一定义网络接口
+    api_client.dart             HTTP 客户端创建与配置
   common_widgets/               多个业务模块共用的 UI 组件
   utils/                        多个业务模块共用的工具
 test/features/orders/           订单模块的单元与 Widget 测试
