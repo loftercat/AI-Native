@@ -59,7 +59,7 @@ description: >-
 
 - 确认本卡 `operationId` 范围（来自 Story §本卡 API 范围）
 - 对网络 AC 核对 Story、DD、快照与 `docs/handoff/VERSION` 一致；交接包索引缺失、版本缺失、为空、`TBD` 或所需 operationId 缺失时阻断相关实现，回上游补齐。纯本地/仅原生且无后端调用的卡沿用 `N/A`。
-- 对网络 AC 读 OpenAPI schema / examples，确认字段名、错误码
+- 对网络 AC 读 OpenAPI schema / examples，确认字段名、错误码及请求参数和响应字段的中文描述
 - 核对 DTO 和项目的 HTTP 客户端。纯本地 AC 核对数据与交互约定；涉及原生能力时核对两个目标平台的[桥接契约](../../rules/platform-bridge.md)。
 
 ### 步骤 3：TDD（先测试）
@@ -78,13 +78,14 @@ lib/features/{feature}/presentation/view_models/  ViewModel 和页面状态
 lib/features/{feature}/presentation/utils/        模块内展示工具
 lib/features/{feature}/data/           数据 Bean 及配套文件
 lib/features/{feature}/request/        Repository、Service 和业务请求辅助代码
-lib/core/network/                      HTTP、鉴权、错误转换
+lib/core/network/api.dart              统一网络接口
+lib/core/network/                      HTTP 客户端配置、鉴权、错误转换
 lib/utils/                             跨模块工具
 android/、ios/                         本卡涉及的原生适配
 test/、integration_test/               单元、Widget、集成用例
 ```
 
-View 绑定 ViewModel 状态并转发事件，Repository 协调数据源。按[状态与事件规则](../../rules/state-storage-events.md)实现共享、存储与订阅。视觉实现引用 Story 登记的稿件与 DD 中的组件映射。
+View 绑定 ViewModel 状态并转发事件，Repository 协调数据源。网络接口集中定义在 `api.dart`，Service 直接调用。按[请求层规则](../../rules/api-client-conventions.md#接口定义与中文注释)逐项核对接口参数、响应和 Bean 字段的中文注释。按[状态与事件规则](../../rules/state-storage-events.md)实现共享、存储与订阅。视觉实现引用 Story 登记的稿件与 DD 中的组件映射。
 
 涉及图片或静态文案时，按[设计交付规则](../../rules/ui-design.md)从 DD 对应的 Figma 节点导出所需素材，登记资源并通过逻辑路径加载；页面使用全局文案键。验证时运行文案生成并检查目标页面，对宿主资源检查对应平台构建。
 

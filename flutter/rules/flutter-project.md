@@ -41,7 +41,8 @@ lib/
         orders_repository.dart
         orders_service.dart
     dispatch/                   调度任务与分派
-  core/network/                 多个模块共用的 HTTP 客户端
+  core/network/                 多个模块共用的请求层
+    api.dart                    统一定义网络接口
   common_widgets/               多个业务模块共用的 UI 组件
   utils/                        多个业务模块共用的工具
 test/features/orders/           订单模块的单元与 Widget 测试
@@ -96,7 +97,7 @@ Dart 文件用 lower_snake_case，类型用 UpperCamelCase。页面、Widget 和
 
 开发时结合 Story、详设和后端接口文档编写中文说明。优先解释读代码难以判断的业务含义，例如组件回调何时触发、工具函数按哪个时区换算、两个相似的费用字段分别用于哪里。Dart 声明旁可使用 `///`。
 
-接口、请求和响应字段以当前 handoff 版本的 OpenAPI 描述、枚举和约束为依据，业务用词参考领域词表。单位、空值或状态含义未定义时只描述已知事实。生成模型的说明宜放在可维护的源模型或适配层，方便随契约更新。
+请求与响应 Bean 的字段逐项对齐当前 handoff 版本的 OpenAPI，并按[请求层规则](api-client-conventions.md#接口定义与中文注释)编写中文注释。业务用词参考领域词表。生成模型的字段注释通过契约描述、生成配置或模板保留，随契约重新生成。
 
 以下为预约样例中的响应模型片段，字段含义与后端契约一起维护。
 
