@@ -10,7 +10,7 @@
 | 项目架构（固定） | 按业务模块组织的 MVVM（Model–View–ViewModel） | 职责划分和业务 ViewModel 命名见[Flutter 工程规则](../rules/flutter-project.md)。 |
 | 业务模块与分包 | 默认在同一 App 的 `lib/features/{feature}/` 下按业务建目录，例如登录用 `login`，支付用 `pay` | 每个模块就近维护自己的页面、ViewModel 和数据层。跨应用复用时可提取独立 Dart/Flutter package。目录示例和跨模块调用见[工程规则 §4](../rules/flutter-project.md#4-目录归属)，项目实际模块登记在[画像 §3.2](../architecture/system-landscape.md#32-目录结构)。 |
 | 网络请求 | Dio（`dio: 5.11.1`） | 按信任域配置客户端，统一超时、鉴权、取消、错误转换。 |
-| 应用日志 | [Talker](https://pub.dev/packages/talker_flutter)（`talker_flutter: 5.2.0`），测试包网络日志使用 `talker_dio_logger: 5.2.0` | 在应用入口创建共享实例，供请求层、推送和 SDK 适配层记录事件。按[分环境日志规则](../rules/testing-release.md#分环境日志)输出日志：测试包全量打印原文并提供 TalkerScreen，正式包只记录关键事件。阿里云远程日志 SDK 为后续接入项。 |
+| 应用日志 | [Talker](https://pub.dev/packages/talker_flutter)（`talker_flutter: 5.2.0`），Debug 网络日志使用 `talker_dio_logger: 5.2.0` | 在应用入口创建共享实例，供请求层、推送和 SDK 适配层记录事件。按[分环境日志规则](../rules/testing-release.md#分环境日志)配置 Talker，Debug 打印完整网络日志并提供 TalkerScreen，Profile 和 Release 关闭网络明细和入口。 网络及 SDK 的标签按[日志 Tag 规则](../rules/testing-release.md#日志-tag)设置。阿里云远程日志 SDK 为后续接入项。 |
 | 状态共享（固定） | [GetX](https://pub.dev/packages/get)（`get: 4.7.3`） | ViewModel 以 Rx 暴露共享状态，Widget 用 `Obx` 订阅。页面和会话状态按生命周期提供，切换账号时隔离状态。 |
 | 页面局部状态 | setState、ValueNotifier | 展开、显隐和输入交互由 Widget 就近管理。创建 ValueNotifier 的对象负责释放它。 |
 | 图片资源 | AI 从 Figma 节点导出，业务位图默认保留一份最高有效倍率，统一放在 `assets/image/` | 导入与命名按[图片导出规则](../rules/ui-design.md#figma-图片导出)。桌面图标和启动图按[宿主原生图片](../rules/ui-design.md#宿主原生图片)配置。 |

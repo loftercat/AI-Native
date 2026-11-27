@@ -41,7 +41,7 @@ ViewModel → Repository → Service → api.dart（operationId、方法、路�
 
 ## 5. 多环境
 
-Android flavor 与 iOS scheme 选择画像中对应的服务端环境。在构建时校验目标域名、签名和应用标识。敏感凭据存入安全存储。
+通过 `AppConfig` 获取当前 flavor 的服务地址，客户端静态配置、HTTPS、签名和日志开关遵循[打包配置](testing-release.md#打包配置)。用户会话等运行时凭据按项目的安全存储方案处理。
 
 ## 6. 反模式
 
