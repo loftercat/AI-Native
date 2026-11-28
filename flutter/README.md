@@ -40,7 +40,7 @@ Epic/PRD/原型 + 适用的后端 OpenAPI handoff（docs/handoff/）
 | `config/tech-stack.md` | 生成新项目画像时采用的默认技术栈 |
 | `scripts/validate-skills.sh` | 客户端资产完整性校验 |
 
-接入后，项目技术选型见[项目画像 §3.1](architecture/system-landscape.md#31-技术栈)。编写组件、工具和接口时，可参考[中文业务注释写法](rules/flutter-project.md)。
+接入后，项目技术选型见[项目画像 §3.1](architecture/system-landscape.md#31-技术栈)。页面、Widget、工具、ViewModel 和接口均按[中文业务注释写法](rules/flutter-project.md#中文业务注释写法)编写和验收。
 
 ## 接入项目
 

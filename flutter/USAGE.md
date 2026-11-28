@@ -286,7 +286,7 @@ Story：@docs/requirements/2026-S01/STORY-Flutter-2026-S01-007-payment-countdown
 1. 加载 STORY-Flutter + DD-Flutter + OpenAPI + Rule；按 Story「设计稿」节对照稿件（`UI: TBD` 项向用户要稿，不猜样式）
 2. 契约对齐：确认本卡 operationId，读 schema/examples
 3. TDD：先写 ViewModel/Repository 单测和 Widget 测试，再实现对应行为
-4. 实现：Widget 将事件交给 ViewModel，由 ViewModel 经 Repository 访问业务数据。结合业务和后端契约，为含义容易误解的组件、工具或字段写中文说明。
+4. 实现：Widget 将事件交给 ViewModel，由 ViewModel 经 Repository 访问业务数据。按工程规则「中文业务注释写法」标明页面与组件对应的 UI、工具的输入输出、ViewModel 各字段的用途，并核对接口与 Bean 的契约注释。
 5. 性能自检：局部重建、dispose 与前台恢复
 6. 验证：格式检查、flutter analyze、flutter test 通过 + 本卡设备验证 + AC 逐条对照
 7. 代码审查：按 rules/code-review.md 审 diff + STORY-Flutter/DD-Flutter/OpenAPI（含设计稿还原）；报告 docs/reviews/{迭代}/REVIEW-CODE-Flutter-*；L0 跳过并说明

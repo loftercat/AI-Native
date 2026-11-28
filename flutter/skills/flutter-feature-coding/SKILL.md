@@ -88,7 +88,7 @@ View 绑定 ViewModel 状态并转发事件，Repository 协调数据源。各�
 
 涉及图片或静态文案时，按[设计交付规则](../../rules/ui-design.md)从 DD 对应的 Figma 节点导出所需素材，登记资源并通过逻辑路径加载；页面使用全局文案键。验证时运行文案生成并检查目标页面，对宿主资源检查对应平台构建。
 
-实现 UI 组件、工具、接口和模型时，结合业务场景及后端文档为难以从命名判断的行为和字段补充中文说明。示例见[工程规范](../../rules/flutter-project.md)。
+按[中文业务注释写法](../../rules/flutter-project.md#中文业务注释写法)为页面、Widget、工具函数、ViewModel 及状态字段编写中文文档注释。页面与组件的注释使用 Story 或 DD 中可定位的页面名和区域名。
 
 ### 步骤 5：性能自检（`rules/flutter-performance.md`）
 
@@ -115,6 +115,7 @@ View 绑定 ViewModel 状态并转发事件，Repository 协调数据源。各�
 - Story 范围 AC 全绿
 - 未引入非本卡 `operationId`
 - 未发明 API 字段
+- 对照本次变更逐项核对中文注释，确认 UI 归属、工具输入输出、ViewModel 字段含义与实现一致
 - 页面和会话持有的资源已释放
 - diff 小，未改非本 Story 文件
 - 代码审查报告存在且结论通过（`REVIEW-CODE-Flutter-*`；L0 除外，需说明跳过原因）
